@@ -1,0 +1,15 @@
+const express = require('express');
+const router = express.Router();
+const {
+  getLeaderboard,
+  getSummary,
+  getConstituencyDetail,
+} = require('../controllers/constituencyIntelligenceController');
+const { protect } = require('../middleware/authMiddleware');
+
+// Constituency War Room — party-strategist intelligence across AP seats.
+router.get('/leaderboard', protect, getLeaderboard);
+router.get('/summary', protect, getSummary);
+router.get('/:constituency', protect, getConstituencyDetail);
+
+module.exports = router;

@@ -1,0 +1,167 @@
+[
+  {
+    "_id": "69ad721f244b91f8eadb11c3",
+    "keyword": "AAPPunjab",
+    "category": "violence",
+    "language": "en",
+    "is_active": true,
+    "weight": 50,
+    "id": "0f943553-089e-4df4-b8fa-f710bfc6b15b",
+    "created_at": "2026-03-08T12:57:03.700Z",
+    "__v": 0
+  },
+  {
+    "_id": "69ad724c244b91f8eadb11d2",
+    "keyword": "@BhagwantMann",
+    "category": "violence",
+    "language": "en",
+    "is_active": true,
+    "weight": 50,
+    "id": "d431674f-48b8-4c5b-9818-5f4cbf35f8cb",
+    "created_at": "2026-03-08T12:57:48.916Z",
+    "__v": 0
+  },
+  {
+    "_id": "69ad725a244b91f8eadb11db",
+    "keyword": "@AAPPunjab",
+    "category": "violence",
+    "language": "en",
+    "is_active": true,
+    "weight": 50,
+    "id": "076a73dc-f9c6-4553-89a5-cbe4a18df3c1",
+    "created_at": "2026-03-08T12:58:02.583Z",
+    "__v": 0
+  },
+  {
+    "_id": "69ad7270244b91f8eadb11f6",
+    "keyword": "Chief Minister of Punjab",
+    "category": "violence",
+    "language": "en",
+    "is_active": true,
+    "weight": 50,
+    "id": "1ed6d461-a943-445a-b444-f47926fe0eed",
+    "created_at": "2026-03-08T12:58:24.365Z",
+    "__v": 0
+  },
+  {
+    "_id": "69ad7277244b91f8eadb121c",
+    "keyword": "punjab",
+    "category": "violence",
+    "language": "en",
+    "is_active": true,
+    "weight": 50,
+    "id": "cc4bb5a9-0d6b-42f9-9756-dd8d5d2f4f86",
+    "created_at": "2026-03-08T12:58:31.210Z",
+    "__v": 0
+  },
+  {
+    "_id": "69ad72a7244b91f8eadb1267",
+    "keyword": "@HarpalCheemaMLA",
+    "category": "violence",
+    "language": "en",
+    "is_active": true,
+    "weight": 50,
+    "id": "b00fe63c-c414-4d6b-8b50-ce4619b9252e",
+    "created_at": "2026-03-08T12:59:19.273Z",
+    "__v": 0
+  },
+  {
+    "_id": "69ad72c7244b91f8eadb12ca",
+    "keyword": "@AamAadmiParty",
+    "category": "violence",
+    "language": "en",
+    "is_active": true,
+    "weight": 50,
+    "id": "7e569d10-8f10-48d8-9d0e-d1f9c4fc40f2",
+    "created_at": "2026-03-08T12:59:51.220Z",
+    "__v": 0
+  },
+  {
+    "_id": "69ad732a244b91f8eadb139c",
+    "keyword": "#1000Gift4PunjabWomen",
+    "category": "violence",
+    "language": "en",
+    "is_active": true,
+    "weight": 50,
+    "id": "48055f2f-b305-483a-ae52-772ef1ecd1fc",
+    "created_at": "2026-03-08T13:01:30.401Z",
+    "__v": 0
+  },
+  {
+    "_id": "69afda5d58e091c2270954a2",
+    "keyword": "#sangrur",
+    "category": "violence",
+    "language": "en",
+    "is_active": true,
+    "weight": 50,
+    "id": "50260202-54ac-452e-83e8-ac8cc777be4a",
+    "created_at": "2026-03-10T08:46:21.758Z",
+    "__v": 0
+  },
+  {
+    "_id": "69afda6d58e091c2270954ac",
+    "keyword": "#Sangrur",
+    "category": "violence",
+    "language": "en",
+    "is_active": true,
+    "weight": 50,
+    "id": "df503af4-5a02-452b-bf1f-f37ef151a727",
+    "created_at": "2026-03-10T08:46:37.943Z",
+    "__v": 0
+  },
+  {
+    "_id": "69b2b97624d691e004a97ba8",
+    "keyword": "#Barnala",
+    "category": "violence",
+    "language": "en",
+    "is_active": true,
+    "weight": 50,
+    "id": "c6af86d3-fc17-4df7-a949-e9ea13235eea",
+    "created_at": "2026-03-12T13:02:46.855Z",
+    "__v": 0
+  },
+  {
+    "_id": "69b2b99024d691e004a97d5e",
+    "keyword": "Sunam",
+    "category": "violence",
+    "language": "en",
+    "is_active": true,
+    "weight": 50,
+    "id": "8da3fe42-626a-4728-8101-2aeadd76e3ee",
+    "created_at": "2026-03-12T13:03:12.046Z",
+    "__v": 0
+  },
+  {
+    "_id": "69b2b99424d691e004a97d72",
+    "keyword": "Dirba",
+    "category": "violence",
+    "language": "en",
+    "is_active": true,
+    "weight": 50,
+    "id": "b4a47ee9-6cf7-428d-a4b5-5114f2b5e6c1",
+    "created_at": "2026-03-12T13:03:16.421Z",
+    "__v": 0
+  },
+  {
+    "_id": "69b2b9b324d691e004a97fe3",
+    "keyword": "Lehra",
+    "category": "violence",
+    "language": "en",
+    "is_active": true,
+    "weight": 50,
+    "id": "dc209308-7d13-4dd5-84df-60d6f9139ba0",
+    "created_at": "2026-03-12T13:03:47.460Z",
+    "__v": 0
+  },
+  {
+    "_id": "69b2b9d124d691e004a98476",
+    "keyword": "MalerKotla",
+    "category": "violence",
+    "language": "en",
+    "is_active": true,
+    "weight": 50,
+    "id": "bbdb9c80-47c3-43aa-a3bf-2a16252a1bf7",
+    "created_at": "2026-03-12T13:04:17.339Z",
+    "__v": 0
+  }
+]

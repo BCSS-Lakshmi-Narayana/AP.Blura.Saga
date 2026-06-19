@@ -1,0 +1,227 @@
+{
+  "srikakulam": [
+    "AMADALAVALASA",
+    "ICHCHAPURAM",
+    "NARASANNAPETA",
+    "PALASA",
+    "PATHAPATNAM",
+    "SRIKAKULAM",
+    "TEKKALI"
+  ],
+  "vizianagaram": [
+    "BOBBILI",
+    "CHEPURUPALLE",
+    "ETCHERLA",
+    "GAJAPATHINAGARAM",
+    "NELLIMARLA",
+    "RAJAM",
+    "VIZIANAGARM"
+  ],
+  "araku": [
+    "ARAKU VALLEY",
+    "KURUPAM",
+    "PADERU",
+    "PALAKONDA",
+    "PARVATHIPURAM",
+    "RAMPACHODAVARAM",
+    "SALUR"
+  ],
+  "visakhapatnam": [
+    "BHIMILI",
+    "GAJUWAKA",
+    "SRUNGAVARAPUKOTA",
+    "VISHAKAPATNAM EAST",
+    "VISHAKAPATNAM NORTH",
+    "VISHAKAPATNAM SOUTH",
+    "Visakhapatnam West"
+  ],
+  "anakapalli": [
+    "ANAKAPALLE",
+    "CHODAVARAM",
+    "Elamanchili",
+    "MADUGULA",
+    "NARSIPATNAM",
+    "PAYAKARAOPET",
+    "PENDURTHI"
+  ],
+  "kakinada": [
+    "JAGGAMPETA",
+    "KAKINADA CITY",
+    "KAKINADA RURAL",
+    "PEDDAPURAM",
+    "PITHAPURAM",
+    "PRATHIPADU",
+    "TUNI"
+  ],
+  "rajahmundry": [
+    "ANAPARTHY",
+    "GOPALAPURAM",
+    "Kovvur",
+    "NIDADAVOLE",
+    "RAJAHMUNDRY CITY",
+    "RAJAHMUNDRY RURAL",
+    "RAJANAGARAM"
+  ],
+  "amalapuram": [
+    "AMALAPURAM",
+    "GANNAVARAM",
+    "KOTHAPETA",
+    "MANDAPETA",
+    "MUMMIDIVARAM",
+    "RAZOLE",
+    "Ramachandrapuram"
+  ],
+  "narasapuram": [
+    "ACHANTA",
+    "BHIMAVARAM",
+    "Narasapuram",
+    "Palakollu",
+    "TADEPALLIGUDEM",
+    "TANUKU",
+    "UNDI"
+  ],
+  "eluru": [
+    "CHINTALAPUDI",
+    "DENDULURU",
+    "ELURU",
+    "KAIKALUR",
+    "NUZVID",
+    "POLAVARAM",
+    "Unguturu"
+  ],
+  "vijayawada": [
+    "JAGGAYYAPETA",
+    "MYLAVARAM",
+    "NANDIGAMA",
+    "TIRUVURU",
+    "VIJAYAWADA CENTRAL",
+    "VIJAYAWADA EAST",
+    "VIJAYAWADA WEST"
+  ],
+  "machilipatnam": [
+    "AVANIGADDA",
+    "GANNAVARAM",
+    "GUDIVADA",
+    "MACHILIPATNAM",
+    "PAMARRU",
+    "PEDANA",
+    "PENAMALURU"
+  ],
+  "narasaraopet": [
+    "CHILAKALURIPET",
+    "GURAJALA",
+    "MACHERLA",
+    "NARASARAOPET",
+    "PEDAKURAPADU",
+    "SATTENAPALLE",
+    "VINUKONDA"
+  ],
+  "guntur": [
+    "GUNTUR EAST",
+    "GUNTUR WEST",
+    "MANGALAGIRI",
+    "PRATHIPADU",
+    "Ponnuru",
+    "TADIKONDA",
+    "TENALI"
+  ],
+  "bapatla": [
+    "ADDANKI",
+    "BAPATLA",
+    "CHIRALA",
+    "PARCHUR",
+    "REPALLE",
+    "Santhanuthalapadu",
+    "VEMURU"
+  ],
+  "ongole": [
+    "DARSI",
+    "GIDDALUR",
+    "KANIGIRI",
+    "KONDAPI",
+    "MARKAPURAM",
+    "ONGOLE",
+    "YERRAGONDAPALEM"
+  ],
+  "nellore": [
+    "ATMAKUR",
+    "KANDUKUR",
+    "KAVALI",
+    "KOVURU",
+    "NELLORE CITY",
+    "NELLORE RURAL",
+    "UDAYAGIRI"
+  ],
+  "tirupati": [
+    "GUDUR",
+    "SARVEPALLI",
+    "SRIKALAHASTI",
+    "Sathyavedu",
+    "Sullurpeta",
+    "TIRUPATI",
+    "VENKATAGIRI"
+  ],
+  "kadapa": [
+    "BADVEL",
+    "JAMMALAMADUGU",
+    "KADAPA",
+    "KAMALAPURAM",
+    "MYDUKUR",
+    "PRODDATUR",
+    "PULIVENDLA"
+  ],
+  "rajampet": [
+    "KODUR",
+    "MADANAPALLE",
+    "PILERU",
+    "PUNGANUR",
+    "RAJAMPET",
+    "RAYACHOTI",
+    "Thamballapalle"
+  ],
+  "nandyal": [
+    "ALLAGADDA",
+    "BANAGANAPALLE",
+    "DHONE",
+    "NANDIKOTKUR",
+    "NANDYAL",
+    "PANYAM",
+    "SRISAILAM"
+  ],
+  "kurnool": [
+    "ADONI",
+    "ALUR",
+    "KURNOOL",
+    "Kodumur",
+    "MANTRALAYAM",
+    "PATTIKONDA",
+    "YEMMIGANUR"
+  ],
+  "anantapur": [
+    "ANANTAPUR URBAN",
+    "GUNTAKAL",
+    "KALYANDURG",
+    "RAYADURG",
+    "SINGANAMALA",
+    "TADIPATRI",
+    "URAVAKONDA"
+  ],
+  "hindupur": [
+    "DHARMAVARAM",
+    "HINDUPUR",
+    "Kadiri",
+    "MADAKASIRA",
+    "PENUKONDA",
+    "PUTTAPARTHI",
+    "RAPTADU"
+  ],
+  "chittoor": [
+    "CHANDRAGIRI",
+    "Chittoor",
+    "Gangadhara Nellore",
+    "KUPPAM",
+    "NAGARI",
+    "PALAMANER",
+    "PUTHALAPATTU"
+  ]
+}
