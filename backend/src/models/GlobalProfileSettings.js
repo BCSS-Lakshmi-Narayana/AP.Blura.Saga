@@ -29,9 +29,14 @@ const globalProfileSettingsSchema = new mongoose.Schema({
 
     // Pipeline-wide kill-switches (super-admin only).
     flags: {
-        use_llm_classifier:   { type: Boolean, default: true },  // RapidAPI location classifier
-        use_llm_categoriser:  { type: Boolean, default: true },  // RapidAPI category/sentiment
+        use_llm_classifier:   { type: Boolean, default: true },  // location classifier
+        use_llm_categoriser:  { type: Boolean, default: true },  // category/sentiment
         use_political_sentiment: { type: Boolean, default: true },
+        // LLM provider strategy used by llmProvider.js:
+        //   'auto'     — try Ollama first, fall back to RapidAPI on error
+        //   'ollama'   — Ollama only
+        //   'rapidapi' — RapidAPI only
+        llm_provider: { type: String, enum: ['auto', 'ollama', 'rapidapi'], default: 'auto' },
     },
 
     notes: { type: String, default: '' },

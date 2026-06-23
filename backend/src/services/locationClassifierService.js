@@ -26,7 +26,7 @@
  * inputs and keeps quota for ambiguous text.
  */
 
-const { chatJson } = require('./rapidApiLLMService');
+const { chatJson } = require('./llmProvider');
 const AP_MLAS = require('../data/ap_mlas.json');
 const LS_TO_AC = require('../data/ls_to_ac.json');
 const masterService = require('./constituencyMasterService');

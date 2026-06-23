@@ -1,10 +1,10 @@
 const mappingService = require("./mappingService");
-const { chatJson } = require("./rapidApiLLMService");
+const { chatJson } = require("./llmProvider");
 
 /**
- * Categorization (V6) — single-provider via RapidAPI ChatGPT-42.
- * Ollama and GitHub Models have been retired in favour of one
- * managed HTTP endpoint so the pipeline has zero local dependencies.
+ * Categorization (V7) — routed through llmProvider.
+ * Default provider is Ollama (qwen2.5:7b) with RapidAPI as fallback.
+ * Controlled by GlobalProfileSettings.flags.llm_provider.
  */
 async function categorizeText(text) {
   // 1. Ensure Mapping Data is loaded (avoid empty categorization lists)
@@ -84,8 +84,8 @@ Identify the sentiment in the context of N. Chandrababu Naidu (CBN), Nara Lokesh
     * Direct criticism, complaints, or anger directed at Chandrababu Naidu, Nara Lokesh, the TDP, or NDA leaders in AP.
     * Genuine public grievances within Andhra Pradesh (electricity, water, roads, jobs, farmer issues, law & order).
     * Hate speech, communal incitement, or personal attacks against CBN / Lokesh / TDP.
-- 'neutral':
-    * Purely informational news, questions, or vague statements without clear political or emotional bias.
+- 'moderate':
+    * Purely informational news, questions, or vague/balanced statements without clear positive or negative political tone.
 
 ════════════════════════
 JOB 4: RISK ASSESSMENT
@@ -134,7 +134,7 @@ OUTPUT FORMAT (STRICT JSON ONLY):
   "reasoning": "<why this moderation category>",
   "grievance_type": "<short 2-4 word topic label>",
   "grievance_reasoning": "<1-line plain summary of what the person is complaining about>",
-  "sentiment": "positive | negative | neutral",
+  "sentiment": "positive | negative | moderate",
   "risk_level": "low | medium | high",
   "risk_score": <number 0-100 indicating severity>,
   "severity": "low | medium | high | critical",
@@ -149,7 +149,7 @@ ${text}
 `;
 
   try {
-    console.log(`[LLM] Calling RapidAPI ChatGPT-42 for categorization`);
+    console.log(`[LLM] Calling LLM (via llmProvider) for categorization`);
     const result = await chatJson({
       prompt,
       temperature: 0,
@@ -198,10 +198,11 @@ ${text}
     }
 
     // --- SENTIMENT VALIDATION ---
-    const ALLOWED_SENTIMENTS = ['positive', 'negative', 'neutral'];
-    let finalSentiment = result.sentiment || 'neutral';
+    const ALLOWED_SENTIMENTS = ['positive', 'negative', 'moderate'];
+    let finalSentiment = String(result.sentiment || 'moderate').toLowerCase();
+    if (finalSentiment === 'neutral') finalSentiment = 'moderate'; // legacy alias
     if (!ALLOWED_SENTIMENTS.includes(finalSentiment)) {
-      finalSentiment = 'neutral';
+      finalSentiment = 'moderate';
     }
 
     // --- SEVERITY VALIDATION ---
@@ -235,7 +236,7 @@ ${text}
       concerned_department: finalDept
     };
   } catch (err) {
-    console.error(`[LLM] RapidAPI categorization failed:`, err.message);
+    console.error(`[LLM] categorization failed:`, err.message);
     return null;
   }
 }

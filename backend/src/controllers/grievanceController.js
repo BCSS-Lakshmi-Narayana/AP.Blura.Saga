@@ -185,8 +185,12 @@ const buildListQuery = (params = {}, options = {}) => {
     if (posted_by_handle) {
         query['posted_by.handle'] = { $regex: new RegExp(`^@?${escapeRegex(String(posted_by_handle).replace(/^@/, '').trim())}$`, 'i') };
     }
-    if (sentiment && ['positive', 'negative', 'neutral'].includes(sentiment.toLowerCase())) {
-        query['analysis.sentiment'] = sentiment.toLowerCase();
+    if (sentiment && ['positive', 'negative', 'neutral', 'moderate'].includes(sentiment.toLowerCase())) {
+        const s = sentiment.toLowerCase();
+        // 'moderate' is the new label; transitional rows may still carry 'neutral'.
+        query['analysis.sentiment'] = (s === 'moderate' || s === 'neutral')
+            ? { $in: ['moderate', 'neutral'] }
+            : s;
     }
     if (source_id && source_id !== 'all') query.grievance_source_id = source_id;
 
@@ -2012,7 +2016,7 @@ const getMapGrievances = async (req, res) => {
                         count: { $sum: 1 },
                         positive: { $sum: { $cond: [{ $eq: ['$analysis.sentiment', 'positive'] }, 1, 0] } },
                         negative: { $sum: { $cond: [{ $eq: ['$analysis.sentiment', 'negative'] }, 1, 0] } },
-                        neutral: { $sum: { $cond: [{ $eq: ['$analysis.sentiment', 'neutral'] }, 1, 0] } },
+                        neutral: { $sum: { $cond: [{ $in: ['$analysis.sentiment', ['neutral', 'moderate']] }, 1, 0] } },
                         categories: {
                             $push: {
                                 $cond: [
@@ -2135,7 +2139,7 @@ const getMapGrievances = async (req, res) => {
                         count: { $sum: 1 },
                         positive: { $sum: { $cond: [{ $eq: ['$analysis.sentiment', 'positive'] }, 1, 0] } },
                         negative: { $sum: { $cond: [{ $eq: ['$analysis.sentiment', 'negative'] }, 1, 0] } },
-                        neutral: { $sum: { $cond: [{ $eq: ['$analysis.sentiment', 'neutral'] }, 1, 0] } },
+                        neutral: { $sum: { $cond: [{ $in: ['$analysis.sentiment', ['neutral', 'moderate']] }, 1, 0] } },
                         categories: {
                             $push: {
                                 $cond: [
@@ -2405,7 +2409,8 @@ const RISK_LEVEL_SCORE_MAP = {
     high: 75,
     critical: 92
 };
-const ALLOWED_GRIEVANCE_SENTIMENTS = ['positive', 'negative', 'neutral'];
+// 'neutral' accepted as legacy alias; 'moderate' is the canonical label.
+const ALLOWED_GRIEVANCE_SENTIMENTS = ['positive', 'negative', 'moderate', 'neutral'];
 
 const updateGrievanceRiskLevel = async (req, res) => {
     try {
@@ -2452,9 +2457,11 @@ const updateGrievanceRiskLevel = async (req, res) => {
         }
 
         if (rawSentiment) {
-            updateDoc['analysis.sentiment'] = rawSentiment;
+            // Normalize legacy 'neutral' input to canonical 'moderate' before saving.
+            const sentimentToSave = rawSentiment === 'neutral' ? 'moderate' : rawSentiment;
+            updateDoc['analysis.sentiment'] = sentimentToSave;
             if (grievance.analysis?.llm_analysis) {
-                updateDoc['analysis.llm_analysis.sentiment'] = rawSentiment;
+                updateDoc['analysis.llm_analysis.sentiment'] = sentimentToSave;
             }
         }
 

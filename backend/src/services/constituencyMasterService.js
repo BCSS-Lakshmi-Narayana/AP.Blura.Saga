@@ -37,13 +37,42 @@ let cache = null;
 let lastBuiltAt = 0;
 let buildPromise = null;
 
+// Try to read MlaProfileSettings.monitored_handles when building the person index.
+// Optional dependency — missing collection in older deployments is non-fatal.
+let MlaProfileSettings = null;
+try { MlaProfileSettings = require('../models/MlaProfileSettings'); } catch (_) { /* optional */ }
+
+const normalizePerson = (v) =>
+    String(v || '')
+        .toLowerCase()
+        .replace(/^@+/, '')
+        .replace(/[^a-z0-9ऀ-ൿ ]+/g, ' ')   // keep latin + Indic ranges + space
+        .replace(/\s+/g, ' ')
+        .trim();
+
 const buildCache = async () => {
     const rows = await ConstituencyMaster.find({ is_active: true }).lean();
+    let mlaProfiles = [];
+    if (MlaProfileSettings) {
+        try {
+            mlaProfiles = await MlaProfileSettings.find({ is_active: true })
+                .select('constituency monitored_handles').lean();
+        } catch (err) {
+            console.warn('[ConstituencyMaster] failed to load MlaProfileSettings:', err.message);
+        }
+    }
+    const handleMap = {}; // constituency_upper → [handles]
+    for (const p of mlaProfiles) {
+        const key = String(p.constituency || '').toUpperCase();
+        if (!key) continue;
+        handleMap[key] = (handleMap[key] || []).concat(p.monitored_handles || []);
+    }
 
     const acIndex = {};           // ac_key → row
     const aliasIndex = [];        // [{ token, token_lower, ac_name, source }]
     const districtIndex = {};     // district_key → [ac_name]
     const lsIndex = {};           // lok_sabha_key → [ac_name]
+    const personIndex = [];       // [{ token_lower, ac_name, matched_via, original }]
 
     const addToken = (token, ac_name, source) => {
         const lower = compactLower(token);
@@ -70,6 +99,19 @@ const buildCache = async () => {
             addToken(kw, row.ac_name, 'keyword');
         }
 
+        // Person index — politician name / handle → AC name.
+        // Used by the grievance + alert pipeline so any mention of an MLA or MP
+        // routes to THEIR constituency regardless of any other location detected.
+        const addPerson = (raw, via) => {
+            const lower = normalizePerson(raw);
+            if (!lower || lower.length < 3) return;
+            personIndex.push({ token_lower: lower, ac_name: row.ac_name, matched_via: via, original: String(raw).trim() });
+        };
+        addPerson(row.mla_name, 'mla');
+        addPerson(row.mp_name, 'mp');
+        const profileHandles = handleMap[String(row.ac_name || '').toUpperCase()] || [];
+        for (const h of profileHandles) addPerson(h, 'handle');
+
         // District + LS reverse indexes for routing fan-out.
         if (row.district_key) {
             (districtIndex[row.district_key] = districtIndex[row.district_key] || []).push(row.ac_name);
@@ -82,10 +124,12 @@ const buildCache = async () => {
     // Longest-first so multi-word tokens win over substrings
     // ('Tirumala Hills' beats 'Tirumala' beats 'Hills').
     aliasIndex.sort((a, b) => b.token_lower.length - a.token_lower.length);
+    // Same for persons: 'Nara Lokesh' must beat 'Lokesh'.
+    personIndex.sort((a, b) => b.token_lower.length - a.token_lower.length);
 
-    cache = { acIndex, aliasIndex, districtIndex, lsIndex, builtAt: Date.now(), rowCount: rows.length };
+    cache = { acIndex, aliasIndex, districtIndex, lsIndex, personIndex, builtAt: Date.now(), rowCount: rows.length };
     lastBuiltAt = Date.now();
-    console.log(`[ConstituencyMaster] cache rebuilt: ${rows.length} ACs, ${aliasIndex.length} tokens`);
+    console.log(`[ConstituencyMaster] cache rebuilt: ${rows.length} ACs, ${aliasIndex.length} tokens, ${personIndex.length} persons`);
     return cache;
 };
 
@@ -149,6 +193,36 @@ const getContextTokensForAcs = async (acNames, limit = 6) => {
         out[ac] = tokens.slice(0, limit);
     }
     return out;
+};
+
+/**
+ * Scan text for any politician name (mla_name / mp_name from ConstituencyMaster)
+ * or monitored_handle from MlaProfileSettings. Returns the first (longest) hit
+ * so the caller can route the post to THAT politician's constituency.
+ *
+ * Returns null when no person is mentioned, so the caller can fall through to
+ * the location classifier.
+ */
+const resolvePersonToConstituency = async (text) => {
+    if (!text) return null;
+    const haystack = normalizePerson(text);
+    if (!haystack) return null;
+    const c = await getCache();
+    for (const entry of c.personIndex || []) {
+        const i = haystack.indexOf(entry.token_lower);
+        if (i < 0) continue;
+        const before = haystack[i - 1];
+        const after = haystack[i + entry.token_lower.length];
+        const isBoundary = (ch) => ch === undefined || /[^a-z0-9ऀ-ൿ]/i.test(ch);
+        if (isBoundary(before) && isBoundary(after)) {
+            return {
+                ac_name: entry.ac_name,
+                matched_name: entry.original,
+                matched_via: entry.matched_via,
+            };
+        }
+    }
+    return null;
 };
 
 /* ─── routing engine ──────────────────────────────────────────────── */
@@ -249,6 +323,7 @@ const getAllAcs = async () => {
 
 module.exports = {
     matchAlias,
+    resolvePersonToConstituency,
     resolveRouting,
     getMasterRow,
     getAcsByDistrict,

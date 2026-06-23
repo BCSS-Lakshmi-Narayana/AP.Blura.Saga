@@ -31,7 +31,7 @@
  * If RapidAPI is unreachable or returns garbage we fall back to the
  * heuristic — so the pipeline keeps producing data even if the LLM is down.
  */
-const { chatJson } = require('./rapidApiLLMService');
+const { chatJson } = require('./llmProvider');
 
 const LLM_TIMEOUT = parseInt(process.env.BSK_FILTER_TIMEOUT_MS || '20000', 10);
 

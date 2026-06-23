@@ -29,6 +29,9 @@ router.put('/global-profile', protect, ctrl.updateGlobalProfile);
 // Classifier preview
 router.post('/classify-location', protect, ctrl.classifyLocationPreview);
 
+// Ollama health / smoke test
+router.post('/test-ollama', protect, ctrl.testOllama);
+
 // Intelligence dashboards (impact score, geo map, manual review queue)
 const intel = require('../controllers/intelligenceController');
 router.get ('/political-impact',                      protect, intel.politicalImpact);

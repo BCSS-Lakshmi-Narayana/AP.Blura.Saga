@@ -17,7 +17,7 @@ const { analyzeContent } = require('./analysisService');
 const { transcribeVideoUrl } = require('./videoTranscriptionService');
 const translationService = require('./translationService');
 const { classifyApLocation } = require('./locationClassifierService');
-const { resolveRouting } = require('./constituencyMasterService');
+const { resolveRouting, resolvePersonToConstituency } = require('./constituencyMasterService');
 const ManualReviewQueue = require('../models/ManualReviewQueue');
 
 // Confidence threshold for auto-assigning a classified location. Below
@@ -376,7 +376,56 @@ const extractAndSaveLocation = async (grievanceId, text, postedBy = {}, extraCon
         const userBio = postedBy.bio || postedBy.description || '';
         const hashtags = (text.match(/#\w+/g) || []).join(' ');
 
-        // ── STEP 0: AP RapidAPI classifier (highest priority for AP routing) ──
+        // ── STEP -1: Person-mention short-circuit ──
+        // If the text names an MLA, MP, or a monitored handle, route directly to
+        // THAT politician's constituency. This wins over any location mentioned
+        // in the same text — a post about Chandrababu Naidu lands at Kuppam even
+        // if it also mentions Tirupati.
+        try {
+            const handle = String(postedBy.handle || '').trim();
+            const personScan = [text, handle].filter(Boolean).join(' ');
+            const personHit = await resolvePersonToConstituency(personScan);
+            if (personHit && personHit.ac_name) {
+                let routing = null;
+                try { routing = await resolveRouting(personHit.ac_name); }
+                catch (rErr) { console.warn(`[GrievanceLocation] person-hit routing failed for ${personHit.ac_name}: ${rErr.message}`); }
+
+                finalLocation = {
+                    city:          personHit.ac_name,
+                    district:      routing?.district  || null,
+                    constituency:  personHit.ac_name,
+                    lok_sabha:     routing?.lok_sabha || null,
+                    confidence:    1.0,
+                    source:        `person_match:${personHit.matched_via}`,
+                    reasoning:     `Mentions ${personHit.matched_name}`,
+                    matched_token: personHit.matched_name,
+                    match_source:  personHit.matched_via,
+                    auto_assigned: true,
+                    manual_review_required: false,
+                };
+                const routingTargets = routing ? {
+                    ac_key:        routing.ac_key,
+                    district_key:  routing.district_key,
+                    lok_sabha_key: routing.lok_sabha_key,
+                    dashboards:    routing.dashboards,
+                    mla_user_ids:  (routing.mla_users || []).map((u) => u.id),
+                    mp_user_ids:   (routing.mp_users  || []).map((u) => u.id),
+                    siblings_in_district: routing.siblings_in_district,
+                    siblings_in_ls:       routing.siblings_in_ls,
+                    scope_keys:           routing.scope_keys,
+                } : null;
+                await Grievance.findOneAndUpdate(
+                    { id: grievanceId },
+                    { $set: { detected_location: finalLocation, ...(routingTargets ? { routing_targets: routingTargets } : {}) } }
+                );
+                console.log(`[GrievanceLocation] ${grievanceId} routed by person "${personHit.matched_name}" → ${personHit.ac_name}`);
+                return;
+            }
+        } catch (pErr) {
+            console.warn(`[GrievanceLocation] person resolver failed for ${grievanceId}: ${pErr.message}`);
+        }
+
+        // ── STEP 0: AP classifier (highest priority for AP routing) ──
         // Runs first so AP posts route directly to the right MLA/MP scope
         // without falling through to the legacy Telangana / Karimnagar code.
         try {
@@ -731,7 +780,7 @@ const analyzeGrievanceContent = async (grievanceId, text, platform) => {
         if (!analysisData) return;
 
         // Final sentiment is the BSK-relative one resolved by Stage 5.
-        const sentiment = analysisData.sentiment || analysisData.bsk_sentiment || 'neutral';
+        const sentiment = analysisData.sentiment || analysisData.bsk_sentiment || 'moderate';
 
         await Grievance.findOneAndUpdate(
             { id: grievanceId },

@@ -248,6 +248,8 @@ const updateGlobalProfile = async (req, res) => {
             { $set: update, $setOnInsert: { id: 'global' } },
             { new: true, upsert: true, setDefaultsOnInsert: true }
         );
+        // Pick up changes to flags.llm_provider on the next LLM call.
+        try { require('../services/llmProvider').invalidateProviderCache(); } catch (_) {}
         return res.json({ ok: true, profile: doc });
     } catch (err) {
         return res.status(500).json({ ok: false, error: err.message });
@@ -275,6 +277,37 @@ const classifyLocationPreview = async (req, res) => {
     }
 };
 
+/**
+ * POST /api/admin/test-ollama
+ *   Pings the configured Ollama endpoint, lists available models, then runs
+ *   a tiny chat round-trip so admins can verify provider health. Optional
+ *   body: { prompt } (defaults to a JSON probe).
+ */
+const testOllama = async (req, res) => {
+    if (!requireSuperAdmin(req, res)) return;
+    try {
+        const ollama = require('../services/ollamaLLMService');
+        const ping = await ollama.ping(8000).catch((err) => ({ ok: false, error: err.message }));
+
+        const prompt = (req.body && req.body.prompt) || 'Reply with one JSON object: {"ok": true}';
+        const t0 = Date.now();
+        let echo = null;
+        let echoError = null;
+        try {
+            echo = await ollama.chatJson({ prompt, temperature: 0, maxTokens: 50, timeoutMs: 15000 });
+        } catch (err) {
+            echoError = err.message;
+        }
+        return res.json({
+            ok: !!ping.ok && !echoError,
+            ping,
+            echo: { result: echo, latency_ms: Date.now() - t0, error: echoError },
+        });
+    } catch (err) {
+        return res.status(500).json({ ok: false, error: err.message });
+    }
+};
+
 module.exports = {
     listMlaProfiles,
     getMlaProfile,
@@ -283,4 +316,5 @@ module.exports = {
     getGlobalProfile,
     updateGlobalProfile,
     classifyLocationPreview,
+    testOllama,
 };

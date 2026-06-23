@@ -1575,7 +1575,8 @@ const getSimilarEscalatedAlerts = async (req, res) => {
 // @route   PUT /api/alerts/:id/analysis-override
 // @access  Private
 const RISK_LEVEL_SCORE_MAP = { low: 20, medium: 50, high: 75 };
-const ALLOWED_SENTIMENTS = ['positive', 'negative', 'neutral'];
+// Accept legacy 'neutral' alongside the new 'moderate' label during the transition.
+const ALLOWED_SENTIMENTS = ['positive', 'negative', 'moderate', 'neutral'];
 
 const updateAlertAnalysisOverride = async (req, res) => {
   try {

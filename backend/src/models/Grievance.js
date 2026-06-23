@@ -305,7 +305,7 @@ const grievanceSchema = new mongoose.Schema({
   },
   // AI Analysis (full pipeline results)
   analysis: {
-    sentiment: { type: String, enum: ['positive', 'negative', 'neutral'] },
+    sentiment: { type: String, enum: ['positive', 'negative', 'moderate'] },
     risk_level: { type: String, enum: ['low', 'medium', 'high', 'critical'] },
     risk_score: { type: Number, default: 0 },
     // Severity is a semantic alias of risk_level for UI / map colouring.
@@ -329,8 +329,8 @@ const grievanceSchema = new mongoose.Schema({
     video_transcript: { type: String },
     analyzed_at: { type: Date },
     // ── Target-aware political intelligence (BSK-relative) ────────
-    bsk_sentiment: { type: String, enum: ['positive', 'negative', 'neutral'] },
-    generic_sentiment: { type: String, enum: ['positive', 'negative', 'neutral'] },
+    bsk_sentiment: { type: String, enum: ['positive', 'negative', 'moderate'] },
+    generic_sentiment: { type: String, enum: ['positive', 'negative', 'moderate'] },
     target_entity: { type: String },
     target_entity_canonical: { type: String },
     bsk_relevance: { type: Number, default: 0 },

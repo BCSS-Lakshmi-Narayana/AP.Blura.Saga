@@ -200,7 +200,7 @@ const analyzeContent = async (text, options = {}) => {
         log(`Political risk elevation: anti_bsk_indirect detected → ${finalRiskLevel} (${finalRiskScore})`);
     }
 
-    const finalSentiment = political.bsk_sentiment || 'neutral';
+    const finalSentiment = political.bsk_sentiment || 'moderate';
     const currentCategory = llmResult.category;
 
     // --- RESULT CONSOLIDATION ---

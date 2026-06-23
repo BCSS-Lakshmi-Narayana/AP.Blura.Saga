@@ -42,7 +42,7 @@
  *       }
  */
 
-const { chatJson } = require('./rapidApiLLMService');
+const { chatJson } = require('./llmProvider');
 
 const LLM_TIMEOUT = parseInt(process.env.POLITICAL_SENTIMENT_TIMEOUT_MS || '60000', 10);
 
@@ -54,7 +54,10 @@ const ALLOWED_STANCES = [
     'neutral',
     'unrelated',
 ];
-const ALLOWED_GENERIC_SENTIMENTS = ['positive', 'negative', 'neutral'];
+// Sentiment labels exposed to downstream services / DB: positive | negative | moderate.
+// Note: 'stance' below (ALLOWED_STANCES) keeps its own 'neutral' value — that is a
+// political *stance*, not a sentiment label, and must not be confused with this list.
+const ALLOWED_GENERIC_SENTIMENTS = ['positive', 'negative', 'moderate'];
 const ALLOWED_TOXICITY = ['none', 'low', 'medium', 'high'];
 const ALLOWED_BENEFICIARIES = ['bsk', 'bjp', 'opposition', 'none'];
 
@@ -166,7 +169,7 @@ Guardrails:
   "attack_target":           "<entity name being attacked, or empty string>",
     "narrative_direction":     "<short label e.g. 'anti-YSRCP narrative', 'civic complaint to CBN leadership'>",
   "political_alignment":     "pro-bjp | pro-opposition | neutral | unclear",
-  "generic_sentiment":       "positive | negative | neutral",
+  "generic_sentiment":       "positive | negative | moderate",
   "toxicity_level":          "none | low | medium | high",
   "hate_speech":             true | false,
   "propaganda_probability":  0.0-1.0,
@@ -200,8 +203,9 @@ const sanitizeRaw = (raw, ctx) => {
     const get = (k, def) => (raw && raw[k] !== undefined ? raw[k] : def);
 
     const stance = ALLOWED_STANCES.includes(get('stance')) ? get('stance') : 'unrelated';
-    const generic = ALLOWED_GENERIC_SENTIMENTS.includes(get('generic_sentiment'))
-        ? get('generic_sentiment') : 'neutral';
+    let rawGeneric = String(get('generic_sentiment', 'moderate') || 'moderate').toLowerCase();
+    if (rawGeneric === 'neutral') rawGeneric = 'moderate'; // legacy LLM output alias
+    const generic = ALLOWED_GENERIC_SENTIMENTS.includes(rawGeneric) ? rawGeneric : 'moderate';
     const toxicity = ALLOWED_TOXICITY.includes(get('toxicity_level'))
         ? get('toxicity_level') : 'none';
     const beneficiary = ALLOWED_BENEFICIARIES.includes(get('beneficiary'))
@@ -246,13 +250,13 @@ const resolveBskSentiment = (verdict, ctx) => {
         case 'anti_bsk_indirect':
             return 'negative';
         case 'neutral':
-            // Civic grievance addressed TO BSK stays neutral on the BSK axis;
+            // Civic grievance addressed TO BSK is moderate on the BSK axis;
             // generic tone is captured in generic_sentiment.
-            return 'neutral';
+            return 'moderate';
         case 'unrelated':
         default:
             // No political target — fall back to generic emotional sentiment.
-            return verdict.generic_sentiment || 'neutral';
+            return verdict.generic_sentiment || 'moderate';
     }
 };
 
@@ -263,7 +267,7 @@ const heuristicFallback = (ctx) => {
     let stance = 'unrelated';
     let beneficiary = 'none';
     let finalStance = 'unrelated';
-    let finalBskSentiment = 'neutral';
+    let finalBskSentiment = 'moderate';
 
     if (ctx.has_bsk_mention && ctx.has_civic_signal) {
         stance = 'neutral';
@@ -289,7 +293,7 @@ const heuristicFallback = (ctx) => {
         attack_target: '',
         narrative_direction: 'heuristic (LLM unavailable)',
         political_alignment: 'unclear',
-        generic_sentiment: 'neutral',
+        generic_sentiment: 'moderate',
         toxicity_level: 'none',
         hate_speech: false,
         propaganda_probability: 0,
