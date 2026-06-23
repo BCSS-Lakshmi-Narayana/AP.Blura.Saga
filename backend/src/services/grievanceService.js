@@ -17,7 +17,7 @@ const { analyzeContent } = require('./analysisService');
 const { transcribeVideoUrl } = require('./videoTranscriptionService');
 const translationService = require('./translationService');
 const { classifyApLocation } = require('./locationClassifierService');
-const { resolveRouting, resolvePersonToConstituency } = require('./constituencyMasterService');
+const { resolveRouting, resolvePersonToConstituency, resolveAllPersonsToConstituencies } = require('./constituencyMasterService');
 const ManualReviewQueue = require('../models/ManualReviewQueue');
 
 // Confidence threshold for auto-assigning a classified location. Below
@@ -377,48 +377,85 @@ const extractAndSaveLocation = async (grievanceId, text, postedBy = {}, extraCon
         const hashtags = (text.match(/#\w+/g) || []).join(' ');
 
         // ── STEP -1: Person-mention short-circuit ──
-        // If the text names an MLA, MP, or a monitored handle, route directly to
-        // THAT politician's constituency. This wins over any location mentioned
-        // in the same text — a post about Chandrababu Naidu lands at Kuppam even
-        // if it also mentions Tirupati.
+        // If the text names ANY MLA/MP/monitored handle, route directly to ALL
+        // of their constituencies. A post about CBN + Lokesh + Pawan Kalyan
+        // lands on Kuppam, Mangalagiri and Pithapuram dashboards simultaneously.
+        // The first (longest) match becomes the primary `detected_location`;
+        // the full set is stored in `routing_targets.constituencies` and the
+        // MLA/MP login arrays are the merged fan-out across every matched AC.
         try {
             const handle = String(postedBy.handle || '').trim();
             const personScan = [text, handle].filter(Boolean).join(' ');
-            const personHit = await resolvePersonToConstituency(personScan);
-            if (personHit && personHit.ac_name) {
-                let routing = null;
-                try { routing = await resolveRouting(personHit.ac_name); }
-                catch (rErr) { console.warn(`[GrievanceLocation] person-hit routing failed for ${personHit.ac_name}: ${rErr.message}`); }
+            const personHits = await resolveAllPersonsToConstituencies(personScan);
+            if (personHits.length > 0) {
+                const primary = personHits[0];
+                const routings = await Promise.all(
+                    personHits.map(async (h) => {
+                        try { return { hit: h, routing: await resolveRouting(h.ac_name) }; }
+                        catch (rErr) {
+                            console.warn(`[GrievanceLocation] person-hit routing failed for ${h.ac_name}: ${rErr.message}`);
+                            return { hit: h, routing: null };
+                        }
+                    })
+                );
 
+                const primaryRouting = routings[0]?.routing || null;
                 finalLocation = {
-                    city:          personHit.ac_name,
-                    district:      routing?.district  || null,
-                    constituency:  personHit.ac_name,
-                    lok_sabha:     routing?.lok_sabha || null,
+                    city:          primary.ac_name,
+                    district:      primaryRouting?.district  || null,
+                    constituency:  primary.ac_name,
+                    lok_sabha:     primaryRouting?.lok_sabha || null,
                     confidence:    1.0,
-                    source:        `person_match:${personHit.matched_via}`,
-                    reasoning:     `Mentions ${personHit.matched_name}`,
-                    matched_token: personHit.matched_name,
-                    match_source:  personHit.matched_via,
+                    source:        `person_match:${primary.matched_via}`,
+                    reasoning:     personHits.length > 1
+                        ? `Mentions ${personHits.map(h => h.matched_name).join(', ')}`
+                        : `Mentions ${primary.matched_name}`,
+                    matched_token: primary.matched_name,
+                    match_source:  primary.matched_via,
                     auto_assigned: true,
                     manual_review_required: false,
                 };
-                const routingTargets = routing ? {
-                    ac_key:        routing.ac_key,
-                    district_key:  routing.district_key,
-                    lok_sabha_key: routing.lok_sabha_key,
-                    dashboards:    routing.dashboards,
-                    mla_user_ids:  (routing.mla_users || []).map((u) => u.id),
-                    mp_user_ids:   (routing.mp_users  || []).map((u) => u.id),
-                    siblings_in_district: routing.siblings_in_district,
-                    siblings_in_ls:       routing.siblings_in_ls,
-                    scope_keys:           routing.scope_keys,
-                } : null;
+
+                // Merge MLA / MP login fan-out across every matched constituency.
+                const mlaIds = new Set();
+                const mpIds  = new Set();
+                const acDashboards = [];
+                const allAcNames = [];
+                const allScopeKeys = new Set();
+                for (const { hit, routing } of routings) {
+                    allAcNames.push(hit.ac_name);
+                    if (!routing) continue;
+                    for (const u of routing.mla_users || []) if (u?.id) mlaIds.add(u.id);
+                    for (const u of routing.mp_users  || []) if (u?.id) mpIds.add(u.id);
+                    if (routing.dashboards?.ac) acDashboards.push(routing.dashboards.ac);
+                    for (const k of routing.scope_keys || []) allScopeKeys.add(k);
+                }
+
+                const routingTargets = {
+                    // Primary AC keys preserved for back-compat with any reader
+                    // that still uses the singular field set.
+                    ac_key:        primaryRouting?.ac_key        || null,
+                    district_key:  primaryRouting?.district_key  || null,
+                    lok_sabha_key: primaryRouting?.lok_sabha_key || null,
+                    dashboards:    primaryRouting?.dashboards    || null,
+                    siblings_in_district: primaryRouting?.siblings_in_district || [],
+                    siblings_in_ls:       primaryRouting?.siblings_in_ls       || [],
+
+                    // Multi-routing fields — every consumer that wants the full
+                    // fan-out reads these.
+                    constituencies:   allAcNames,
+                    ac_dashboards:    acDashboards,
+                    mla_user_ids:     [...mlaIds],
+                    mp_user_ids:      [...mpIds],
+                    scope_keys:       [...allScopeKeys],
+                    matched_persons:  personHits.map(h => ({ ac_name: h.ac_name, matched_name: h.matched_name, matched_via: h.matched_via })),
+                };
+
                 await Grievance.findOneAndUpdate(
                     { id: grievanceId },
-                    { $set: { detected_location: finalLocation, ...(routingTargets ? { routing_targets: routingTargets } : {}) } }
+                    { $set: { detected_location: finalLocation, routing_targets: routingTargets } }
                 );
-                console.log(`[GrievanceLocation] ${grievanceId} routed by person "${personHit.matched_name}" → ${personHit.ac_name}`);
+                console.log(`[GrievanceLocation] ${grievanceId} routed by ${personHits.length} person match(es) → [${allAcNames.join(', ')}]`);
                 return;
             }
         } catch (pErr) {
@@ -2081,9 +2118,17 @@ const createGrievanceFromPost = async (post, platform, taggedKeyword, forceLocat
     const postDate = toSafeDate(post.created_at);
 
     // Sanitize media — ensure all URLs are plain strings (FB sometimes sends {uri, height, width})
+    const VIDEO_EXT_RE = /\.(mp4|m3u8|webm|mov|m4s)(\?|$)/i;
     const sanitizedMedia = (post.media || []).map(m => {
         let url = typeof m === 'string' ? m : (typeof m.url === 'string' ? m.url : (m.url?.uri || m.uri || m.src || ''));
-        let previewUrl = typeof m.preview_url === 'string' ? m.preview_url : (m.preview_url?.uri || url);
+        // Read either `preview_url` (new shape) or `preview` (X service legacy).
+        // Reject anything that looks like a video stream — those belong in
+        // video_url, not preview_url, and would otherwise blank the UI poster.
+        let previewUrl = typeof m.preview_url === 'string' ? m.preview_url
+            : (m.preview_url?.uri
+                || (typeof m.preview === 'string' ? m.preview : m.preview?.uri)
+                || '');
+        if (VIDEO_EXT_RE.test(previewUrl)) previewUrl = '';
         let videoUrl = typeof m.video_url === 'string' ? m.video_url : (m.video_url?.uri || undefined);
 
         const original_url = String(url || '');
@@ -2227,7 +2272,7 @@ const fetchKeywordGrievances = async (platformFilter = null) => {
                     for (const variant of variants) {
                         try {
                             console.log(`[KeywordFetch][FB] Searching: "${variant}"`);
-                            const fbPosts = await rapidApiFacebookService.searchPosts(variant, 20);
+                            const fbPosts = await rapidApiFacebookService.searchPosts(variant);
                             console.log(`[KeywordFetch][FB] Found ${fbPosts.length} for "${variant}"`);
 
                             for (const fbPost of fbPosts) {
@@ -2292,6 +2337,41 @@ const fetchKeywordGrievances = async (platformFilter = null) => {
                                     continue;
                                 }
 
+                                // Build a thread/quote context object so the
+                                // grievance popup can render the parent tweet
+                                // and any quoted snapshot the search response
+                                // already carries. The reply parent is a stub
+                                // here (only id + handle) — the UI may resolve
+                                // its full body lazily; ingestion stays cheap.
+                                const ctx = {};
+                                if (tweet.in_reply_to_id) {
+                                    ctx.in_reply_to = {
+                                        tweet_id: String(tweet.in_reply_to_id),
+                                        tweet_url: tweet.in_reply_to_handle
+                                            ? `https://x.com/${tweet.in_reply_to_handle}/status/${tweet.in_reply_to_id}`
+                                            : `https://x.com/i/web/status/${tweet.in_reply_to_id}`,
+                                        posted_by: { handle: tweet.in_reply_to_handle || undefined },
+                                        content: {},
+                                        post_date: null,
+                                    };
+                                }
+                                if (tweet.quoted_content) {
+                                    const qc = tweet.quoted_content;
+                                    ctx.quoted = {
+                                        tweet_id: qc.tweet_id || null,
+                                        tweet_url: qc.url || (qc.author_handle && qc.tweet_id
+                                            ? `https://x.com/${qc.author_handle}/status/${qc.tweet_id}` : null),
+                                        posted_by: {
+                                            handle: qc.author_handle || null,
+                                            display_name: qc.author_name || null,
+                                            profile_image_url: qc.profile_image_url || null,
+                                        },
+                                        content: { text: qc.text || '', media: qc.media || [] },
+                                        post_date: qc.created_at || null,
+                                    };
+                                }
+                                if (tweet.conversation_id) ctx.conversation_id = String(tweet.conversation_id);
+
                                 const post = {
                                     tweet_id: canonicalId,
                                     text: tweet.text || '',
@@ -2311,7 +2391,8 @@ const fetchKeywordGrievances = async (platformFilter = null) => {
                                         replies: parseInt(tweet.metrics?.reply) || 0,
                                         views: parseInt(tweet.metrics?.views) || 0,
                                         quotes: parseInt(tweet.metrics?.quote) || 0
-                                    }
+                                    },
+                                    context: Object.keys(ctx).length > 0 ? ctx : undefined,
                                 };
                                 const created = await createGrievanceFromPost(post, 'x', rawKeyword);
                                 if (created) count++;
@@ -2336,7 +2417,7 @@ const fetchKeywordGrievances = async (platformFilter = null) => {
                     let count = 0;
                     try {
                         console.log(`[KeywordFetch][IG] Fetching posts for user: "${igUsername}"`);
-                        const igPosts = await rapidApiInstagramService.searchPosts(igUsername, 20);
+                        const igPosts = await rapidApiInstagramService.searchPosts(igUsername);
                         console.log(`[KeywordFetch][IG] Found ${igPosts.length} for "${igUsername}"`);
 
                         for (const igPost of igPosts) {

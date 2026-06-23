@@ -241,9 +241,17 @@ const getAlerts = async (req, res) => {
 
     const allowedStatuses = getAllowedAlertStatuses(req);
 
-    // Gate filter: Always show only alerts with matched keywords
-    // This ensures we only show alerts relevant to configured keywords
-    query.matched_keywords = { $exists: true, $ne: [] };
+    // Gate filter: only apply for scoped (non-admin) users. Superadmin / party
+    // leadership see every alert in the collection regardless of whether the
+    // matched_keywords array has been populated yet.
+    if (req.scope && !req.scope.canSeeAll) {
+      query.$and = (query.$and || []).concat([{
+        $or: [
+          { matched_keywords: { $exists: true, $ne: [] } },
+          { matched_keywords_normalized: { $exists: true, $ne: [] } },
+        ],
+      }]);
+    }
 
     // Status Filter - only apply if a specific status is requested
     if (status && status !== 'all') {

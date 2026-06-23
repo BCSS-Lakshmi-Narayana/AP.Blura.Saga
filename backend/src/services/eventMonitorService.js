@@ -14,9 +14,9 @@ const normalizeText = (text) => String(text || '').toLowerCase();
 
 // Cap how many keywords we hit per platform per scan to avoid API-quota blowups.
 // Picks the highest-weighted keywords first.
-const MAX_KEYWORDS_PER_SCAN = Number(process.env.EVENT_SCAN_MAX_KEYWORDS || 10);
+const MAX_KEYWORDS_PER_SCAN = Number(process.env.EVENT_SCAN_MAX_KEYWORDS || 25);
 // Cap how many items we keep per author per scan (kills copy-paste spam clusters).
-const MAX_ITEMS_PER_AUTHOR = Number(process.env.EVENT_SCAN_MAX_PER_AUTHOR || 3);
+const MAX_ITEMS_PER_AUTHOR = Number(process.env.EVENT_SCAN_MAX_PER_AUTHOR || 10);
 
 const nowUtc = () => new Date();
 

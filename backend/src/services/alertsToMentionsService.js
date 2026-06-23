@@ -37,8 +37,8 @@ const Grievance = require('../models/Grievance');
 const { checkRelevance } = require('./bskRelevanceFilterService');
 const { createGrievanceFromPost } = require('./grievanceService');
 
-const MIN_CONFIDENCE = Number(process.env.BSK_ALERT_PROMOTE_MIN_CONF || 0.4);
-const DEFAULT_BATCH  = Number(process.env.BSK_ALERT_PROMOTE_BATCH    || 50);
+const MIN_CONFIDENCE = Number(process.env.BSK_ALERT_PROMOTE_MIN_CONF || 0.25);
+const DEFAULT_BATCH  = Number(process.env.BSK_ALERT_PROMOTE_BATCH    || 200);
 
 /* ─── helpers ─────────────────────────────────────────────────────── */
 

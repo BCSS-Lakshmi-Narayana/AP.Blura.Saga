@@ -153,18 +153,29 @@ const requireConstituencyAccess = (getConstituency) => (req, res, next) => {
  *
  * Pass `{ field }` to use a different path (e.g. 'constituency' on Alert).
  */
-const constituencyFilter = (scope, { field = 'detected_location.constituency' } = {}) => {
+const constituencyFilter = (scope, opts = {}) => {
+  const {
+    field = 'detected_location.constituency',
+    // Extra fields that should also match the user's allowed seats. When a
+    // grievance fans out to multiple constituencies via routing_targets,
+    // pass `extraFields: ['routing_targets.constituencies']` so each matched
+    // MLA still sees the post even if it's not the primary detected_location.
+    extraFields = [],
+  } = opts;
+
   if (!scope || scope.canSeeAll) return {};
   const allowed = [...(scope.constituencies || [])];
   if (allowed.length === 0) {
     // User has no constituency assigned — deny everything.
     return { _id: { $exists: false } };
   }
-  // Match case-insensitively against any of the user's allowed seats.
   const regex = allowed
     .map((c) => c.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
     .join('|');
-  return { [field]: { $regex: `^(${regex})$`, $options: 'i' } };
+  const rx = { $regex: `^(${regex})$`, $options: 'i' };
+
+  if (extraFields.length === 0) return { [field]: rx };
+  return { $or: [{ [field]: rx }, ...extraFields.map((f) => ({ [f]: rx }))] };
 };
 
 /**
@@ -186,11 +197,35 @@ const sourceScopeFilter = (scope) => {
   };
 };
 
+/**
+ * Merge a filter fragment into a Mongo query object safely. If both sides
+ * carry `$or`, they are AND-combined under `$and` so neither is silently
+ * dropped (the way a plain `Object.assign` would). Use this whenever you
+ * mix `constituencyFilter` / `sourceScopeFilter` into a query that may
+ * already contain user-driven `$or` clauses (handle search, category OR,
+ * location OR etc.).
+ */
+const mergeFilter = (target, fragment) => {
+  if (!fragment || Object.keys(fragment).length === 0) return target;
+  for (const [k, v] of Object.entries(fragment)) {
+    if (k === '$or' && target.$or) {
+      target.$and = [...(target.$and || []), { $or: target.$or }, { $or: v }];
+      delete target.$or;
+    } else if (k === '$and' && target.$and) {
+      target.$and = [...target.$and, ...v];
+    } else {
+      target[k] = v;
+    }
+  }
+  return target;
+};
+
 module.exports = {
   loadScope,
   buildScope,
   requireConstituencyAccess,
   constituencyFilter,
+  mergeFilter,
   sourceScopeFilter,
   normalizeScopeKey: normalizeKey,
 };

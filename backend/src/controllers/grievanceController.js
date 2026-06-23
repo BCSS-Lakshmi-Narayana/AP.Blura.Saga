@@ -724,7 +724,18 @@ const getGrievances = async (req, res) => {
             }
         }
 
-        const query = buildListQuery(req.query);
+        // Superadmin / unscoped roles see every grievance in the collection,
+        // including legacy rows that lack BSK keywords or have is_active=false.
+        const isAdminView = !!(req.scope && req.scope.canSeeAll);
+        const queryParams = isAdminView
+            ? { ...req.query, bsk_only: 'false' }
+            : req.query;
+
+        const query = buildListQuery(queryParams);
+        if (isAdminView) {
+            delete query.is_active;
+        }
+
         const limitNum = Math.min(parseInt(limit, 10) || 50, 200); // cap at 200
         const pageNum = parseInt(page, 10);
         const skip = (pageNum - 1) * limitNum;
@@ -733,8 +744,8 @@ const getGrievances = async (req, res) => {
         // RBAC row-level scope: clamp results to constituencies the caller is
         // allowed to see. Super-admins / legacy roles pass through untouched.
         if (req.scope && !req.scope.canSeeAll) {
-            const { constituencyFilter } = require('../middleware/scopeMiddleware');
-            Object.assign(findQuery, constituencyFilter(req.scope));
+            const { constituencyFilter, mergeFilter } = require('../middleware/scopeMiddleware');
+            mergeFilter(findQuery, constituencyFilter(req.scope, { extraFields: ['routing_targets.constituencies'] }));
         }
 
         // Cursor format: "<post_date_iso>|<id>"
@@ -1453,8 +1464,8 @@ const getStats = async (req, res) => {
 const getDashboardStats = async (req, res) => {
     try {
         const bskOnly = String(req.query.bsk_only ?? 'true').toLowerCase() !== 'false';
-        const { constituencyFilter } = require('../middleware/scopeMiddleware');
-        const scopeMatch = req.scope?.canSeeAll ? {} : constituencyFilter(req.scope);
+        const { constituencyFilter, mergeFilter } = require('../middleware/scopeMiddleware');
+        const scopeMatch = req.scope?.canSeeAll ? {} : constituencyFilter(req.scope, { extraFields: ['routing_targets.constituencies'] });
         const scopeKey = req.scope?.canSeeAll
             ? 'all'
             : [...(req.scope?.constituencyKeys || [])].sort().join(',');
@@ -1464,7 +1475,7 @@ const getDashboardStats = async (req, res) => {
 
         const bskMatch = buildBskRelevanceMatch(req.query);
         const rows = await Grievance.aggregate([
-            { $match: { is_active: true, ...bskMatch, ...scopeMatch } },
+            { $match: mergeFilter({ is_active: true }, mergeFilter({ ...bskMatch }, scopeMatch)) },
             {
                 $group: {
                     _id: '$platform',
@@ -1669,12 +1680,12 @@ const getSentimentAnalytics = async (req, res) => {
         if (cached) return res.status(200).json(cached);
 
         const bskMatch = buildBskRelevanceMatch(req.query);
-        const { constituencyFilter } = require('../middleware/scopeMiddleware');
-        const scopeMatch = req.scope?.canSeeAll ? {} : constituencyFilter(req.scope);
+        const { constituencyFilter, mergeFilter } = require('../middleware/scopeMiddleware');
+        const scopeMatch = req.scope?.canSeeAll ? {} : constituencyFilter(req.scope, { extraFields: ['routing_targets.constituencies'] });
 
         // 1) Sentiment distribution
         const sentimentRows = await Grievance.aggregate([
-            { $match: { is_active: true, 'analysis.sentiment': { $exists: true, $ne: null }, ...bskMatch, ...scopeMatch } },
+            { $match: mergeFilter({ is_active: true, 'analysis.sentiment': { $exists: true, $ne: null } }, mergeFilter({ ...bskMatch }, scopeMatch)) },
             { $group: { _id: '$analysis.sentiment', count: { $sum: 1 } } }
         ]);
         const distribution = { positive: 0, neutral: 0, negative: 0 };
@@ -1684,7 +1695,7 @@ const getSentimentAnalytics = async (req, res) => {
 
         // 2) Top 5 profiles posting negative content
         const topNegative = await Grievance.aggregate([
-            { $match: { is_active: true, 'analysis.sentiment': 'negative', ...bskMatch, ...scopeMatch } },
+            { $match: mergeFilter({ is_active: true, 'analysis.sentiment': 'negative' }, mergeFilter({ ...bskMatch }, scopeMatch)) },
             {
                 $group: {
                     _id: '$posted_by.handle',
@@ -1843,8 +1854,8 @@ const getDistinctCategories = async (req, res) => {
 const getCategoryAnalytics = async (req, res) => {
     try {
         const bskOnly = String(req.query.bsk_only ?? 'true').toLowerCase() !== 'false';
-        const { constituencyFilter } = require('../middleware/scopeMiddleware');
-        const scopeMatch = req.scope?.canSeeAll ? {} : constituencyFilter(req.scope);
+        const { constituencyFilter, mergeFilter } = require('../middleware/scopeMiddleware');
+        const scopeMatch = req.scope?.canSeeAll ? {} : constituencyFilter(req.scope, { extraFields: ['routing_targets.constituencies'] });
         const scopeKey = req.scope?.canSeeAll
             ? 'all'
             : [...(req.scope?.constituencyKeys || [])].sort().join(',');
@@ -1856,12 +1867,12 @@ const getCategoryAnalytics = async (req, res) => {
 
         const [categoryRows, topicRows] = await Promise.all([
             Grievance.aggregate([
-                { $match: { is_active: true, 'analysis.analyzed_at': { $exists: true }, 'analysis.category': { $exists: true, $ne: null, $ne: '' }, ...bskMatch, ...scopeMatch } },
+                { $match: mergeFilter({ is_active: true, 'analysis.analyzed_at': { $exists: true }, 'analysis.category': { $exists: true, $ne: null, $ne: '' } }, mergeFilter({ ...bskMatch }, scopeMatch)) },
                 { $group: { _id: '$analysis.category', count: { $sum: 1 } } },
                 { $sort: { count: -1 } }
             ]),
             Grievance.aggregate([
-                { $match: { is_active: true, 'analysis.analyzed_at': { $exists: true }, ...bskMatch, ...scopeMatch } },
+                { $match: mergeFilter({ is_active: true, 'analysis.analyzed_at': { $exists: true } }, mergeFilter({ ...bskMatch }, scopeMatch)) },
                 {
                     $project: {
                         topic: {

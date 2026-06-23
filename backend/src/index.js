@@ -347,6 +347,29 @@ const runGrievanceFetch = async () => {
   }
 };
 
+// ─── Alerts → Grievances promotion (runs on an interval) ────────────────────
+let alertsToMentionsRunning = false;
+const startAlertsToMentionsScheduler = () => {
+  const INTERVAL_MS = Number(process.env.ALERTS_TO_MENTIONS_INTERVAL_MS || 5 * 60 * 1000);
+  const tick = async () => {
+    if (alertsToMentionsRunning) return;
+    alertsToMentionsRunning = true;
+    try {
+      const svc = require('./services/alertsToMentionsService');
+      const limit = Number(process.env.BSK_ALERT_PROMOTE_BATCH || 200);
+      const res = await svc.runBatch({ limit });
+      console.log(`[AlertsToMentions] tick: processed=${res?.processed ?? '?'} promoted=${res?.promoted ?? '?'}`);
+    } catch (err) {
+      console.warn('[AlertsToMentions] tick failed:', err.message);
+    } finally {
+      alertsToMentionsRunning = false;
+    }
+  };
+  // First run 90 s after startup so Mongo + caches are warm.
+  setTimeout(tick, 90 * 1000);
+  setInterval(tick, INTERVAL_MS);
+};
+
 // ─── Engager Analysis Auto-Queue (runs every hour) ───────────────────────────
 const startEngagerAutoQueue = () => {
   // Lazy-require so a missing/optional service can't crash boot.
@@ -538,6 +561,11 @@ const startServer = async () => {
 
   // Start Engager Analysis Auto-Queue (every 15 minutes)
   startEngagerAutoQueue();
+
+  // Start Alerts → Grievances promotion (every ALERTS_TO_MENTIONS_INTERVAL_MS,
+  // default 5 min). Batch size + min confidence are controlled by
+  // BSK_ALERT_PROMOTE_BATCH / BSK_ALERT_PROMOTE_MIN_CONF.
+  startAlertsToMentionsScheduler();
 
   // Start Content Availability Checker (every 6 hours)
   startAvailabilityChecker();

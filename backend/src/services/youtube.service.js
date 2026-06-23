@@ -86,11 +86,12 @@ class YouTubeService {
     async searchVideos(query) {
         try {
             const youtube = this.getClient();
+            const ytMax = Math.max(1, Math.min(50, parseInt(process.env.YT_SEARCH_PAGE_SIZE || '50', 10)));
             const response = await youtube.search.list({
                 part: ['snippet'],
                 q: query,
                 type: 'video',
-                maxResults: 20
+                maxResults: ytMax
             });
 
             const videoIds = response.data.items.map(item => item.id.videoId);

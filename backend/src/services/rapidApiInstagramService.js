@@ -458,7 +458,8 @@ const searchUsers = async (query) => {
  * Search Instagram posts by keyword.
  * Tries hashtag/tag search endpoints, which is the closest to keyword search on Instagram.
  */
-const searchPosts = async (query, limit = 20) => {
+const IG_DEFAULT_LIMIT = Math.max(1, Math.min(100, parseInt(process.env.IG_SEARCH_PAGE_SIZE || '50', 10)));
+const searchPosts = async (query, limit = IG_DEFAULT_LIMIT) => {
     const cleanQuery = String(query || '').trim().replace(/^#/, '');
     if (!cleanQuery) return [];
 

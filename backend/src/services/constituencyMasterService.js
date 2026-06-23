@@ -42,6 +42,17 @@ let buildPromise = null;
 let MlaProfileSettings = null;
 try { MlaProfileSettings = require('../models/MlaProfileSettings'); } catch (_) { /* optional */ }
 
+// Hand-curated alias map for high-profile politicians whose social mentions
+// rarely use the exact full name stored in ConstituencyMaster.mla_name. Keys
+// must match the canonical AC name verbatim (UPPERCASE form from
+// ap_mlas.json / ls_to_ac.json). Each alias is matched word-boundary aware,
+// longest-first, so "Nara Lokesh" wins over "Lokesh".
+const VIP_PERSON_ALIASES = {
+    KUPPAM:       ['Chandrababu Naidu', 'Chandra Babu Naidu', 'Chandrababu', 'CBN', '@ncbn', '#CBN', '#Chandrababu', 'N Chandrababu Naidu', 'Sri Chandrababu Naidu'],
+    MANGALAGIRI:  ['Nara Lokesh', 'Lokesh Nara', 'Lokesh', '@naralokesh', '#NaraLokesh'],
+    PITHAPURAM:   ['Pawan Kalyan', '@PawanKalyan', '#PawanKalyan', 'Deputy CM Pawan'],
+};
+
 const normalizePerson = (v) =>
     String(v || '')
         .toLowerCase()
@@ -111,6 +122,8 @@ const buildCache = async () => {
         addPerson(row.mp_name, 'mp');
         const profileHandles = handleMap[String(row.ac_name || '').toUpperCase()] || [];
         for (const h of profileHandles) addPerson(h, 'handle');
+        const vipAliases = VIP_PERSON_ALIASES[String(row.ac_name || '').toUpperCase()] || [];
+        for (const a of vipAliases) addPerson(a, 'vip_alias');
 
         // District + LS reverse indexes for routing fan-out.
         if (row.district_key) {
@@ -204,25 +217,40 @@ const getContextTokensForAcs = async (acNames, limit = 6) => {
  * the location classifier.
  */
 const resolvePersonToConstituency = async (text) => {
-    if (!text) return null;
+    const all = await resolveAllPersonsToConstituencies(text);
+    return all.length > 0 ? all[0] : null;
+};
+
+/**
+ * Same as `resolvePersonToConstituency` but returns EVERY distinct person
+ * match in the text, so a grievance mentioning N politicians can be routed
+ * to all N of their constituencies. De-duplicated by ac_name, ordered by
+ * the longest matched token first (most specific match wins as primary).
+ */
+const resolveAllPersonsToConstituencies = async (text) => {
+    if (!text) return [];
     const haystack = normalizePerson(text);
-    if (!haystack) return null;
+    if (!haystack) return [];
     const c = await getCache();
+    const isBoundary = (ch) => ch === undefined || /[^a-z0-9ऀ-ൿ]/i.test(ch);
+    const seenAc = new Set();
+    const out = [];
     for (const entry of c.personIndex || []) {
+        if (seenAc.has(entry.ac_name)) continue;
         const i = haystack.indexOf(entry.token_lower);
         if (i < 0) continue;
         const before = haystack[i - 1];
         const after = haystack[i + entry.token_lower.length];
-        const isBoundary = (ch) => ch === undefined || /[^a-z0-9ऀ-ൿ]/i.test(ch);
-        if (isBoundary(before) && isBoundary(after)) {
-            return {
-                ac_name: entry.ac_name,
-                matched_name: entry.original,
-                matched_via: entry.matched_via,
-            };
-        }
+        if (!isBoundary(before) || !isBoundary(after)) continue;
+        seenAc.add(entry.ac_name);
+        out.push({
+            ac_name: entry.ac_name,
+            matched_name: entry.original,
+            matched_via: entry.matched_via,
+            token_length: entry.token_lower.length,
+        });
     }
-    return null;
+    return out;
 };
 
 /* ─── routing engine ──────────────────────────────────────────────── */
@@ -324,6 +352,7 @@ const getAllAcs = async () => {
 module.exports = {
     matchAlias,
     resolvePersonToConstituency,
+    resolveAllPersonsToConstituencies,
     resolveRouting,
     getMasterRow,
     getAcsByDistrict,

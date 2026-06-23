@@ -132,10 +132,29 @@ const pickBestVideoVariant = (variants = []) => {
     return bestVariant || null;
 };
 
+// True when the URL points at a video stream/file rather than an image
+// thumbnail. Used so we never store an HLS playlist or MP4 URL in the
+// preview slot — the UI expects an image there.
+const isVideoLikeUrl = (u) => typeof u === 'string' && /\.(mp4|m3u8|webm|mov|m4s)(\?|$)/i.test(u);
+
 const getMediaUrlCandidates = (media) => {
     const primary = media?.media_url_https || media?.media_url || media?.url || media?.image_url || media?.image?.url;
-    const preview = media?.media_url_https || media?.media_url || media?.preview_image_url || media?.thumbnail_url || media?.image_url || media?.image?.url || primary;
-    return { primary, preview };
+
+    // Image-only candidates for the preview slot. Prefer fields explicitly
+    // documented as thumbnails before falling back to media_url_https
+    // (which can hold a video stream URL for video items on some RapidAPI
+    // response shapes). Drop any candidate that looks like a video file.
+    const previewRaw = [
+        media?.preview_image_url,
+        media?.thumbnail_url,
+        media?.image_url,
+        media?.image?.url,
+        media?.media_url_https,
+        media?.media_url,
+        primary,
+    ].filter((u) => u && !isVideoLikeUrl(u));
+
+    return { primary, preview: previewRaw[0] || null };
 };
 
 const normalizeMediaItem = (media) => {
@@ -164,8 +183,18 @@ const normalizeMediaItem = (media) => {
 
     if (!url) return null;
 
-    const result = { type, url, preview: preview || url };
-    if (type === 'video' || type === 'animated_gif') {
+    // Emit both `preview` (legacy callers) and `preview_url` (the field name
+    // the grievance pipeline persists). For videos we only set a preview if
+    // we actually have an image — otherwise the UI falls back to first-frame
+    // extraction via hls.js / <video> rather than rendering a broken poster.
+    const isVideo = type === 'video' || type === 'animated_gif';
+    const imagePreview = isVideoLikeUrl(preview) ? null : preview;
+    const result = { type, url };
+    if (imagePreview) {
+        result.preview = imagePreview;
+        result.preview_url = imagePreview;
+    }
+    if (isVideo) {
         result.video_url = url;
     }
     return result;
@@ -867,6 +896,14 @@ const normalizeTweet = (tweetResult, fallbackHandle = 'unknown') => {
     urlsToRemove.forEach(u => { if (u) cleanText = cleanText.replace(u, ''); });
     cleanText = cleanText.trim();
 
+    // Thread context — `in_reply_to_status_id_str` + the conversation root tell
+    // the UI this tweet is a reply, so it can render the parent above and the
+    // rest of the thread. The legacy Twitter response carries the parent
+    // screen name too, so we can produce a clickable URL without re-fetching.
+    const inReplyToId = targetLegacy.in_reply_to_status_id_str;
+    const inReplyToHandle = targetLegacy.in_reply_to_screen_name;
+    const conversationId = targetLegacy.conversation_id_str || tweet.conversation_id_str || null;
+
     return {
         id: targetLegacy.id_str,
         text: cleanText || fullText,
@@ -886,6 +923,9 @@ const normalizeTweet = (tweetResult, fallbackHandle = 'unknown') => {
         original_author_name: originalAuthorName,
         original_author_avatar: originalAuthorAvatar,
         quoted_content: quotedContent,
+        in_reply_to_id: inReplyToId || null,
+        in_reply_to_handle: inReplyToHandle || null,
+        conversation_id: conversationId,
         raw_data: tweetResult,
         metrics: {
             like: (targetLegacy.favorite_count || 0).toString(),
@@ -897,6 +937,8 @@ const normalizeTweet = (tweetResult, fallbackHandle = 'unknown') => {
     };
 };
 
+
+const X_SEARCH_PAGE_SIZE = Math.max(1, Math.min(100, parseInt(process.env.X_SEARCH_PAGE_SIZE || '100', 10)));
 
 const searchTweets = async (query, since = null) => {
     try {
@@ -947,7 +989,7 @@ const searchTweets = async (query, since = null) => {
         const response = await rapidRequestX({
             method: 'get',
             url: `https://${process.env.RAPIDAPI_HOST}/search`,
-            params: { query: `${query} since:${sinceDate}`, type: 'Top', count: 40 }
+            params: { query: `${query} since:${sinceDate}`, type: 'Top', count: X_SEARCH_PAGE_SIZE }
         });
 
         let tweets = extractTweets(response.data);
@@ -958,7 +1000,7 @@ const searchTweets = async (query, since = null) => {
                 const latestResp = await rapidRequestX({
                     method: 'get',
                     url: `https://${process.env.RAPIDAPI_HOST}/search`,
-                    params: { query: `${query} since:${sinceDate}`, type: 'Latest', count: 40 }
+                    params: { query: `${query} since:${sinceDate}`, type: 'Latest', count: X_SEARCH_PAGE_SIZE }
                 });
                 const latestTweets = extractTweets(latestResp.data);
                 for (const t of latestTweets) {
@@ -977,7 +1019,7 @@ const searchTweets = async (query, since = null) => {
                 const noDateResp = await rapidRequestX({
                     method: 'get',
                     url: `https://${process.env.RAPIDAPI_HOST}/search`,
-                    params: { query, type: 'Top', count: 40 }
+                    params: { query, type: 'Top', count: X_SEARCH_PAGE_SIZE }
                 });
                 tweets = extractTweets(noDateResp.data);
             } catch {

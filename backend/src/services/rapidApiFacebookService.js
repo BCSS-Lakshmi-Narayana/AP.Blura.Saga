@@ -393,7 +393,8 @@ const searchPages = async (query, options = {}) => {
 };
 
 // Search for Facebook posts
-const searchPosts = async (query, limit = 40, options = {}) => {
+const FB_DEFAULT_LIMIT = Math.max(1, Math.min(100, parseInt(process.env.FB_SEARCH_PAGE_SIZE || '50', 10)));
+const searchPosts = async (query, limit = FB_DEFAULT_LIMIT, options = {}) => {
     try {
         const response = await rapidGet('/search/posts', { query, limit });
 
