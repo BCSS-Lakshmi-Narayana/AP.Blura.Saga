@@ -5,7 +5,7 @@
  *
  * Stage 3 (politicalContextService) is fully deterministic — assertions
  * for the 8 reference scenarios. Stage 4 (politicalSentimentService) is
- * exercised only if Ollama or GitHub credentials are configured.
+ * exercised only if the RapidAPI LLM gateway is reachable.
  */
 const { buildPoliticalContext } = require('./src/services/politicalContextService');
 const { analyzePoliticalSentiment, resolveBskSentiment } = require('./src/services/politicalSentimentService');
@@ -95,7 +95,7 @@ const ok = (b) => (b ? '✓' : '✗');
     }
     console.log(`Stage 3 summary: ${pass} pass, ${fail} fail (out of ${cases.length})\n`);
 
-    // Stage 4 — only run if Ollama or GitHub is reachable
+    // Stage 4 — only run if the RapidAPI LLM gateway is reachable
     const runStage4 = process.env.RUN_STAGE4 === '1';
     if (!runStage4) {
         console.log('Stage 4 (LLM) skipped. Set RUN_STAGE4=1 to exercise it.');

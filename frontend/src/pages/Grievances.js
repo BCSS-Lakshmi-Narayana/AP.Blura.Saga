@@ -1699,7 +1699,7 @@ const Grievances = () => {
                     </DialogHeader>
                     <div className="space-y-3 pt-1">
                         <p className="text-xs text-muted-foreground">
-                            Paste any X / Twitter URL or a tweet id. We'll fetch the tweet, run Ollama sentiment classification, and add it to the TDP mentions feed.
+                            Paste any X / Twitter URL or a tweet id. We'll fetch the tweet, run sentiment classification (RapidAPI ChatGPT-42), and add it to the TDP mentions feed.
                         </p>
                         <input
                             type="text"

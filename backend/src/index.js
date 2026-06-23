@@ -58,6 +58,7 @@ app.use('/api/master-calendar', require('./routes/masterCalendarRoutes'));
 app.use('/api/alert-thresholds', require('./routes/alertThresholdRoutes'));
 
 app.use('/api/grievances', require('./routes/grievanceRoutes'));
+app.use('/api/admin', require('./routes/profileSettingsRoutes'));
 app.use('/api/reports', require('./routes/reportRoutes'));
 app.use('/api/ongoing-events', require('./routes/ongoingEventRoutes'));
 app.use('/api/daily-programmes', require('./routes/dailyProgrammeRoutes'));

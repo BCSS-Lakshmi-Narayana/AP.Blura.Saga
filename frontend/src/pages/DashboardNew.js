@@ -432,6 +432,10 @@ const Dashboard = () => {
   const [mlaLeaderboard, setMlaLeaderboard] = useState([]);
   const [mlaLeaderboardLoading, setMlaLeaderboardLoading] = useState(true);
   const [partyFilter, setPartyFilter] = useState('ALL');
+  // Pagination state for the Statewide MLA Sentiment leaderboard — 10 rows
+  // per page so the user scrolls through pages instead of one long list.
+  const [mlaPage, setMlaPage] = useState(1);
+  const MLA_PAGE_SIZE = 10;
 
   useEffect(() => {
     let cancelled = false;
@@ -549,7 +553,7 @@ const Dashboard = () => {
             </div>
             <select
               value={partyFilter}
-              onChange={(e) => setPartyFilter(e.target.value)}
+              onChange={(e) => { setPartyFilter(e.target.value); setMlaPage(1); }}
               className="text-[11px] border border-slate-200 rounded px-1.5 py-0.5 bg-white"
             >
               <option value="ALL">All parties</option>
@@ -595,9 +599,16 @@ const Dashboard = () => {
                 );
               }
 
+              const totalPages = Math.max(1, Math.ceil(rows.length / MLA_PAGE_SIZE));
+              const safePage   = Math.min(mlaPage, totalPages);
+              const pageStart  = (safePage - 1) * MLA_PAGE_SIZE;
+              const pageRows   = rows.slice(pageStart, pageStart + MLA_PAGE_SIZE);
+
               return (
+                <>
                 <div className="divide-y divide-slate-100">
-                  {rows.map((r, idx) => {
+                  {pageRows.map((r, localIdx) => {
+                    const idx = pageStart + localIdx;
                     const pct = Math.round(r.posShare * 100);
                     const negPct = r.total > 0 ? Math.round(((r.negative || 0) / r.total) * 100) : 0;
                     const rankColor =
@@ -657,6 +668,35 @@ const Dashboard = () => {
                     );
                   })}
                 </div>
+                <div className="flex items-center justify-between px-4 py-2 border-t border-slate-100 bg-slate-50/60 text-[11px] text-slate-500">
+                  <span>
+                    Showing <span className="font-semibold text-slate-700">{pageStart + 1}</span>–
+                    <span className="font-semibold text-slate-700">{Math.min(pageStart + MLA_PAGE_SIZE, rows.length)}</span>
+                    {' '}of <span className="font-semibold text-slate-700">{rows.length}</span> MLAs
+                  </span>
+                  <div className="flex items-center gap-1">
+                    <button
+                      type="button"
+                      onClick={() => setMlaPage((p) => Math.max(1, p - 1))}
+                      disabled={safePage <= 1}
+                      className="px-2 py-1 rounded border border-slate-200 bg-white disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-100 transition-colors"
+                    >
+                      ‹ Prev
+                    </button>
+                    <span className="px-2 tabular-nums">
+                      Page {safePage} / {totalPages}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setMlaPage((p) => Math.min(totalPages, p + 1))}
+                      disabled={safePage >= totalPages}
+                      className="px-2 py-1 rounded border border-slate-200 bg-white disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-100 transition-colors"
+                    >
+                      Next ›
+                    </button>
+                  </div>
+                </div>
+                </>
               );
             })()}
           </div>

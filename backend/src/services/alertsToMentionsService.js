@@ -3,7 +3,7 @@
  * ───────────────────────────────────────────────────────────────────────
  * BSK Watch · Alerts → Mentions promotion pipeline.
  *
- *   Alerts (DB)  ──►  Ollama BSK relevance gate  ──►  Mentions (Grievances)
+ *   Alerts (DB)  ──►  RapidAPI BSK relevance gate  ──►  Mentions (Grievances)
  *
  * For every Alert that has not yet been evaluated by the BSK gate, this
  * service:
@@ -11,8 +11,8 @@
  *   1. Resolves the alert's underlying text + media + author (joining
  *      Content / Source as needed).
  *   2. Runs the resolved text through `bskRelevanceFilterService.checkRelevance`,
- *      which uses a heuristic short-circuit and falls through to an Ollama
- *      JSON gate for ambiguous text.
+ *      which uses a heuristic short-circuit and falls through to a RapidAPI
+ *      ChatGPT-42 JSON gate for ambiguous text.
  *   3. If the gate marks `is_bsk=true` with confidence ≥ MIN_CONFIDENCE,
  *      the alert is promoted to the Grievance (Mentions) collection via
  *      the shared `createGrievanceFromPost` helper — so the promoted record
@@ -147,7 +147,7 @@ const stampAlert = async (alertId, patch) => {
  *   { decision: 'promoted' | 'rejected' | 'skipped' | 'error',
  *     grievance_id?, relevance?, error? }
  */
-const processAlert = async (alert, { dryRun = false, allowOllama = true } = {}) => {
+const processAlert = async (alert, { dryRun = false, allowLLM = true } = {}) => {
     if (!alert) return { decision: 'skipped', reason: 'no alert' };
     if (alert.bsk_pipeline?.processed) {
         return { decision: 'skipped', reason: 'already processed' };
@@ -180,7 +180,7 @@ const processAlert = async (alert, { dryRun = false, allowOllama = true } = {}) 
     // Run the gate.
     let relevance;
     try {
-        relevance = await checkRelevance(candidateText, { allowOllama });
+        relevance = await checkRelevance(candidateText, { allowLLM });
     } catch (err) {
         return { decision: 'error', error: err.message || 'gate failed' };
     }
@@ -257,7 +257,7 @@ const processAlert = async (alert, { dryRun = false, allowOllama = true } = {}) 
  *     status      — only alerts with this status (default: any)
  *     platform    — only alerts from this platform (e.g. 'x')
  *     dryRun      — don't write anything; just return verdicts
- *     allowOllama — pass false to use heuristic-only mode (fast)
+ *     allowLLM    — pass false to use heuristic-only mode (no RapidAPI call)
  *
  * Returns a `stats` envelope identical in shape to bsk_relevance_pipeline.
  */
@@ -268,7 +268,7 @@ const runBatch = async (opts = {}) => {
         status      = null,
         platform    = null,
         dryRun      = false,
-        allowOllama = true
+        allowLLM = true
     } = opts;
 
     const query = { 'bsk_pipeline.processed': { $ne: true } };
@@ -294,7 +294,7 @@ const runBatch = async (opts = {}) => {
 
     for (const a of alerts) {
         try {
-            const result = await processAlert(a, { dryRun, allowOllama });
+            const result = await processAlert(a, { dryRun, allowLLM });
             if (result.decision === 'promoted') {
                 stats.promoted += 1;
                 const tgt = result.relevance?.target || 'unrelated';

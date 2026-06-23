@@ -16,6 +16,14 @@ const { syncLegacyFieldsFromWorkflow } = require('./grievanceWorkflowService');
 const { analyzeContent } = require('./analysisService');
 const { transcribeVideoUrl } = require('./videoTranscriptionService');
 const translationService = require('./translationService');
+const { classifyApLocation } = require('./locationClassifierService');
+const { resolveRouting } = require('./constituencyMasterService');
+const ManualReviewQueue = require('../models/ManualReviewQueue');
+
+// Confidence threshold for auto-assigning a classified location. Below
+// this, the grievance is enqueued for human review instead of being
+// stamped. Configurable via env so ops can tune without a redeploy.
+const AUTO_ASSIGN_THRESHOLD = Number(process.env.LOCATION_AUTO_ASSIGN_THRESHOLD || 0.80);
 
 // ═══════════════════════════════════════════════════════════════
 //          LOCATION EXTRACTION (backend-side)
@@ -368,8 +376,107 @@ const extractAndSaveLocation = async (grievanceId, text, postedBy = {}, extraCon
         const userBio = postedBy.bio || postedBy.description || '';
         const hashtags = (text.match(/#\w+/g) || []).join(' ');
 
-        // ── STEP 1: External micro-service (Location Model) ──
-        // This is now the highest priority
+        // ── STEP 0: AP RapidAPI classifier (highest priority for AP routing) ──
+        // Runs first so AP posts route directly to the right MLA/MP scope
+        // without falling through to the legacy Telangana / Karimnagar code.
+        try {
+            const ap = await classifyApLocation(text, {
+                userLocation,
+                userBio,
+                hashtags,
+                taggedAccount: extraContext.tagged_account || '',
+            });
+            if (ap && ap.constituency) {
+                // Confidence gate: below the threshold we DO NOT stamp the
+                // location. Instead we mark the grievance as awaiting human
+                // review and push a row into ManualReviewQueue.
+                if (ap.confidence < AUTO_ASSIGN_THRESHOLD) {
+                    await Grievance.findOneAndUpdate(
+                        { id: grievanceId },
+                        { $set: {
+                            'detected_location.manual_review_required': true,
+                            'detected_location.auto_assigned': false,
+                            'detected_location.confidence': ap.confidence,
+                            'detected_location.source': `ap_classifier:${ap.provider}:low_conf`,
+                            'detected_location.reasoning': ap.reasoning,
+                        } }
+                    );
+                    try {
+                        await ManualReviewQueue.create({
+                            grievance_id:   grievanceId,
+                            text,
+                            user_location:  userLocation,
+                            user_bio:       userBio,
+                            hashtags,
+                            tagged_account: extraContext.tagged_account || '',
+                            suggested: {
+                                constituency: ap.constituency,
+                                district:     ap.district  || null,
+                                lok_sabha:    ap.lok_sabha || null,
+                                confidence:   ap.confidence,
+                                provider:     ap.provider,
+                                reasoning:    ap.reasoning,
+                                matched_token: ap.matched_token || null,
+                                match_source:  ap.match_source  || null,
+                            },
+                        });
+                    } catch (qErr) {
+                        console.warn(`[GrievanceLocation] ManualReviewQueue insert failed for ${grievanceId}: ${qErr.message}`);
+                    }
+                    console.log(`[GrievanceLocation] ${grievanceId} sent to manual review (conf=${ap.confidence.toFixed(2)} < ${AUTO_ASSIGN_THRESHOLD})`);
+                    return;
+                }
+
+                // High confidence — resolve the multi-level routing fan-out
+                // (district + LS + MLA/MP logins) via ConstituencyMaster.
+                let routing = null;
+                try {
+                    routing = await resolveRouting(ap.constituency);
+                } catch (rErr) {
+                    console.warn(`[GrievanceLocation] resolveRouting failed for ${ap.constituency}: ${rErr.message}`);
+                }
+
+                finalLocation = {
+                    city:          ap.constituency,
+                    district:      routing?.district  || ap.district  || null,
+                    constituency:  ap.constituency,
+                    lok_sabha:     routing?.lok_sabha || ap.lok_sabha || null,
+                    confidence:    ap.confidence,
+                    source:        `ap_classifier:${ap.provider}`,
+                    reasoning:     ap.reasoning,
+                    matched_token: ap.matched_token || null,
+                    match_source:  ap.match_source  || null,
+                    auto_assigned: true,
+                    manual_review_required: false,
+                };
+
+                const routingTargets = routing ? {
+                    ac_key:        routing.ac_key,
+                    district_key:  routing.district_key,
+                    lok_sabha_key: routing.lok_sabha_key,
+                    dashboards:    routing.dashboards,
+                    mla_user_ids:  (routing.mla_users || []).map((u) => u.id),
+                    mp_user_ids:   (routing.mp_users  || []).map((u) => u.id),
+                    mla_name:      routing.mla_name,
+                    mp_name:       routing.mp_name,
+                    scope_keys:    routing.scope_keys,
+                    resolved_at:   new Date(),
+                } : null;
+
+                await Grievance.findOneAndUpdate(
+                    { id: grievanceId },
+                    { $set: { detected_location: finalLocation, routing_targets: routingTargets } }
+                );
+                console.log(`[GrievanceLocation] AP routed ${grievanceId} → ${ap.constituency} ` +
+                            `(district=${finalLocation.district || '?'}, ls=${finalLocation.lok_sabha || '?'}, ` +
+                            `mla_logins=${(routing?.mla_users || []).length}, mp_logins=${(routing?.mp_users || []).length})`);
+                return;
+            }
+        } catch (err) {
+            console.warn(`[GrievanceLocation] AP classifier failed for ${grievanceId}: ${err.message}`);
+        }
+
+        // ── STEP 1: External micro-service (legacy Telangana Location Model) ──
         try {
             const payload = {
                 items: [{

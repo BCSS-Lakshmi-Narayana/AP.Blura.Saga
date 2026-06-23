@@ -3,8 +3,8 @@
  * BSK WATCH · ALERTS → MENTIONS INTAKE
  * ────────────────────────────────────────────────────────────────
  * Reads every un-evaluated row from the Alert collection, runs each
- * through the Ollama BSK relevance gate, and promotes the relevant
- * ones to the Mentions (Grievance) collection.
+ * through the RapidAPI ChatGPT-42 BSK relevance gate, and promotes the
+ * relevant ones to the Mentions (Grievance) collection.
  *
  * Usage:
  *   node scripts/alerts_to_mentions.js                  # full batch (default)
@@ -12,7 +12,7 @@
  *   node scripts/alerts_to_mentions.js --since 2026-05-01
  *   node scripts/alerts_to_mentions.js --platform x
  *   node scripts/alerts_to_mentions.js --status active
- *   node scripts/alerts_to_mentions.js --fast           # heuristic only (no Ollama)
+ *   node scripts/alerts_to_mentions.js --fast           # heuristic only (no LLM call)
  *   node scripts/alerts_to_mentions.js --dry-run        # don't write, just report
  *
  * Idempotent: alerts already stamped with bsk_pipeline.processed=true are
@@ -36,15 +36,15 @@ const opts = {
     status:      arg('--status', null),
     platform:    arg('--platform', null),
     dryRun:      flag('--dry-run'),
-    allowOllama: !flag('--fast')
+    allowLLM:    !flag('--fast')
 };
 
 (async () => {
     console.log('\n╔════════════════════════════════════════════════════════════╗');
     console.log('║  BSK WATCH · ALERTS → MENTIONS INTAKE                      ║');
-    console.log('║  Alerts → Ollama BSK gate → Grievance (Mentions)           ║');
+    console.log('║  Alerts → RapidAPI BSK gate → Grievance (Mentions)         ║');
     console.log('╚════════════════════════════════════════════════════════════╝');
-    console.log(`Mode: ${opts.allowOllama ? 'FULL (Ollama gate)' : 'FAST (heuristic only)'}${opts.dryRun ? ' · DRY-RUN' : ''}`);
+    console.log(`Mode: ${opts.allowLLM ? 'FULL (RapidAPI gate)' : 'FAST (heuristic only)'}${opts.dryRun ? ' · DRY-RUN' : ''}`);
     console.log(`Limit: ${opts.limit}` +
         (opts.since    ? ` · since=${opts.since}`       : '') +
         (opts.status   ? ` · status=${opts.status}`     : '') +

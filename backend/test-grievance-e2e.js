@@ -62,7 +62,7 @@ const hr = (ch = '═', n = 78) => console.log(C.dim + ch.repeat(n) + C.reset);
     }
 
     console.log(`\n${C.bold}${C.cyan}GRIEVANCE END-TO-END ANALYSIS${C.reset}`);
-    console.log(`${C.dim}PRIMARY_LLM_PROVIDER=${process.env.PRIMARY_LLM_PROVIDER || 'ollama'}  OLLAMA=${process.env.OLLAMA_BASE_URL || 'http://localhost:11434'}  MODEL=${process.env.OLLAMA_MODEL || 'llama3.1:latest'}${C.reset}\n`);
+    console.log(`${C.dim}LLM_PROVIDER=rapidapi  HOST=${process.env.RAPIDAPI_CHATGPT_HOST || 'chatgpt-42.p.rapidapi.com'}${C.reset}\n`);
 
     hr();
     console.log(`${C.bold}INPUT${C.reset}`);

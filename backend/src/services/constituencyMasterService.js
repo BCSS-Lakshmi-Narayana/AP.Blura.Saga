@@ -1,0 +1,261 @@
+/**
+ * constituencyMasterService
+ * ─────────────────────────────────────────────────────────────────────
+ * In-process cache + reverse-index over the ConstituencyMaster collection.
+ *
+ *   • aliasIndex   — every alias / mandal / village / keyword token → AC name
+ *   • acIndex      — AC name → full master row
+ *   • districtIndex — district name → [AC names]
+ *   • lsIndex      — LS slug → [AC names]
+ *
+ * Used by:
+ *   • locationClassifierService — heuristic substring match on aliasIndex
+ *     (no API call), then LLM fallback with keyword context per AC
+ *   • routing engine            — resolveRouting(acName) returns the full
+ *     fan-out: MLA login, MP login, district dashboard, LS dashboard
+ *
+ * The cache auto-refreshes every REFRESH_MS or on explicit
+ * `invalidateCache()` (called from any controller that mutates the
+ * master collection).
+ */
+
+const ConstituencyMaster = require('../models/ConstituencyMaster');
+const User = require('../models/User');
+
+const REFRESH_MS = parseInt(process.env.CONSTITUENCY_MASTER_REFRESH_MS || '300000', 10); // 5 min
+
+const normKey = (v) =>
+    String(v || '')
+        .toLowerCase()
+        .replace(/\([^)]*\)/g, ' ')
+        .replace(/[^a-z0-9]+/g, '')
+        .trim();
+
+const compactLower = (v) => String(v || '').toLowerCase().trim();
+
+let cache = null;
+let lastBuiltAt = 0;
+let buildPromise = null;
+
+const buildCache = async () => {
+    const rows = await ConstituencyMaster.find({ is_active: true }).lean();
+
+    const acIndex = {};           // ac_key → row
+    const aliasIndex = [];        // [{ token, token_lower, ac_name, source }]
+    const districtIndex = {};     // district_key → [ac_name]
+    const lsIndex = {};           // lok_sabha_key → [ac_name]
+
+    const addToken = (token, ac_name, source) => {
+        const lower = compactLower(token);
+        if (!lower || lower.length < 3) return;        // skip very short tokens to avoid false positives
+        aliasIndex.push({ token, token_lower: lower, ac_name, source });
+    };
+
+    for (const row of rows) {
+        const key = row.ac_key || normKey(row.ac_name);
+        acIndex[key] = row;
+
+        // Index every recognisable token for heuristic substring matching.
+        addToken(row.ac_name, row.ac_name, 'ac_name');
+
+        for (const m of (row.mandals || [])) {
+            addToken(m.name, row.ac_name, 'mandal');
+            for (const a of (m.aliases || [])) addToken(a, row.ac_name, 'mandal_alias');
+        }
+        for (const v of (row.villages || [])) {
+            addToken(v.name, row.ac_name, 'village');
+            for (const a of (v.aliases || [])) addToken(a, row.ac_name, 'village_alias');
+        }
+        for (const kw of (row.keywords || [])) {
+            addToken(kw, row.ac_name, 'keyword');
+        }
+
+        // District + LS reverse indexes for routing fan-out.
+        if (row.district_key) {
+            (districtIndex[row.district_key] = districtIndex[row.district_key] || []).push(row.ac_name);
+        }
+        if (row.lok_sabha_key) {
+            (lsIndex[row.lok_sabha_key] = lsIndex[row.lok_sabha_key] || []).push(row.ac_name);
+        }
+    }
+
+    // Longest-first so multi-word tokens win over substrings
+    // ('Tirumala Hills' beats 'Tirumala' beats 'Hills').
+    aliasIndex.sort((a, b) => b.token_lower.length - a.token_lower.length);
+
+    cache = { acIndex, aliasIndex, districtIndex, lsIndex, builtAt: Date.now(), rowCount: rows.length };
+    lastBuiltAt = Date.now();
+    console.log(`[ConstituencyMaster] cache rebuilt: ${rows.length} ACs, ${aliasIndex.length} tokens`);
+    return cache;
+};
+
+const getCache = async () => {
+    if (cache && Date.now() - lastBuiltAt < REFRESH_MS) return cache;
+    if (buildPromise) return buildPromise;
+    buildPromise = buildCache().finally(() => { buildPromise = null; });
+    return buildPromise;
+};
+
+const invalidateCache = () => {
+    cache = null;
+    lastBuiltAt = 0;
+};
+
+/* ─── alias matching (used by classifier heuristic short-circuit) ── */
+
+/**
+ * Scan the haystack for ANY indexed token. Returns the first (longest)
+ * hit so the caller knows which AC the post is about and why.
+ */
+const matchAlias = async (haystack) => {
+    if (!haystack) return null;
+    const lower = compactLower(haystack);
+    const c = await getCache();
+    for (const entry of c.aliasIndex) {
+        // Word-boundary-ish match: require non-alphanumeric neighbours
+        // so 'Tirupati' inside 'Tirupatipatnam' doesn't match falsely.
+        const i = lower.indexOf(entry.token_lower);
+        if (i < 0) continue;
+        const before = lower[i - 1];
+        const after = lower[i + entry.token_lower.length];
+        const isBoundary = (ch) => ch === undefined || /[^a-z0-9]/i.test(ch);
+        if (isBoundary(before) && isBoundary(after)) {
+            return {
+                ac_name: entry.ac_name,
+                matched_token: entry.token,
+                match_source: entry.source,
+            };
+        }
+    }
+    return null;
+};
+
+/**
+ * Returns up to `limit` representative tokens per AC for the classifier's
+ * LLM prompt context. Helps the model disambiguate "I'm at the Padalu" →
+ * picks TIRUPATI by association.
+ */
+const getContextTokensForAcs = async (acNames, limit = 6) => {
+    const c = await getCache();
+    const out = {};
+    for (const ac of acNames) {
+        const key = normKey(ac);
+        const row = c.acIndex[key];
+        if (!row) continue;
+        const tokens = [];
+        for (const m of (row.mandals || []).slice(0, limit)) tokens.push(m.name);
+        for (const v of (row.villages || []).slice(0, limit)) tokens.push(v.name);
+        for (const kw of (row.keywords || []).slice(0, limit)) tokens.push(kw);
+        out[ac] = tokens.slice(0, limit);
+    }
+    return out;
+};
+
+/* ─── routing engine ──────────────────────────────────────────────── */
+
+/**
+ * Given a detected AC name, return the full routing fan-out:
+ *   • ac_dashboard / district_dashboard / lok_sabha_dashboard URLs
+ *   • mla_users   — login(s) for the AC's MLA(s)
+ *   • mp_users    — login(s) for the LS seat's MP(s)
+ *   • siblings    — other ACs in the same district / LS (for context)
+ *   • scope_keys  — keys that get stamped on the grievance so any future
+ *                   district / LS scope filter resolves correctly
+ */
+const resolveRouting = async (acName) => {
+    if (!acName) return null;
+    const c = await getCache();
+    const key = normKey(acName);
+    const row = c.acIndex[key];
+
+    const district = row?.district || null;
+    const lokSabha = row?.lok_sabha || null;
+    const districtKey = row?.district_key || normKey(district);
+    const lsKey       = row?.lok_sabha_key || normKey(lokSabha);
+
+    const acDisplay = row?.ac_name || String(acName).toUpperCase();
+
+    // Sibling ACs in the same district / LS (sorted, AC excluded).
+    const siblingsInDistrict = (c.districtIndex[districtKey] || []).filter((x) => normKey(x) !== key);
+    const siblingsInLs       = (c.lsIndex[lsKey]             || []).filter((x) => normKey(x) !== key);
+
+    // Login users for this AC and its LS seat.
+    const [mlaUsers, mpUsers] = await Promise.all([
+        User.find({ role: 'mla', assigned_constituency: { $regex: `^${escapeRegex(acDisplay)}$`, $options: 'i' } })
+            .select('id email full_name is_active').lean(),
+        lsKey
+            ? User.find({ role: 'mp', assigned_lok_sabha: { $regex: `^${escapeRegex(lokSabha)}$`, $options: 'i' } })
+                .select('id email full_name is_active').lean()
+            : Promise.resolve([]),
+    ]);
+
+    return {
+        ac_name:    acDisplay,
+        ac_key:     key,
+        district,
+        district_key: districtKey || null,
+        lok_sabha:  lokSabha,
+        lok_sabha_key: lsKey || null,
+
+        dashboards: {
+            ac:        `/dashboard/constituency/${key}`,
+            district:  districtKey ? `/dashboard/district/${districtKey}` : null,
+            lok_sabha: lsKey       ? `/dashboard/ls/${lsKey}`             : null,
+        },
+
+        mla_users: mlaUsers,
+        mp_users:  mpUsers,
+
+        mla_name:  row?.mla_name || null,
+        mla_party: row?.mla_party || null,
+        mp_name:   row?.mp_name || null,
+        mp_party:  row?.mp_party || null,
+
+        siblings_in_district: siblingsInDistrict,
+        siblings_in_ls:       siblingsInLs,
+
+        // Keys used by scopeMiddleware / future district-level filters.
+        scope_keys: [
+            key,
+            lsKey       ? `ls:${lsKey}`             : null,
+            districtKey ? `district:${districtKey}` : null,
+        ].filter(Boolean),
+    };
+};
+
+const escapeRegex = (s) => String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+/* ─── lookup helpers ──────────────────────────────────────────────── */
+
+const getMasterRow = async (acName) => {
+    const c = await getCache();
+    return c.acIndex[normKey(acName)] || null;
+};
+
+const getAcsByDistrict = async (district) => {
+    const c = await getCache();
+    return c.districtIndex[normKey(district)] || [];
+};
+
+const getAcsByLokSabha = async (ls) => {
+    const c = await getCache();
+    return c.lsIndex[normKey(ls)] || [];
+};
+
+const getAllAcs = async () => {
+    const c = await getCache();
+    return Object.values(c.acIndex);
+};
+
+module.exports = {
+    matchAlias,
+    resolveRouting,
+    getMasterRow,
+    getAcsByDistrict,
+    getAcsByLokSabha,
+    getAllAcs,
+    getContextTokensForAcs,
+    invalidateCache,
+    // exported for tests / debug
+    _buildCacheForTest: buildCache,
+};

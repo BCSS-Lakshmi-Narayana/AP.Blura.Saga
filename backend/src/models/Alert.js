@@ -168,7 +168,7 @@ const alertSchema = new mongoose.Schema({
     default: null
   },
   // BSK relevance pipeline lineage — set by alertsToMentionsService once
-  // the alert has been evaluated by the Ollama BSK gate. Used as the
+  // the alert has been evaluated by the RapidAPI BSK gate. Used as the
   // idempotency marker so the pipeline never re-processes the same alert.
   bsk_pipeline: {
     processed:    { type: Boolean, default: false },

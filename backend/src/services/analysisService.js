@@ -9,7 +9,7 @@ const PlatformPolicy = require('../models/PlatformPolicy');
 
 /**
  * Advanced Dual-Pass AI Analysis (V5.1)
- * Pass A: Multi-Provider LLM (Ollama/GitHub) for Intent & Categorization
+ * Pass A: RapidAPI ChatGPT-42 LLM for Intent & Categorization
  * Pass B: Local Fine-Tuned Model for Legal & Policy Mapping
  * Replaces legacy Toxicity and Distilbert models.
  * Pass D: Standalone Deepfake Forensics (S3-First, Async)
@@ -207,6 +207,10 @@ const analyzeContent = async (text, options = {}) => {
     const finalResult = {
       risk_level: finalRiskLevel,
       risk_score: finalRiskScore,
+      // Citizen-impact severity + best-fit government department from the
+      // extended Pass A schema. Both are validated inside categorizeText.
+      severity: llmResult.severity || finalRiskLevel,
+      concerned_department: llmResult.concerned_department || 'General Administration',
       primary_intent: currentCategory,
       category: currentCategory,
       grievance_type: llmResult.grievance_type || 'Normal',

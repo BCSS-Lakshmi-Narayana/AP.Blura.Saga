@@ -1,4 +1,3 @@
-const axios = require('axios');
 const TempContent = require('../models/TempContent');
 const Source = require('../models/Source');
 const Content = require('../models/Content');
@@ -16,28 +15,9 @@ const POLL_MS = Number(process.env.ENGINE_TEMP_POLL_MS || 30000);
 const PROCESS_CONCURRENCY = Math.max(1, Number(process.env.ENGINE_TEMP_CONCURRENCY || 4));
 const FAST_DRAIN = String(process.env.ENGINE_TEMP_FAST_DRAIN || 'true').toLowerCase() === 'true';
 const PROCESSING_TIMEOUT_MS = Math.max(60000, Number(process.env.ENGINE_TEMP_PROCESSING_TIMEOUT_MS || 15 * 60 * 1000));
-const ONPREM_HEALTH_TIMEOUT = 5000;
 
 let running = false;
 let timer = null;
-let onPremReachable = null;
-let onPremCheckedAt = 0;
-const ONPREM_CHECK_INTERVAL = 60000;
-
-async function isOnPremReachable() {
-  if (Date.now() - onPremCheckedAt < ONPREM_CHECK_INTERVAL && onPremReachable !== null) {
-    return onPremReachable;
-  }
-  const baseUrl = process.env.OLLAMA_BASE_URL || 'http://localhost:11434';
-  try {
-    await axios.get(baseUrl, { timeout: ONPREM_HEALTH_TIMEOUT });
-    onPremReachable = true;
-  } catch {
-    onPremReachable = false;
-  }
-  onPremCheckedAt = Date.now();
-  return onPremReachable;
-}
 
 const toDate = (v) => {
   if (!v) return new Date();
@@ -505,12 +485,6 @@ async function runCycle() {
     const settings = await Settings.findOne({ id: 'global_settings' });
     if (!settings) return 0;
     const keywords = await Keyword.find({ is_active: true });
-
-    const modelsUp = await isOnPremReachable();
-    if (!modelsUp) {
-      console.log('[TempProcessor] On-prem models unreachable — items stay in temp DB (will retry next cycle)');
-      return 0;
-    }
 
     await TempContent.updateMany(
       { status: 'failed' },

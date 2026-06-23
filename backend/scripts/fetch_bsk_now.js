@@ -10,7 +10,7 @@
  *
  * Reads active BSK keywords from the Keyword collection, hits every working
  * platform (RapidAPI X is the most reliable on the current plan), runs each
- * post through Ollama for sentiment + topic categorisation, and writes
+ * post through RapidAPI ChatGPT-42 for sentiment + topic categorisation, and writes
  * everything into the Grievance collection so the dashboard / map / grid
  * have real content to render.
  */

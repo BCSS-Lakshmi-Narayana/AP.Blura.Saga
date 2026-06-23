@@ -2492,7 +2492,7 @@ const updateGrievanceRiskLevel = async (req, res) => {
 };
 
 // @desc    Import a single tweet by URL or numeric id and run the full
-//          BSK analysis pipeline (Ollama sentiment, topic classification).
+//          BSK analysis pipeline (RapidAPI ChatGPT-42 sentiment, topic classification).
 // @route   POST /api/grievances/import-tweet
 // @access  Private
 const importTweetByUrl = async (req, res) => {
@@ -2558,9 +2558,10 @@ const importTweetByUrl = async (req, res) => {
 };
 
 /**
- * Trigger the Alerts → Mentions Ollama-gated promotion pipeline. Reads the
- * next N unprocessed alerts, runs each through the BSK relevance gate, and
- * promotes the relevant ones into the Mentions / Grievance collection.
+ * Trigger the Alerts → Mentions LLM-gated (RapidAPI ChatGPT-42) promotion
+ * pipeline. Reads the next N unprocessed alerts, runs each through the BSK
+ * relevance gate, and promotes the relevant ones into the Mentions /
+ * Grievance collection.
  *
  * Body (all optional):
  *   { limit?, since?, status?, platform?, dryRun?, fast? }
@@ -2574,7 +2575,7 @@ const intakeFromAlerts = async (req, res) => {
             status:      req.body?.status || null,
             platform:    req.body?.platform || null,
             dryRun:      !!req.body?.dryRun,
-            allowOllama: !req.body?.fast
+            allowLLM:    !req.body?.fast
         });
         return res.json({ ok: true, stats });
     } catch (err) {

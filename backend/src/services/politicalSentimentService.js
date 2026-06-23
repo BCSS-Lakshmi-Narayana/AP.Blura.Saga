@@ -38,22 +38,13 @@
  *         misinformation_probability,// 0..1
  *         language_detected,         // free string from LLM
  *         reasoning,
- *         provider,                  // 'ollama' | 'github' | 'fallback'
+ *         provider,                  // 'rapidapi' | 'fallback'
  *       }
  */
 
-const axios = require('axios');
-const OpenAI = require('openai');
+const { chatJson } = require('./rapidApiLLMService');
 
-const OLLAMA_BASE_URL = (process.env.OLLAMA_BASE_URL || 'http://localhost:11434').replace(/\/+$/, '');
-const OLLAMA_MODEL    = process.env.OLLAMA_MODEL    || 'qwen2.5:14b-instruct-q4_K_M';
-const OLLAMA_TIMEOUT  = parseInt(process.env.POLITICAL_SENTIMENT_TIMEOUT_MS || '60000', 10);
-
-const GITHUB_TOKEN    = process.env.GITHUB_TOKEN;
-const GITHUB_BASE_URL = 'https://models.inference.ai.azure.com';
-const GITHUB_MODEL    = process.env.GITHUB_POLITICAL_MODEL || 'gpt-4o';
-
-const PRIMARY_PROVIDER = (process.env.PRIMARY_LLM_PROVIDER || 'ollama').toLowerCase();
+const LLM_TIMEOUT = parseInt(process.env.POLITICAL_SENTIMENT_TIMEOUT_MS || '60000', 10);
 
 const ALLOWED_STANCES = [
     'pro_bsk',
@@ -192,34 +183,14 @@ ${String(text || '').slice(0, 1800)}
 >>>`;
 };
 
-/* ─── provider calls ───────────────────────────────────────────────── */
+/* ─── provider call ────────────────────────────────────────────────── */
 
-const callOllama = async (prompt) => {
-    const res = await axios.post(
-        `${OLLAMA_BASE_URL}/api/chat`,
-        {
-            model: OLLAMA_MODEL,
-            messages: [{ role: 'user', content: prompt }],
-            stream: false,
-            format: 'json',
-            options: { temperature: 0.1, num_predict: 700 },
-        },
-        { timeout: OLLAMA_TIMEOUT }
-    );
-    return extractJson(res.data?.message?.content);
-};
-
-const callGithub = async (prompt) => {
-    if (!GITHUB_TOKEN) return null;
-    const client = new OpenAI({ apiKey: GITHUB_TOKEN, baseURL: GITHUB_BASE_URL });
-    const response = await client.chat.completions.create({
-        messages: [{ role: 'user', content: prompt }],
-        model: GITHUB_MODEL,
-        response_format: { type: 'json_object' },
-        temperature: 0.1,
-    });
-    return extractJson(response.choices?.[0]?.message?.content);
-};
+const callRapidApi = (prompt) => chatJson({
+    prompt,
+    temperature: 0.1,
+    maxTokens: 1500,
+    timeoutMs: LLM_TIMEOUT,
+});
 
 /* ─── output normalization & sentiment resolution ──────────────────── */
 
@@ -340,12 +311,11 @@ const analyzePoliticalSentiment = async (text, politicalContext, options = {}) =
     }
 
     const prompt = buildPrompt(text, ctx);
-    const order = PRIMARY_PROVIDER === 'github' ? ['github', 'ollama'] : ['ollama', 'github'];
+    const provider = 'rapidapi';
 
-    for (const provider of order) {
-        try {
-            const raw = provider === 'ollama' ? await callOllama(prompt) : await callGithub(prompt);
-            if (!raw) continue;
+    try {
+        const raw = await callRapidApi(prompt);
+        if (raw) {
             const verdict = sanitizeRaw(raw, ctx);
 
             // ────────────────────────────────────────────────────────────────
@@ -380,10 +350,9 @@ const analyzePoliticalSentiment = async (text, politicalContext, options = {}) =
 
             const bsk_sentiment = resolveBskSentiment(verdict, ctx);
             return { ...verdict, bsk_sentiment, provider };
-        } catch (err) {
-            console.warn(`[politicalSentiment] ${provider} failed: ${err.message}`);
-            continue;
         }
+    } catch (err) {
+        console.warn(`[politicalSentiment] ${provider} failed: ${err.message}`);
     }
 
     const fb = heuristicFallback(ctx);

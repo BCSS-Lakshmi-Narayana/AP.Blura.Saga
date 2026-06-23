@@ -1,11 +1,10 @@
 /**
  * bskRelevanceFilterService
  *
- * The fast single-pass Ollama gate that decides whether a tweet is about
+ * Fast single-pass relevance gate that decides whether a tweet is about
  * N. Chandrababu Naidu (CBN) and the TDP leadership in Andhra Pradesh.
- * Used by the relevance pipeline before any heavyweight categorisation
- * runs, so we never waste a dual-pass analysis on a tweet that isn't even
- * about the TDP leadership.
+ * Heuristic first; ambiguous text falls through to the RapidAPI
+ * ChatGPT-42 endpoint via `rapidApiLLMService`.
  *
  * NOTE: the output key `is_bsk` and the `target` enum values
  * ('bsk' | 'bsk_son' | 'bjp_telangana' | 'unrelated') are LEGACY identifiers
@@ -26,17 +25,15 @@
  *          }
  *
  * Heuristic fast-path: any tweet text containing an unambiguous TDP-leader
- * token (name variants, official handle) returns true without hitting
- * Ollama, with confidence inferred from the matched token.
+ * token (name variants, official handle) returns true without hitting the
+ * LLM, with confidence inferred from the matched token.
  *
- * If Ollama is unreachable or returns garbage we err on the side of the
- * heuristic — so the pipeline keeps producing data even if Ollama is down.
+ * If RapidAPI is unreachable or returns garbage we fall back to the
+ * heuristic — so the pipeline keeps producing data even if the LLM is down.
  */
-const axios = require('axios');
+const { chatJson } = require('./rapidApiLLMService');
 
-const OLLAMA_BASE_URL = (process.env.OLLAMA_BASE_URL || 'http://32.192.131.130:11434').replace(/\/+$/, '');
-const OLLAMA_MODEL    = process.env.OLLAMA_MODEL    || 'llama3.1:latest';
-const OLLAMA_TIMEOUT  = parseInt(process.env.BSK_FILTER_TIMEOUT_MS || '15000', 10);
+const LLM_TIMEOUT = parseInt(process.env.BSK_FILTER_TIMEOUT_MS || '20000', 10);
 
 // ─── Heuristic tokens — case-insensitive substring match ───────────
 const HARD_BSK_TOKENS = [
@@ -71,19 +68,8 @@ function heuristicMatch(text) {
   return { matched: false };
 }
 
-/* ─── strict JSON extractor (resilient to surrounding chatter) ── */
-function extractJson(blob) {
-  if (!blob) return null;
-  if (typeof blob === 'object') return blob;
-  const s = String(blob);
-  try { return JSON.parse(s); } catch (_) { /* fallthrough */ }
-  const m = s.match(/\{[\s\S]*\}/);
-  if (!m) return null;
-  try { return JSON.parse(m[0]); } catch (_) { return null; }
-}
-
-/* ─── Ollama call ─────────────────────────────────────────────── */
-async function askOllama(tweetText) {
+/* ─── LLM call (RapidAPI ChatGPT-42) ──────────────────────────── */
+async function askLLM(tweetText) {
   const prompt = `You are filtering tweets for a Telugu Desam Party (TDP) media-monitoring system in Andhra Pradesh.
 The primary subject is N. Chandrababu Naidu (CBN), TDP national president and Chief Minister of
 Andhra Pradesh. The secondary subject is Nara Lokesh, TDP leader and minister. The TDP leads the
@@ -107,26 +93,19 @@ Reply with EXACTLY one JSON object on a single line, no prose, no markdown:
 {"is_bsk": true|false, "confidence": 0.0-1.0, "stance": "positive"|"negative"|"neutral"|"unknown", "target": "bsk"|"bsk_son"|"bjp_telangana"|"unrelated", "topic": "short label", "reason": "one short sentence"}`;
 
   try {
-    const res = await axios.post(
-      `${OLLAMA_BASE_URL}/api/chat`,
-      {
-        model: OLLAMA_MODEL,
-        messages: [{ role: 'user', content: prompt }],
-        stream: false,
-        options: { temperature: 0.1, num_predict: 220 },
-        format: 'json',
-      },
-      { timeout: OLLAMA_TIMEOUT }
-    );
-    const content = res.data?.message?.content || '';
-    return extractJson(content);
+    return await chatJson({
+      prompt,
+      temperature: 0.1,
+      maxTokens: 400,
+      timeoutMs: LLM_TIMEOUT,
+    });
   } catch (err) {
-    return { __error: err.message || 'ollama call failed' };
+    return { __error: err.message || 'rapidapi call failed' };
   }
 }
 
 /* ─── public API ─────────────────────────────────────────────── */
-async function checkRelevance(tweetText, { allowOllama = true } = {}) {
+async function checkRelevance(tweetText, { allowLLM = true } = {}) {
   const text = String(tweetText || '').trim();
   if (!text) {
     return { is_bsk: false, confidence: 0, stance: 'unknown', target: 'unrelated', topic: '', reason: 'empty text' };
@@ -146,19 +125,19 @@ async function checkRelevance(tweetText, { allowOllama = true } = {}) {
     };
   }
 
-  // 2. Ollama gate (skip on demand for speed-only runs)
-  if (!allowOllama) {
+  // 2. LLM gate (skip on demand for speed-only runs)
+  if (!allowLLM) {
     return heur.matched
       ? { is_bsk: true, confidence: 0.55, stance: 'unknown', target: 'bjp_telangana', topic: 'soft match', reason: `Soft token "${heur.token}"`, heuristic: true }
-      : { is_bsk: false, confidence: 0.05, stance: 'unknown', target: 'unrelated', topic: '', reason: 'no token, ollama skipped', heuristic: true };
+      : { is_bsk: false, confidence: 0.05, stance: 'unknown', target: 'unrelated', topic: '', reason: 'no token, llm skipped', heuristic: true };
   }
 
-  const llm = await askOllama(text);
+  const llm = await askLLM(text);
   if (!llm || llm.__error) {
-    // Fall back to heuristic if Ollama broken
+    // Fall back to heuristic if RapidAPI broken
     return heur.matched
-      ? { is_bsk: true, confidence: 0.5, stance: 'unknown', target: 'bjp_telangana', topic: 'soft match (ollama down)', reason: `Ollama unreachable; soft heuristic on "${heur.token}"`, heuristic: true, ollama_error: llm?.__error }
-      : { is_bsk: false, confidence: 0.1, stance: 'unknown', target: 'unrelated', topic: '', reason: 'no match + ollama unreachable', heuristic: true, ollama_error: llm?.__error };
+      ? { is_bsk: true, confidence: 0.5, stance: 'unknown', target: 'bjp_telangana', topic: 'soft match (llm down)', reason: `RapidAPI unreachable; soft heuristic on "${heur.token}"`, heuristic: true, llm_error: llm?.__error }
+      : { is_bsk: false, confidence: 0.1, stance: 'unknown', target: 'unrelated', topic: '', reason: 'no match + llm unreachable', heuristic: true, llm_error: llm?.__error };
   }
 
   // Sanitise LLM output

@@ -1,41 +1,14 @@
-const OpenAI = require("openai");
-const axios = require("axios");
 const mappingService = require("./mappingService");
+const { chatJson } = require("./rapidApiLLMService");
 
 /**
- * Advanced Multi-Provider Categorization (V5.1)
- * Uses Local Ollama (llama3.1) as Primary for Unlimited Requests.
- * Uses GitHub Models (GPT-4o) as Reliability Fallback.
+ * Categorization (V6) — single-provider via RapidAPI ChatGPT-42.
+ * Ollama and GitHub Models have been retired in favour of one
+ * managed HTTP endpoint so the pipeline has zero local dependencies.
  */
-async function categorizeText(text, retryCount = 1) {
-  const primaryProvider = process.env.PRIMARY_LLM_PROVIDER || 'ollama';
-  const currentProvider = (retryCount === 1) ? primaryProvider : 'github';
-
+async function categorizeText(text) {
   // 1. Ensure Mapping Data is loaded (avoid empty categorization lists)
   await mappingService.waitForLoad();
-
-  // 2. Resolve Provider Configuration
-  let config = {
-    apiKey: '',
-    baseURL: '',
-    model: ''
-  };
-
-  if (currentProvider === 'ollama') {
-    config.baseURL = process.env.OLLAMA_BASE_URL || "http://32.192.131.130:11434";
-    config.model = process.env.OLLAMA_MODEL || "qwen2.5:14b-instruct-q4_K_M";
-    config.apiKey = "ollama"; // Dummy key for OpenAI SDK compatibility
-  } else if (currentProvider === 'github') {
-    config.apiKey = process.env.GITHUB_TOKEN;
-    config.baseURL = "https://models.inference.ai.azure.com";
-    config.model = "gpt-4o";
-  }
-
-  // Early exit if missing primary config
-  if (currentProvider === 'github' && !config.apiKey) {
-    console.warn(`[LLM] No GITHUB_TOKEN found. Skipping fallback.`);
-    return null;
-  }
 
   // Dynamic Prompt Construction
   const categories = mappingService.mappingData.category_mappings || [];
@@ -123,6 +96,37 @@ Determine the risk level and score:
 - 'high' (72-100): Severe threats, hateful rhetoric, communal incitement, or major corruption allegations.
 
 ════════════════════════
+JOB 5: SEVERITY (citizen-impact)
+════════════════════════
+How urgent is this for the citizen / region (NOT for the politician)?
+- 'low'      : informational / praise / minor inconvenience
+- 'medium'   : ongoing service complaint (power outage, road damage, water shortage)
+- 'high'     : public safety risk, multiple-people-affected, serious infra failure
+- 'critical' : life-threatening, riot/violence risk, mass agitation, hospital/water emergency
+
+════════════════════════
+JOB 6: CONCERNED DEPARTMENT
+════════════════════════
+Pick EXACTLY ONE government department best suited to act on this post.
+ALLOWED DEPARTMENTS (use the exact label):
+- Roads & Buildings
+- Municipal & Sanitation
+- Water Supply
+- Electricity
+- Health & Medical
+- Education
+- Police & Law Order
+- Revenue
+- Agriculture
+- Welfare & Pensions
+- Employment & Skill Development
+- Transport & RTA
+- Forest & Environment
+- General Administration
+
+If the post is not a grievance (greeting, praise, joke) → "General Administration".
+
+════════════════════════
 OUTPUT FORMAT (STRICT JSON ONLY):
 ════════════════════════
 {
@@ -132,7 +136,9 @@ OUTPUT FORMAT (STRICT JSON ONLY):
   "grievance_reasoning": "<1-line plain summary of what the person is complaining about>",
   "sentiment": "positive | negative | neutral",
   "risk_level": "low | medium | high",
-  "risk_score": <number 0-100 indicating severity>
+  "risk_score": <number 0-100 indicating severity>,
+  "severity": "low | medium | high | critical",
+  "concerned_department": "<one of the allowed departments>"
 }
 
 ────────────────────────
@@ -143,34 +149,15 @@ ${text}
 `;
 
   try {
-    let result;
-
-    if (currentProvider === 'ollama') {
-      // Use direct axios for Ollama as it's often more reliable for local setup than SDK
-      const ollamaTimeout = parseInt(process.env.OLLAMA_TIMEOUT_MS || '300000', 10); // 5 min default for remote/cold-load
-      console.log(`[LLM] Calling Ollama at ${config.baseURL} model=${config.model} timeout=${ollamaTimeout}ms`);
-      const response = await axios.post(`${config.baseURL}/api/chat`, {
-        model: config.model,
-        messages: [{ role: "user", content: prompt }],
-        stream: false,
-        format: "json",
-        options: {
-          temperature: 0
-        }
-      }, { timeout: ollamaTimeout });
-
-      const content = response.data?.message?.content;
-      result = JSON.parse(content);
-    } else {
-      // Use OpenAI SDK for GitHub
-      const client = new OpenAI({ apiKey: config.apiKey, baseURL: config.baseURL });
-      const response = await client.chat.completions.create({
-        messages: [{ role: "user", content: prompt }],
-        model: config.model,
-        response_format: { type: "json_object" },
-        temperature: 0
-      });
-      result = JSON.parse(response.choices[0].message.content);
+    console.log(`[LLM] Calling RapidAPI ChatGPT-42 for categorization`);
+    const result = await chatJson({
+      prompt,
+      temperature: 0,
+      maxTokens: 800,
+    });
+    if (!result) {
+      console.warn('[LLM] RapidAPI returned no parseable JSON.');
+      return null;
     }
 
     // --- CATEGORY VALIDATION ---
@@ -217,6 +204,25 @@ ${text}
       finalSentiment = 'neutral';
     }
 
+    // --- SEVERITY VALIDATION ---
+    const ALLOWED_SEVERITY = ['low', 'medium', 'high', 'critical'];
+    let finalSeverity = result.severity || result.risk_level || 'low';
+    if (!ALLOWED_SEVERITY.includes(finalSeverity)) finalSeverity = 'low';
+
+    // --- DEPARTMENT VALIDATION ---
+    const ALLOWED_DEPARTMENTS = [
+      'Roads & Buildings', 'Municipal & Sanitation', 'Water Supply',
+      'Electricity', 'Health & Medical', 'Education',
+      'Police & Law Order', 'Revenue', 'Agriculture',
+      'Welfare & Pensions', 'Employment & Skill Development',
+      'Transport & RTA', 'Forest & Environment', 'General Administration'
+    ];
+    let finalDept = result.concerned_department || 'General Administration';
+    if (!ALLOWED_DEPARTMENTS.includes(finalDept)) {
+      const lc = String(finalDept).toLowerCase();
+      finalDept = ALLOWED_DEPARTMENTS.find((d) => d.toLowerCase() === lc) || 'General Administration';
+    }
+
     return {
       category: finalCategory,
       reasoning: result.reasoning || "",
@@ -224,17 +230,12 @@ ${text}
       grievance_reasoning: result.grievance_reasoning || "",
       sentiment: finalSentiment,
       risk_level: result.risk_level || 'low',
-      risk_score: result.risk_score || 10
+      risk_score: result.risk_score || 10,
+      severity: finalSeverity,
+      concerned_department: finalDept
     };
   } catch (err) {
-    console.error(`[LLM] [${currentProvider}] Analysis Failed:`, err.message);
-
-    // Automatic Fallback to GitHub on first error
-    if (currentProvider === 'ollama' && retryCount > 0) {
-      console.log("[LLM] Local Ollama unavailable. Falling back to GitHub Models...");
-      return categorizeText(text, retryCount - 1);
-    }
-
+    console.error(`[LLM] RapidAPI categorization failed:`, err.message);
     return null;
   }
 }

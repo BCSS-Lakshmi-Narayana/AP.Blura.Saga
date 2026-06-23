@@ -99,7 +99,7 @@ router.post('/fetch-all', fetchAllGrievances);
 router.post('/fetch-keywords', fetchKeywordGrievances);
 router.post('/import-tweet', importTweetByUrl);
 
-// BSK Alerts → Mentions promotion pipeline (Ollama-gated).
+// BSK Alerts → Mentions promotion pipeline (LLM-gated via RapidAPI ChatGPT-42).
 // Reads unprocessed Alert rows, runs each through the BSK relevance gate,
 // and promotes the relevant ones to Mentions / Grievance.
 router.post('/intake-from-alerts', intakeFromAlerts);

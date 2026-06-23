@@ -308,6 +308,12 @@ const grievanceSchema = new mongoose.Schema({
     sentiment: { type: String, enum: ['positive', 'negative', 'neutral'] },
     risk_level: { type: String, enum: ['low', 'medium', 'high', 'critical'] },
     risk_score: { type: Number, default: 0 },
+    // Severity is a semantic alias of risk_level for UI / map colouring.
+    // Always populated by the classifier; kept distinct so future tuning
+    // can decouple "risk to the leadership" from "severity to the citizen".
+    severity: { type: String, enum: ['low', 'medium', 'high', 'critical'] },
+    // Government department best suited to act on this grievance.
+    concerned_department: { type: String, default: null },
     category: { type: String },
     grievance_type: { type: String },
     grievance_topic_reasoning: { type: String },
@@ -355,12 +361,21 @@ const grievanceSchema = new mongoose.Schema({
     city: { type: String },
     district: { type: String },
     constituency: { type: String },
+    lok_sabha: { type: String },
     keyword_matched: { type: String },
+    matched_token: { type: String },
+    match_source:  { type: String },
     lat: { type: Number },
     lng: { type: Number },
-    confidence: { type: String },
-    source: { type: String }
+    confidence: { type: mongoose.Schema.Types.Mixed }, // was String legacy; now allow 0..1 Number
+    source: { type: String },
+    reasoning: { type: String },
+    // Confidence-gated auto-assign vs manual review.
+    auto_assigned: { type: Boolean, default: false },
+    manual_review_required: { type: Boolean, default: false },
   },
+  // Resolved routing fan-out (set by constituencyMasterService.resolveRouting)
+  routing_targets: { type: mongoose.Schema.Types.Mixed, default: null },
   // Is this grievance currently visible/active
   is_active: {
     type: Boolean,
