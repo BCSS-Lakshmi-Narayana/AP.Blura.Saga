@@ -7,30 +7,30 @@
     <meta name="theme-color" content="#FF6F00" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="apple-mobile-web-app-title" content="BSK Watch" />
-    <meta name="application-name" content="BSK Watch" />
+    <meta name="apple-mobile-web-app-title" content="TDP Watch" />
+    <meta name="application-name" content="TDP  Watch" />
     <meta name="description"
-        content="BSK Watch — real-time social media intelligence platform for Shri Bandi Sanjay Kumar (BJP, MP Karimnagar). Track mentions, sentiment, alerts, grievances and people-of-interest across X, YouTube, Facebook, Instagram, Telegram and news media." />
+        content="AP Political Watch — real-time social media intelligence platform for the TDP leadership in Andhra Pradesh (N. Chandrababu Naidu &amp; Nara Lokesh). Track mentions, sentiment, alerts, grievances and people-of-interest across X, YouTube, Facebook, Instagram, Telegram and news media." />
     <meta name="referrer" content="no-referrer" />
-    <meta name="author" content="BSK Watch · BJP Telangana" />
+    <meta name="author" content="TDP Watch" />
     <meta name="keywords"
-        content="Bandi Sanjay Kumar, BSK, BSK Watch, BJP Telangana, Karimnagar MP, Karimnagar Lok Sabha, social media monitoring, sentiment analysis, political intelligence, BJP Karimnagar, lotus, kamal" />
+        content="Nara Chandrababu Naidu, Nara Lokesh, TDP, TDP Watch, TDP Andhra Pradesh, Andhra Pradesh CM, Andhra Pradesh politics, social media monitoring, sentiment analysis, political intelligence, TDP Andhra Pradesh, bicycle" />
     <meta name="robots" content="index,follow" />
 
     <!-- Open Graph -->
-    <meta property="og:site_name" content="BSK Watch · BJP Telangana" />
-    <meta property="og:title" content="BSK Watch · Bandi Sanjay Kumar — Social Media Intelligence" />
+    <meta property="og:site_name" content="TDP Watch · TDP Andhra Pradesh" />
+    <meta property="og:title" content="TDP Watch · Nara Chandrababu Naidu — Social Media Intelligence" />
     <meta property="og:description"
-        content="Real-time mentions, sentiment, alerts &amp; grievances for Shri Bandi Sanjay Kumar (BJP, MP Karimnagar) across every major platform." />
+        content="Real-time mentions, sentiment, alerts &amp; grievances for the TDP leadership in Andhra Pradesh across every major platform." />
     <meta property="og:type" content="website" />
     <meta property="og:image" content="%PUBLIC_URL%/policelogo.jpg" />
     <meta property="og:locale" content="en_IN" />
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="BSK Watch · Bandi Sanjay Kumar" />
+    <meta name="twitter:title" content="TDP Watch · Nara Chandrababu Naidu" />
     <meta name="twitter:description"
-        content="Social media intelligence platform for Shri Bandi Sanjay Kumar, BJP Telangana." />
+        content="Social media intelligence platform for the TDP leadership, Andhra Pradesh." />
     <meta name="twitter:image" content="%PUBLIC_URL%/policelogo.jpg" />
 
     <!-- Schema.org -->
@@ -38,14 +38,14 @@
         {
             "@context": "https://schema.org",
             "@type": "WebApplication",
-            "name": "BSK Watch",
-            "alternateName": "Bandi Sanjay Kumar Watch",
+            "name": "TDP Watch",
+            "alternateName": "AP Political Watch",
             "applicationCategory": "BusinessApplication",
             "operatingSystem": "Web",
-            "description": "Social media intelligence platform for Shri Bandi Sanjay Kumar, BJP Telangana (MP Karimnagar). Tracks mentions, sentiment and grievances in real time.",
+            "description": "Social media intelligence platform for the TDP leadership, Andhra Pradesh. Tracks mentions, sentiment and grievances in real time.",
             "publisher": {
                 "@type": "Organization",
-                "name": "BJP Telangana"
+                "name": "TDP Andhra Pradesh"
             }
         }
     </script>
@@ -55,11 +55,11 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 
-    <title>BSK Watch · Bandi Sanjay Kumar (BJP · MP Karimnagar)</title>
+    <title>TDP WATCH</title>
 
     <style>
         /* Saffron splash while the bundle loads */
-        #initial-bsk-splash {
+        #initial-tdp-splash {
             position: fixed;
             inset: 0;
             display: flex;
@@ -76,30 +76,30 @@
             z-index: 99999;
         }
 
-        #initial-bsk-splash .ring {
+        #initial-tdp-splash .ring {
             width: 78px;
             height: 78px;
             border-radius: 50%;
             border: 4px solid rgba(255, 231, 179, 0.35);
             border-top-color: #FFE7B3;
-            animation: bskSplashSpin 0.9s linear infinite;
+            animation: tdpSplashSpin 0.9s linear infinite;
         }
 
-        #initial-bsk-splash h1 {
+        #initial-tdp-splash h1 {
             margin: 0;
             font-weight: 800;
             font-size: 20px;
             text-transform: uppercase;
         }
 
-        #initial-bsk-splash p {
+        #initial-tdp-splash p {
             margin: 0;
             font-size: 11px;
             opacity: 0.8;
             letter-spacing: 0.3em;
         }
 
-        @keyframes bskSplashSpin {
+        @keyframes tdpSplashSpin {
             to {
                 transform: rotate(360deg);
             }
@@ -128,11 +128,11 @@
 </head>
 
 <body>
-    <noscript>You need to enable JavaScript to run BSK Watch.</noscript>
-    <div id="initial-bsk-splash">
+    <noscript>You need to enable JavaScript to run TDP Watch.</noscript>
+    <div id="initial-tdp-splash">
         <div class="ring"></div>
-        <h1>BSK Watch</h1>
-        <p>Bandi Sanjay Kumar · BJP Telangana</p>
+        <h1>TDP Watch</h1>
+        <p></p>
     </div>
     <script>
         // Remove splash once React mounts content into #root
@@ -142,7 +142,7 @@
             var iv = setInterval(function () {
                 var root = document.getElementById('root');
                 if ((root && root.children.length > 0) || Date.now() - start > maxWait) {
-                    var splash = document.getElementById('initial-bsk-splash');
+                    var splash = document.getElementById('initial-tdp-splash');
                     if (splash) {
                         splash.style.transition = 'opacity 0.45s ease';
                         splash.style.opacity = '0';

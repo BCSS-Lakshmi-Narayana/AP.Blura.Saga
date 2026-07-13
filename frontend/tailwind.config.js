@@ -54,17 +54,17 @@ module.exports = {
         'police-badge': 'hsl(var(--police-badge))',
         'police-silver': 'hsl(var(--police-silver))',
 
-        // BJP / BSK brand palette
-        'bjp-saffron': '#FF9933',
-        'bjp-saffron-dark': '#E07A0F',
-        'bjp-orange': '#FF6F00',
-        'bjp-deep-orange': '#C2410C',
-        'bjp-gold': '#FFB300',
-        'bjp-green': '#138808',
-        'bjp-white': '#FFFFFF',
-        'bsk-primary': '#FF6F00',
-        'bsk-accent': '#FFB300',
-        'bsk-dark': '#7C2D12',
+        // TDP brand palette
+        'tdp-saffron': '#FF9933',
+        'tdp-saffron-dark': '#E07A0F',
+        'tdp-orange': '#FF6F00',
+        'tdp-deep-orange': '#C2410C',
+        'tdp-gold': '#FFB300',
+        'tdp-green': '#138808',
+        'tdp-white': '#FFFFFF',
+        'tdp-primary': '#FF6F00',
+        'tdp-accent': '#FFB300',
+        'tdp-dark': '#7C2D12',
       },
       borderRadius: {
         lg: 'var(--radius)',

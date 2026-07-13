@@ -1,11 +1,23 @@
 require('dotenv').config();
 const axios = require('axios');
+const crypto = require('crypto');
 const { categorizeText } = require('./llmService');
 const mappingService = require('./mappingService');
 const { buildPoliticalContext } = require('./politicalContextService');
 const { analyzePoliticalSentiment } = require('./politicalSentimentService');
+const cacheService = require('./cacheService');
 const LegalSection = require('../models/LegalSection');
 const PlatformPolicy = require('../models/PlatformPolicy');
+
+// Identical (or near-identical, whitespace-collapsed) text — reposts, RTs,
+// the same article picked up by multiple keyword sweeps — reuses the prior
+// LLM verdict instead of re-spending Pass A + Stage 4 tokens on it.
+const TEXT_ANALYSIS_CACHE_TTL_SECONDS = Number(process.env.ANALYSIS_TEXT_CACHE_TTL_SECONDS || 7 * 24 * 60 * 60);
+const textAnalysisCacheKey = (text) => {
+  const normalized = String(text || '').trim().replace(/\s+/g, ' ');
+  const hash = crypto.createHash('sha256').update(normalized).digest('hex');
+  return `analysis:text:v1:${hash}`;
+};
 
 /**
  * Advanced Dual-Pass AI Analysis (V5.1)
@@ -79,6 +91,19 @@ const analyzeContent = async (text, options = {}) => {
   }
 
   try {
+    // --- CACHE: identical/near-identical text already analyzed (reposts, RTs,
+    // the same story ingested via multiple keyword sweeps) ---
+    const cacheKey = textAnalysisCacheKey(text);
+    const cached = await cacheService.get(cacheKey);
+    if (cached) {
+      log(`Cache hit for text (skipping Pass A + Stage 4 LLM calls): "${text.substring(0, 50)}..."`);
+      let forensicResults = null;
+      if (!options.skipForensics && options.content && options.analysisId) {
+        forensicResults = await triggerForensicAnalysis(options.content, options.analysisId);
+      }
+      return { ...cached, forensic_results: forensicResults, from_text_cache: true };
+    }
+
     log(`Starting Dual-Pass analysis for: "${text.substring(0, 50)}..."`);
 
     // --- PASS A: LLM INTENT ANALYSIS ---
@@ -187,18 +212,31 @@ const analyzeContent = async (text, options = {}) => {
     const political = await analyzePoliticalSentiment(text, politicalCtx);
     log(`Stance=${political.stance} bsk_sentiment=${political.bsk_sentiment} beneficiary=${political.beneficiary} provider=${political.provider}`);
 
-    // ── Political-risk elevation (sync risk with stance/sentiment) ──
-    // Pass A risk is moderation-only (hate/threats). Political damage
-    // to BSK (anti-bsk content) raises risk independently.
-    if (political.stance === 'anti_bsk') {
-        finalRiskLevel = 'high';
-        finalRiskScore = Math.max(finalRiskScore, 75);
-        log(`Political risk elevation: anti_bsk detected → ${finalRiskLevel} (${finalRiskScore})`);
-    } else if (political.stance === 'anti_bsk_indirect') {
-        finalRiskLevel = 'medium';
-        finalRiskScore = Math.max(finalRiskScore, 55);
-        log(`Political risk elevation: anti_bsk_indirect detected → ${finalRiskLevel} (${finalRiskScore})`);
+    // ── risk_level is the Alerts page's Negative/Moderate/Positive bucket ──
+    // (see frontend/src/pages/Alerts.js pill config: high=Negative,
+    // medium=Moderate, low=Positive). That bucket must reflect stance
+    // RELATIVE TO BSK/TDP, not generic Pass-A moderation risk — otherwise a
+    // pro-TDP post that happens to mention violence/crime keywords lands in
+    // "Negative", and an anti-TDP post with mild language lands in
+    // "Positive". So bsk_sentiment is the single source of truth for both
+    // risk_level and risk_score here; we no longer let Pass A's risk survive
+    // in either direction.
+    switch (political.bsk_sentiment) {
+        case 'negative':
+            finalRiskLevel = 'high';
+            finalRiskScore = 75;
+            break;
+        case 'positive':
+            finalRiskLevel = 'low';
+            finalRiskScore = 20;
+            break;
+        case 'moderate':
+        default:
+            finalRiskLevel = 'medium';
+            finalRiskScore = 50;
+            break;
     }
+    log(`Political sentiment → risk bucket: bsk_sentiment=${political.bsk_sentiment} stance=${political.stance} → ${finalRiskLevel} (${finalRiskScore})`);
 
     const finalSentiment = political.bsk_sentiment || 'moderate';
     const currentCategory = llmResult.category;
@@ -277,6 +315,10 @@ const analyzeContent = async (text, options = {}) => {
       ...finalResult.violated_policies.map(p => `Policy: ${p.policy_name}`),
       ...finalResult.legal_sections.map(l => `Legal: ${l.act} ${l.section}`)
     ].filter(Boolean);
+
+    // Cache the text-derived verdict (not forensic_results, which is
+    // per-content media, not per-text) for reuse by identical future text.
+    await cacheService.set(cacheKey, finalResult, TEXT_ANALYSIS_CACHE_TTL_SECONDS);
 
     // --- PASS D: STANDALONE FORENSICS (POST-SAVE TRIGGER) ---
     // If we have content metadata (from monitorService), trigger forensics

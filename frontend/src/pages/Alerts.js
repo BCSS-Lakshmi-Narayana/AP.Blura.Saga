@@ -25,6 +25,12 @@ const ALERTS_CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 const ENGAGER_AUTO_QUEUE_TRIGGER_KEY = 'engagerAutoQueueLastTriggerAt';
 const ENGAGER_AUTO_QUEUE_TRIGGER_TTL = 60 * 60 * 1000; // 1 hour
 const ALERTS_PAGE_SIZE = 20;
+// Negative/Moderate/Positive pills must reflect stance RELATIVE TO TDP/CBN
+// (llm_analysis.bsk_sentiment), not the generic risk_level enum — risk_level
+// is shared with non-political alert types (e.g. velocity/viral spikes) that
+// never went through the political-sentiment pipeline, so filtering on it
+// let unrelated alerts leak into the wrong bucket.
+const SENTIMENT_BY_CATEGORY = { high: 'negative', medium: 'moderate', low: 'positive' };
 
 const Alerts = () => {
   const { user } = useAuth();
@@ -301,7 +307,9 @@ const Alerts = () => {
         params.alert_type = 'velocity';
       } else if (alertCategory === 'risk') {
         params.alert_type = 'risk';
-      } else if (['high', 'medium', 'low', 'critical'].includes(alertCategory)) {
+      } else if (['high', 'medium', 'low'].includes(alertCategory)) {
+        params.sentiment = SENTIMENT_BY_CATEGORY[alertCategory];
+      } else if (alertCategory === 'critical') {
         params.risk_level = alertCategory;
       }
 
@@ -387,7 +395,9 @@ const Alerts = () => {
         params.alert_type = 'velocity';
       } else if (alertCategory === 'risk') {
         params.alert_type = 'risk';
-      } else if (['high', 'medium', 'low', 'critical'].includes(alertCategory)) {
+      } else if (['high', 'medium', 'low'].includes(alertCategory)) {
+        params.sentiment = SENTIMENT_BY_CATEGORY[alertCategory];
+      } else if (alertCategory === 'critical') {
         params.risk_level = alertCategory;
       }
 
@@ -513,7 +523,9 @@ const Alerts = () => {
         params.alert_type = 'velocity';
       } else if (alertCategory === 'risk') {
         params.alert_type = 'risk';
-      } else if (['high', 'medium', 'low', 'critical'].includes(alertCategory)) {
+      } else if (['high', 'medium', 'low'].includes(alertCategory)) {
+        params.sentiment = SENTIMENT_BY_CATEGORY[alertCategory];
+      } else if (alertCategory === 'critical') {
         params.risk_level = alertCategory;
       }
 
@@ -596,7 +608,8 @@ const Alerts = () => {
 
       if (alertCategory === 'viral') params.alert_type = 'velocity';
       else if (alertCategory === 'risk') params.alert_type = 'risk';
-      else if (['high', 'medium', 'low', 'critical'].includes(alertCategory)) params.risk_level = alertCategory;
+      else if (['high', 'medium', 'low'].includes(alertCategory)) params.sentiment = SENTIMENT_BY_CATEGORY[alertCategory];
+      else if (alertCategory === 'critical') params.risk_level = alertCategory;
 
       const response = await api.get('/alerts', { params, timeout: 15000 });
       const mappedNew = response.data.alerts || [];

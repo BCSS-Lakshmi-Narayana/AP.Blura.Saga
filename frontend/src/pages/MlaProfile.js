@@ -5,10 +5,6 @@ import {
   ArrowLeft,
   Loader2,
   MapPin,
-  Scale,
-  GraduationCap,
-  Wallet,
-  AlertTriangle,
   Users,
   Bell,
   Megaphone,
@@ -490,20 +486,6 @@ const MlaProfile = () => {
             </div>
           </div>
         </div>
-
-        {mla && (
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-4">
-            <StatTile
-              icon={AlertTriangle}
-              label="Criminal Cases"
-              value={String(mla.criminalCases)}
-              accent={mla.criminalCases > 0 ? 'text-red-500' : 'text-emerald-500'}
-            />
-            <StatTile icon={GraduationCap} label="Education" value={mla.education} />
-            <StatTile icon={Wallet} label="Total Assets" value={mla.assets} accent="text-emerald-600" />
-            <StatTile icon={Scale} label="Liabilities" value={mla.liabilities} accent="text-amber-600" />
-          </div>
-        )}
 
         {total > 0 && (
           <div className="mt-4">

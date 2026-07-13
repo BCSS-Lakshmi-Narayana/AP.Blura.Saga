@@ -142,7 +142,8 @@ const buildListQuery = (params = {}, options = {}) => {
         category,
         grievance_type,
         analysis_category,
-        risk_level
+        risk_level,
+        target_entity
     } = params;
 
     const { includeTab = true } = options;
@@ -223,6 +224,12 @@ const buildListQuery = (params = {}, options = {}) => {
 
     if (risk_level && ['low', 'medium', 'high', 'critical'].includes(risk_level.toLowerCase())) {
         query['analysis.risk_level'] = risk_level.toLowerCase();
+    }
+
+    // Leadership filter — content about CBN ('bsk') or Nara Lokesh ('bsk_son'),
+    // as resolved by the target-aware political sentiment pipeline.
+    if (target_entity && ['bsk', 'bsk_son'].includes(String(target_entity).toLowerCase())) {
+        query['analysis.target_entity'] = String(target_entity).toLowerCase();
     }
 
     // Location filters
@@ -2206,13 +2213,13 @@ const getMapGrievances = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
-// Telangana location database — imported from dedicated module
-const { isTelanganaLocation } = require('../config/telanganaLocations');
+// Andhra Pradesh location database — imported from dedicated module
+const { isAndhraPradeshLocation } = require('../config/andhraPradeshLocations');
 
 /**
  * Get unique detected locations with grievance counts.
  * Used by the frontend location filter dropdown.
- * Returns ONLY Telangana-related cities, districts and constituencies.
+ * Returns ONLY Andhra Pradesh-related cities, districts and constituencies.
  */
 const getLocationStats = async (req, res) => {
     try {
@@ -2282,15 +2289,15 @@ const getLocationStats = async (req, res) => {
             ])
         ]);
 
-        // Filter to Telangana-only locations
-        const telanganaCities = cityAgg.filter(c => isTelanganaLocation(c.city) || isTelanganaLocation(c.district));
-        const telanganaDistricts = districtAgg.filter(d => isTelanganaLocation(d.district));
-        const telanganaConstituencies = constituencyAgg.filter(c => isTelanganaLocation(c.constituency) || isTelanganaLocation(c.district));
+        // Filter to Andhra Pradesh-only locations
+        const apCities = cityAgg.filter(c => isAndhraPradeshLocation(c.city) || isAndhraPradeshLocation(c.district));
+        const apDistricts = districtAgg.filter(d => isAndhraPradeshLocation(d.district));
+        const apConstituencies = constituencyAgg.filter(c => isAndhraPradeshLocation(c.constituency) || isAndhraPradeshLocation(c.district));
 
         const payload = {
-            cities: telanganaCities.map(c => ({ city: c.city, count: c.count, district: c.district, constituency: c.constituency })),
-            districts: telanganaDistricts.map(d => ({ district: d.district, count: d.count })),
-            constituencies: telanganaConstituencies.map(c => ({ constituency: c.constituency, count: c.count, district: c.district }))
+            cities: apCities.map(c => ({ city: c.city, count: c.count, district: c.district, constituency: c.constituency })),
+            districts: apDistricts.map(d => ({ district: d.district, count: d.count })),
+            constituencies: apConstituencies.map(c => ({ constituency: c.constituency, count: c.count, district: c.district }))
         };
         await cacheService.set(cacheKey, payload, 120);
         res.set('Cache-Control', 'private, max-age=30');

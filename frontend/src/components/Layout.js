@@ -20,7 +20,7 @@ import {
 } from 'lucide-react';
 import { Button } from './ui/button';
 import { toast } from 'sonner';
-import { BSK_HERO, LOCAL_FALLBACK } from '../config/bskMedia';
+import { TDP_HERO, LOCAL_FALLBACK } from '../config/tdpMedia';
 
 const Layout = () => {
   const { user, logout } = useAuth();
@@ -128,8 +128,8 @@ const Layout = () => {
             <div className="flex items-center gap-3 lg:gap-4">
               <div className="relative h-10 w-10 lg:h-14 lg:w-14 rounded-full ring-2 ring-yellow-700/40 shadow-lg overflow-hidden bg-white/10">
                 <img
-                  src={BSK_HERO.src}
-                  alt={BSK_HERO.alt}
+                  src={TDP_HERO.src}
+                  alt={TDP_HERO.alt}
                   referrerPolicy="no-referrer"
                   className="h-full w-full object-cover"
                   onError={(e) => {

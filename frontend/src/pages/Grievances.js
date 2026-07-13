@@ -646,6 +646,7 @@ const Grievances = () => {
     const [sentimentFilter, setSentimentFilter] = useState(() => searchParams.get('sentiment') || null);
     const [topicFilter, setTopicFilter] = useState(() => normalizeTopicFilterLabel(searchParams.get('grievance_type')));
     const [analysisCategoryFilter, setAnalysisCategoryFilter] = useState(() => searchParams.get('analysis_category') || null);
+    const [targetEntityFilter, setTargetEntityFilter] = useState(() => searchParams.get('target_entity') || null);
     const GRIEVANCE_TOPICS = [
         'Political Criticism', 'Hate Speech', 'Public Complaint', 'Corruption Complaint',
         'General Complaint', 'Traffic Complaint', 'Public Nuisance', 'Road & Infrastructure',
@@ -711,6 +712,7 @@ const Grievances = () => {
         const urlHandle = searchParams.get('posted_by') || searchParams.get('handle') || null;
         const urlTopic = normalizeTopicFilterLabel(searchParams.get('grievance_type'));
         const urlAnalysisCategory = searchParams.get('analysis_category') || null;
+        const urlTargetEntity = searchParams.get('target_entity') || null;
 
         setSearchQuery(urlSearch);
         setLocationFilter(urlLocation);
@@ -718,6 +720,7 @@ const Grievances = () => {
         setSelectedHandle(urlHandle);
         setTopicFilter(urlTopic);
         setAnalysisCategoryFilter(urlAnalysisCategory);
+        setTargetEntityFilter(urlTargetEntity);
     }, [searchParams, normalizeTopicFilterLabel]);
 
     useEffect(() => {
@@ -898,7 +901,7 @@ const Grievances = () => {
         if (!navbarStatus) return;
         fetchDashboardStats();
         fetchGrievances();
-    }, [activeTab, platformFilter, dateRange, debouncedSearch, navbarPlatform, navbarStatus, selectedHandle, sentimentFilter, topicFilter, analysisCategoryFilter, locationFilter]);
+    }, [activeTab, platformFilter, dateRange, debouncedSearch, navbarPlatform, navbarStatus, selectedHandle, sentimentFilter, topicFilter, analysisCategoryFilter, locationFilter, targetEntityFilter]);
 
     // ── RSS fetch ─────────────────────────────────────────────────
     const fetchNewsArticles = useCallback(async (page = 1, append = false) => {
@@ -1031,6 +1034,7 @@ const Grievances = () => {
             if (sentimentFilter) params.sentiment = sentimentFilter;
             if (topicFilter) params.grievance_type = mapTopicFilterToApi(topicFilter);
             if (analysisCategoryFilter) params.analysis_category = analysisCategoryFilter;
+            if (targetEntityFilter) params.target_entity = targetEntityFilter;
             if (locationFilter) params.location_city = locationFilter;
             if (debouncedSearch) params.search = debouncedSearch;
             if (dateRange.from) params.from = dateRange.from.toISOString();
@@ -1871,9 +1875,15 @@ const Grievances = () => {
             />
 
             {/* Dashboard Filter Banner */}
-            {(sentimentFilter || selectedHandle || topicFilter || analysisCategoryFilter || locationFilter) && (
+            {(sentimentFilter || selectedHandle || topicFilter || analysisCategoryFilter || locationFilter || targetEntityFilter) && (
                 <div className="mx-2 mt-2 flex items-center gap-2 px-3 py-2 bg-violet-50 border border-violet-200 rounded-lg text-xs">
                     <span className="text-violet-700 font-medium">Filtered by:</span>
+                    {targetEntityFilter && (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-800 font-semibold text-[11px]">
+                            {targetEntityFilter === 'bsk' ? 'N. Chandrababu Naidu' : targetEntityFilter === 'bsk_son' ? 'Nara Lokesh' : targetEntityFilter}
+                            <button type="button" onClick={() => setTargetEntityFilter(null)} className="ml-0.5 hover:opacity-70">&times;</button>
+                        </span>
+                    )}
                     {sentimentFilter && (
                         <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full font-semibold text-[11px] ${
                             sentimentFilter === 'negative' ? 'bg-red-100 text-red-700' :
@@ -1909,7 +1919,7 @@ const Grievances = () => {
                     )}
                     <button
                         type="button"
-                        onClick={() => { setSentimentFilter(null); setSelectedHandle(null); setTopicFilter(null); setAnalysisCategoryFilter(null); setLocationFilter(null); }}
+                        onClick={() => { setSentimentFilter(null); setSelectedHandle(null); setTopicFilter(null); setAnalysisCategoryFilter(null); setLocationFilter(null); setTargetEntityFilter(null); }}
                         className="ml-auto text-violet-600 hover:text-violet-800 font-medium"
                     >
                         Clear all
@@ -2125,7 +2135,7 @@ const Grievances = () => {
                             <p className="text-xs text-slate-400 mt-1">
                                 {(rssDistrict !== 'all' || rssCategory !== 'all' || rssSourceType !== 'all' || rssSearch)
                                     ? 'Try clearing some filters.'
-                                    : 'Start the Blura Engine to populate news. See Blura-Engine-master/telangana_main.py (entry script for Telangana data).'}
+                                    : 'Start the Blura Engine to populate news. See Blura-Engine-master/andhra_pradesh_main.py (entry script for Andhra Pradesh data).'}
                             </p>
                             {(rssDistrict !== 'all' || rssCategory !== 'all' || rssSourceType !== 'all' || rssSearch) && (
                                 <Button variant="outline" size="sm" className="mt-3 text-xs"

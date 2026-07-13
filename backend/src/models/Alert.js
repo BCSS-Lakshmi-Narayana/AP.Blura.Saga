@@ -206,6 +206,8 @@ alertSchema.index({ status: 1, source_category: 1, published_at: -1, id: -1 });
 alertSchema.index({ status: 1, matched_keywords_normalized: 1, published_at: -1, id: -1 });
 alertSchema.index({ status: 1, platform: 1, alert_type: 1, published_at: -1, id: -1 });
 alertSchema.index({ 'llm_analysis.grievance_type': 1, status: 1, published_at: -1 });
+// TDP/CBN sentiment filter (Negative/Moderate/Positive pills on Alerts page)
+alertSchema.index({ 'llm_analysis.bsk_sentiment': 1, status: 1, published_at: -1 });
 
 // ─── Gate filter: matched_keywords for reports and filtering ───
 // Index on matched_keywords for checking if alert has keywords (gate filter)

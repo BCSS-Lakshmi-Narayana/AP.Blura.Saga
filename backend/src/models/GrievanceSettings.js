@@ -44,11 +44,6 @@ const grievanceSettingsSchema = new mongoose.Schema({
     enum: ['low', 'medium', 'high'],
     default: 'medium'
   },
-  // Karimnagar AC round-robin pointer used when no AC keyword is detected
-  karimnagar_ac_rr_index: {
-    type: Number,
-    default: 0
-  },
   // Report template settings
   report_settings: {
     include_media: { type: Boolean, default: true },

@@ -7,10 +7,6 @@
  * URL fails to load, the image helper falls back to /policelogo.jpg shipped
  * with the app, so the UI never breaks.
  *
- * NOTE: the export names `BSK_HERO` and `LOCAL_FALLBACK` are kept unchanged
- * for backward compatibility with the components that import them. Their
- * content now points to the TDP leadership.
- *
  * To swap any image, just edit the `src` field. No other code needs to change.
  */
 
@@ -33,11 +29,8 @@ export const TDP_PORTRAITS = [
   },
 ];
 
-/* Backward-compatible alias (legacy import name). */
-export const BSK_PORTRAITS = TDP_PORTRAITS;
-
 /* The "hero" image used across the app (login, header, dashboard avatar). */
-export const BSK_HERO = TDP_PORTRAITS[0];
+export const TDP_HERO = TDP_PORTRAITS[0];
 
 /* ─── Andhra Pradesh constituency imagery ────────────────────────── */
 export const AP_GALLERY = [
@@ -67,9 +60,6 @@ export const AP_GALLERY = [
   },
 ];
 
-/* Backward-compatible alias (legacy import name). */
-export const KARIMNAGAR_GALLERY = AP_GALLERY;
-
 /* ─── TDP party visual marks ─────────────────────────────────────── */
 export const TDP_MARK = {
   flag: wiki('Telugu Desam Party Flag.svg'),
@@ -90,9 +80,6 @@ export const TDP_KEY_CONSTITUENCIES = [
   { name: 'Vijayawada',    district: 'Krishna' },
 ];
 
-/* Backward-compatible alias (legacy import name). */
-export const KARIMNAGAR_ASSEMBLY_SEGMENTS = TDP_KEY_CONSTITUENCIES;
-
 /* ─── Talking-points the TDP champions (used by AI summary / dashboard) */
 export const TDP_FOCUS_TOPICS = [
   'Amaravati capital development',
@@ -106,6 +93,3 @@ export const TDP_FOCUS_TOPICS = [
   'Drinking water & irrigation',
   'IT & infrastructure growth',
 ];
-
-/* Backward-compatible alias (legacy import name). */
-export const BSK_FOCUS_TOPICS = TDP_FOCUS_TOPICS;

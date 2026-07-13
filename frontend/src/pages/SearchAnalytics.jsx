@@ -9,8 +9,8 @@ import TopRegionsCard from '../components/searchAnalytics/TopRegionsCard';
 import RelatedSearchesCard from '../components/searchAnalytics/RelatedSearchesCard';
 import TrendingScoreCard from '../components/searchAnalytics/TrendingScoreCard';
 
-const RECENT_STORAGE_KEY = 'bsk:searchAnalytics:recent';
-const PREFS_STORAGE_KEY = 'bsk:searchAnalytics:prefs';
+const RECENT_STORAGE_KEY = 'ap:searchAnalytics:recent';
+const PREFS_STORAGE_KEY = 'ap:searchAnalytics:prefs';
 const AUTO_REFRESH_MS = 5 * 60 * 1000;
 const MAX_RECENT = 10;
 const DEFAULT_QUERY = 'Chandrababu Naidu';

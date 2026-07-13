@@ -15,6 +15,22 @@ const { v4: uuidv4 } = require('uuid');
 
 const escapeRegex = (string) => string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 const ALERT_STATUS_VALUES = ['active', 'false_positive', 'acknowledged', 'escalated'];
+
+// Negative/Moderate/Positive filtering must reflect stance RELATIVE TO TDP/CBN
+// (llm_analysis.bsk_sentiment) — NOT risk_level, which is shared with
+// non-political alert types (velocity/viral spikes) that never ran through
+// the political-sentiment pipeline. An alert only lands in a bucket once its
+// bsk_sentiment is confirmed; alerts with no stored bsk_sentiment match none
+// of these three filters. 'neutral' is a legacy alias for 'moderate'.
+const BSK_SENTIMENT_QUERY_VALUES = {
+  negative: ['negative'],
+  moderate: ['moderate', 'neutral'],
+  positive: ['positive'],
+};
+const applyBskSentimentFilter = (query, sentiment) => {
+  const values = BSK_SENTIMENT_QUERY_VALUES[sentiment];
+  if (values) query['llm_analysis.bsk_sentiment'] = { $in: values };
+};
 const parseDateBoundary = (value, { end = false } = {}) => {
   if (!value) return null;
   const parsed = new Date(value);
@@ -207,6 +223,7 @@ const getAlerts = async (req, res) => {
     const {
       status,
       risk_level,
+      sentiment,
       search,
       platform,
       startDate,
@@ -276,6 +293,9 @@ const getAlerts = async (req, res) => {
 
     // Risk Level Filter
     if (risk_level && risk_level !== 'all') query.risk_level = risk_level;
+
+    // TDP/CBN Sentiment Filter (Negative/Moderate/Positive pills)
+    if (sentiment && sentiment !== 'all') applyBskSentimentFilter(query, sentiment);
 
     // Platform Filter
     if (platform && platform !== 'all') query.platform = platform;
@@ -740,13 +760,14 @@ const deleteAlert = async (req, res) => {
 // @route   GET /api/alerts/stats
 // @access  Private
 const buildAlertStats = async (params = {}, { skipPendingCount = true } = {}) => {
-  const { risk_level, search, platform, startDate, endDate, alert_type, keyword, category, topic_classification } = params;
+  const { risk_level, sentiment, search, platform, startDate, endDate, alert_type, keyword, category, topic_classification } = params;
   const query = {};
 
   // Gate filter: Always show only alerts with matched keywords
   query.matched_keywords = { $exists: true, $ne: [] };
 
   if (risk_level && risk_level !== 'all') query.risk_level = risk_level;
+  if (sentiment && sentiment !== 'all') applyBskSentimentFilter(query, sentiment);
   if (platform && platform !== 'all') query.platform = platform;
   if (topic_classification && topic_classification !== 'all') {
     query['llm_analysis.grievance_type'] = { $regex: `^${escapeRegex(topic_classification)}$`, $options: 'i' };
@@ -1676,7 +1697,7 @@ const updateAlertAnalysisOverride = async (req, res) => {
 // @access  Private
 const getTopicClassificationCounts = async (req, res) => {
   try {
-    const { status, platform, startDate, endDate, alert_type, risk_level, keyword, category } = req.query;
+    const { status, platform, startDate, endDate, alert_type, risk_level, sentiment, keyword, category } = req.query;
 
     const topicCacheKey = getCacheKey('alerts:topic-counts:v1', req.query || {});
     const cached = await readCache(topicCacheKey);
@@ -1694,6 +1715,7 @@ const getTopicClassificationCounts = async (req, res) => {
     // For status='all' or no status, don't filter to show all alerts
 
     if (risk_level && risk_level !== 'all') matchQuery.risk_level = risk_level;
+    if (sentiment && sentiment !== 'all') applyBskSentimentFilter(matchQuery, sentiment);
     if (platform && platform !== 'all') matchQuery.platform = platform;
     if (alert_type && alert_type !== 'all') {
       if (alert_type === 'risk') {

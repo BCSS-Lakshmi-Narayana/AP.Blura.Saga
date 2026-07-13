@@ -255,8 +255,11 @@ const resolveBskSentiment = (verdict, ctx) => {
             return 'moderate';
         case 'unrelated':
         default:
-            // No political target — fall back to generic emotional sentiment.
-            return verdict.generic_sentiment || 'moderate';
+            // No TDP/CBN target — "negative" is reserved for content that is
+            // actually anti_bsk. Generic bad-news tone (crime, accidents, etc.)
+            // with no political target must NOT land in the negative bucket,
+            // so only pass through 'positive'; everything else is 'moderate'.
+            return verdict.generic_sentiment === 'positive' ? 'positive' : 'moderate';
     }
 };
 

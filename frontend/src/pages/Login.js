@@ -5,7 +5,7 @@ import { Shield, Lock, Mail, ArrowRight, Sparkles } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
-import { BSK_HERO, LOCAL_FALLBACK } from '../config/bskMedia';
+import { TDP_HERO, LOCAL_FALLBACK } from '../config/tdpMedia';
 
 /* ──────────────────────────────────────────────────────────────────────────
    TDP decorative ribbon
@@ -131,8 +131,8 @@ const Login = () => {
                 <div className="relative w-56 h-56 xl:w-64 xl:h-64 mb-6">
                   <div className="absolute inset-0 rounded-full overflow-hidden tdp-glow border-[4px] border-white/95 shadow-2xl">
                     <img
-                      src={BSK_HERO.src}
-                      alt={BSK_HERO.alt}
+                      src={TDP_HERO.src}
+                      alt={TDP_HERO.alt}
                       referrerPolicy="no-referrer"
                       className="w-full h-full object-cover"
                       onError={(e) => {
@@ -183,8 +183,8 @@ const Login = () => {
                 <div className="relative mx-auto mb-4 w-24 h-24">
                   <div className="absolute inset-0 rounded-full overflow-hidden tdp-glow border-[3px] border-white/95">
                     <img
-                      src={BSK_HERO.src}
-                      alt={BSK_HERO.alt}
+                      src={TDP_HERO.src}
+                      alt={TDP_HERO.alt}
                       referrerPolicy="no-referrer"
                       className="w-full h-full object-cover"
                       onError={(e) => {

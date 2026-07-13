@@ -7,6 +7,15 @@ import { Card } from '../components/ui/card';
 import { getMlaByConstituency } from '../data/apMLAs';
 import { getMpByLsId, getMpByLsName } from '../data/apMPs';
 import { useAuth } from '../contexts/AuthContext';
+import { TDP_PORTRAITS } from '../config/tdpMedia';
+
+// Maps each leadership portrait to the `target_entity` value the political
+// sentiment pipeline tags content with, so a click jumps straight to their
+// related grievances/mentions.
+const LEADERSHIP_TARGET_ENTITY = {
+  'portrait-primary': 'bsk',
+  'portrait-lokesh': 'bsk_son',
+};
 
 const DISTRICT_SOURCES = [
   '/andhra_pradesh_districts.geojson',
@@ -535,24 +544,53 @@ const AndhraPradeshMap = ({ embedded = false }) => {
   return (
     <div className="space-y-4">
       <Card className="p-4 border border-slate-200">
-        <h1 className="text-xl font-bold text-slate-900">Andhra Pradesh Constituency Dashboard</h1>
-        <p className="text-sm text-slate-600 mt-1">
-          TDP leadership monitoring with{' '}
-          {activeView === 'ac'
-            ? 'assembly-constituency'
-            : activeView === 'ls'
-            ? 'Lok Sabha (MP)'
-            : 'district'}
-          -level GeoJSON shading.
-        </p>
-        <p className="text-xs text-slate-500 mt-2">
-          {activeView === 'ac'
-            ? `${regionNames.length} constituencies`
-            : activeView === 'ls'
-            ? `${regionNames.length} Lok Sabha seats`
-            : `${regionNames.length} districts`}{' '}
-          · Total mapped mentions: {totalMentions}
-        </p>
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h1 className="text-xl font-bold text-slate-900">Andhra Pradesh Constituency Dashboard</h1>
+            <p className="text-sm text-slate-600 mt-1">
+              TDP leadership monitoring with{' '}
+              {activeView === 'ac'
+                ? 'assembly-constituency'
+                : activeView === 'ls'
+                ? 'Lok Sabha (MP)'
+                : 'district'}
+              -level GeoJSON shading.
+            </p>
+            <p className="text-xs text-slate-500 mt-2">
+              {activeView === 'ac'
+                ? `${regionNames.length} constituencies`
+                : activeView === 'ls'
+                ? `${regionNames.length} Lok Sabha seats`
+                : `${regionNames.length} districts`}{' '}
+              · Total mapped mentions: {totalMentions}
+            </p>
+          </div>
+
+          <div className="flex items-center gap-3 shrink-0">
+            {TDP_PORTRAITS.map((portrait) => (
+              <button
+                key={portrait.id}
+                type="button"
+                title={`View grievances mentioning ${portrait.alt.split(' — ')[0]}`}
+                onClick={() =>
+                  navigate(
+                    `/grievances?target_entity=${encodeURIComponent(LEADERSHIP_TARGET_ENTITY[portrait.id] || '')}`
+                  )
+                }
+                className="flex flex-col items-center gap-1 group"
+              >
+                <img
+                  src={portrait.src}
+                  alt={portrait.alt}
+                  className="w-14 h-14 rounded-full object-cover border-2 border-yellow-400 shadow-sm group-hover:border-yellow-500 group-hover:scale-105 transition-transform"
+                />
+                <span className="text-[11px] font-medium text-slate-600 group-hover:text-slate-900">
+                  {portrait.caption}
+                </span>
+              </button>
+            ))}
+          </div>
+        </div>
       </Card>
 
       <Card className="p-2 border border-slate-200 h-[820px]">{mapBody}</Card>

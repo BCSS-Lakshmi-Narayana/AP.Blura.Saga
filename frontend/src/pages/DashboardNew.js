@@ -431,7 +431,7 @@ const Dashboard = () => {
   const [grievanceStatus, setGrievanceStatus] = useState('all');
   const [mlaLeaderboard, setMlaLeaderboard] = useState([]);
   const [mlaLeaderboardLoading, setMlaLeaderboardLoading] = useState(true);
-  const [partyFilter, setPartyFilter] = useState('ALL');
+  const [partyFilter, setPartyFilter] = useState('TDP');
   // Pagination state for the Statewide MLA Sentiment leaderboard — 10 rows
   // per page so the user scrolls through pages instead of one long list.
   const [mlaPage, setMlaPage] = useState(1);
@@ -572,7 +572,7 @@ const Dashboard = () => {
             ) : (() => {
               const PARTY_DOT = { TDP: '#facc15', JSP: '#dc2626', BJP: '#f97316', YSRCP: '#2563eb' };
               // Sort by positive share, ties broken by total mentions then sentiment_index.
-              const rows = mlaLeaderboard
+              const sortedRows = mlaLeaderboard
                 .filter((r) => partyFilter === 'ALL' || r.party === partyFilter)
                 .map((r) => {
                   const total = r.grievances || 0;
@@ -584,6 +584,16 @@ const Dashboard = () => {
                   if (b.total !== a.total) return b.total - a.total;
                   return b.sentiment_index - a.sentiment_index;
                 });
+
+              // Pin top leadership to the top of the list, in this fixed
+              // order, ahead of the sentiment-based ranking. Only pins
+              // entries that survive the current party filter.
+              const PINNED_MLA_ORDER = ['Chandrababu Naidu Nara', 'Nara Lokesh', 'Konidala Pawan Kalyan'];
+              const pinned = PINNED_MLA_ORDER
+                .map((name) => sortedRows.find((r) => r.mla === name))
+                .filter(Boolean);
+              const pinnedKeys = new Set(pinned.map((r) => r.key || r.constituency));
+              const rows = [...pinned, ...sortedRows.filter((r) => !pinnedKeys.has(r.key || r.constituency))];
 
               if (rows.length === 0) {
                 return (
