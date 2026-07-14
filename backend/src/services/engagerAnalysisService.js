@@ -316,6 +316,14 @@ const executeAnalysisWork = async (analysisId, cleanHandle, periodDays, analysis
     analysis.error = null;
     await analysis.save();
 
+    // Invalidate cached top engagers list so updates show immediately
+    try {
+      const cacheService = require('./cacheService');
+      await cacheService.invalidatePrefix('x:top-engagers');
+    } catch (cacheErr) {
+      console.warn('[EngagerAnalysis] Failed to invalidate top engagers cache:', cacheErr.message);
+    }
+
     console.log(`[EngagerAnalysis] Completed for @${cleanHandle}: ${totalTweetsAnalyzed} tweets, ${engagerMap.size} unique retweeters, ${totalRetweetEvents} total retweet events`);
     return analysis.toObject();
   } catch (err) {
@@ -457,7 +465,7 @@ const getTopEngagers = async (limit = 100) => {
   const engagerMap = new Map();
 
   const cursor = EngagerAnalysis.find(
-    {},
+    { status: 'completed' },
     {
       handle_lower: 1,
       analyzed_at: 1,
