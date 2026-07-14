@@ -1,14 +1,14 @@
 import React, { useState, useMemo } from 'react';
 import { format, formatDistanceToNowStrict } from 'date-fns';
 import {
-    Heart, MessageCircle, Repeat2, BarChart3, Bookmark,
+    Heart, MessageCircle, Repeat2, BarChart3, Bookmark, Network,
     BadgeCheck, Play, Download, Loader2, Eye, Shield, Tag, MapPin, AlertTriangle, Trash2, AtSign,
     ImageOff, Video as VideoIcon
 } from 'lucide-react';
 import { Card, CardContent } from '../ui/card';
 import { Button } from '../ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
-import { normalizeMediaList } from '../AlertCards';
+import { normalizeMediaList, PostEngagersDialog } from '../AlertCards';
 import { cn } from '../../lib/utils';
 import { useAuth } from '../../contexts/AuthContext';
 import { canManageRestrictedGrievanceUi } from '../../lib/grievanceUiPermissions';
@@ -871,7 +871,7 @@ const ParentFacebookPost = ({ context, getProxiedMediaUrl, onAction, grievance }
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 /*                  X (TWITTER) LAYOUT                     */
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-const XLayout = ({ grievance, getProxiedMediaUrl, onAction, downloadState = {} }) => {
+const XLayout = ({ grievance, getProxiedMediaUrl, onAction, downloadState = {}, isPostEngagersOpen, setIsPostEngagersOpen, postEngagersTab, setPostEngagersTab }) => {
     const user = grievance.posted_by || {};
     const handle = (user.handle || '').replace('@', '');
     const text = grievance.content?.full_text || grievance.content?.text || '';
@@ -939,16 +939,23 @@ const XLayout = ({ grievance, getProxiedMediaUrl, onAction, downloadState = {} }
                     <QuotedTweet context={ctx.quoted} getProxiedMediaUrl={getProxiedMediaUrl} onAction={onAction} grievance={grievance} />
                     <div className="flex items-center justify-between mt-3 max-w-[425px] -ml-2">
                         {[
-                            { icon: MessageCircle, count: engagement.replies, hoverColor: 'hover:bg-[#1d9bf0]/10', textHover: 'group-hover:text-[#1d9bf0]', isComment: true },
-                            { icon: Repeat2, count: engagement.retweets, hoverColor: 'hover:bg-[#00ba7c]/10', textHover: 'group-hover:text-[#00ba7c]' },
-                            { icon: Heart, count: engagement.likes, hoverColor: 'hover:bg-[#f91880]/10', textHover: 'group-hover:text-[#f91880]' },
+                            { icon: MessageCircle, count: engagement.replies, hoverColor: 'hover:bg-[#1d9bf0]/10', textHover: 'group-hover:text-[#1d9bf0]', tab: 'comment' },
+                            { icon: Repeat2, count: engagement.retweets, hoverColor: 'hover:bg-[#00ba7c]/10', textHover: 'group-hover:text-[#00ba7c]', tab: 'retweet' },
+                            { icon: Heart, count: engagement.likes, hoverColor: 'hover:bg-[#f91880]/10', textHover: 'group-hover:text-[#f91880]', tab: 'like' },
                             { icon: BarChart3, count: engagement.views, hoverColor: 'hover:bg-[#1d9bf0]/10', textHover: 'group-hover:text-[#1d9bf0]' },
-                        ].map(({ icon: Icon, count, hoverColor, textHover, isComment }, i) => (
+                        ].map(({ icon: Icon, count, hoverColor, textHover, tab }, i) => (
                             <button
                                 key={i}
                                 type="button"
-                                onClick={openDetails}
-                                data-comment-btn={isComment ? "true" : undefined}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    if (tab) {
+                                        setPostEngagersTab(tab);
+                                        setIsPostEngagersOpen(true);
+                                    } else {
+                                        openDetails();
+                                    }
+                                }}
                                 className={cn('flex items-center gap-1.5 group p-2 rounded-full transition-all duration-150 active:scale-95 active:translate-y-[1px]', hoverColor)}
                             >
                                 <Icon className={cn('h-[18px] w-[18px] text-[#536471]', textHover)} />
@@ -1190,6 +1197,8 @@ const WhatsAppLayout = ({ grievance, getProxiedMediaUrl, onAction, downloadState
 /*                 MAIN GRIEVANCE CARD                     */
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 export const GrievanceCard = ({ grievance, onAction, getProxiedMediaUrl, downloadState = {}, isActioned = false, isSelected = false, compact = false }) => {
+    const [isPostEngagersOpen, setIsPostEngagersOpen] = useState(false);
+    const [postEngagersTab, setPostEngagersTab] = useState('all');
     const platform = (grievance.platform || 'x').toLowerCase();
     const isX = platform === 'x' || platform === 'twitter';
     const isFB = platform === 'facebook';
@@ -1232,11 +1241,11 @@ export const GrievanceCard = ({ grievance, onAction, getProxiedMediaUrl, downloa
 
             {/* Platform-native Content */}
             <CardContent className={cn('p-3', isWA && 'p-2')}>
-                {isX && <XLayout grievance={grievance} getProxiedMediaUrl={getProxiedMediaUrl} onAction={onAction} downloadState={downloadState} />}
+                {isX && <XLayout grievance={grievance} getProxiedMediaUrl={getProxiedMediaUrl} onAction={onAction} downloadState={downloadState} isPostEngagersOpen={isPostEngagersOpen} setIsPostEngagersOpen={setIsPostEngagersOpen} postEngagersTab={postEngagersTab} setPostEngagersTab={setPostEngagersTab} />}
                 {isFB && <FacebookLayout grievance={grievance} getProxiedMediaUrl={getProxiedMediaUrl} onAction={onAction} downloadState={downloadState} />}
                 {isWA && <WhatsAppLayout grievance={grievance} getProxiedMediaUrl={getProxiedMediaUrl} onAction={onAction} downloadState={downloadState} />}
-                {isIG && <XLayout grievance={grievance} getProxiedMediaUrl={getProxiedMediaUrl} onAction={onAction} downloadState={downloadState} />}
-                {isYT && <XLayout grievance={grievance} getProxiedMediaUrl={getProxiedMediaUrl} onAction={onAction} downloadState={downloadState} />}
+                {isIG && <XLayout grievance={grievance} getProxiedMediaUrl={getProxiedMediaUrl} onAction={onAction} downloadState={downloadState} isPostEngagersOpen={isPostEngagersOpen} setIsPostEngagersOpen={setIsPostEngagersOpen} postEngagersTab={postEngagersTab} setPostEngagersTab={setPostEngagersTab} />}
+                {isYT && <XLayout grievance={grievance} getProxiedMediaUrl={getProxiedMediaUrl} onAction={onAction} downloadState={downloadState} isPostEngagersOpen={isPostEngagersOpen} setIsPostEngagersOpen={setIsPostEngagersOpen} postEngagersTab={postEngagersTab} setPostEngagersTab={setPostEngagersTab} />}
             </CardContent>
 
             {/* Footer */}
@@ -1249,6 +1258,11 @@ export const GrievanceCard = ({ grievance, onAction, getProxiedMediaUrl, downloa
                     <span>Detected {timeAgo(grievance.detected_date || grievance.created_at)} ago</span>
                 </div>
                 <div className="flex items-center gap-3">
+                    {(platform === 'x' || platform === 'twitter' || platform === 'youtube') && (
+                        <button type="button" className="text-blue-600 hover:text-blue-800 flex items-center gap-1 font-medium transition-all duration-150 active:scale-95 active:translate-y-[1px]" onClick={() => { setPostEngagersTab('all'); setIsPostEngagersOpen(true); }}>
+                            <Network className="h-3 w-3" /> Post Engagers
+                        </button>
+                    )}
                     {grievance.analysis?.analyzed_at && (
                         <button type="button" className="text-blue-600 hover:text-blue-800 flex items-center gap-1 font-medium transition-all duration-150 active:scale-95 active:translate-y-[1px]" onClick={() => onAction?.('view_analysis', { grievance })}>
                             <Eye className="h-3 w-3" /> Analysis
@@ -1259,8 +1273,16 @@ export const GrievanceCard = ({ grievance, onAction, getProxiedMediaUrl, downloa
                     </button>
                 </div>
             </div>
+
+            <PostEngagersDialog
+                open={isPostEngagersOpen}
+                onOpenChange={setIsPostEngagersOpen}
+                contentId={grievance?.id}
+                platform={platform === 'twitter' ? 'x' : platform}
+                content={grievance}
+                initialTab={postEngagersTab}
+            />
         </Card>
     );
 };
-//added comment
 export default GrievanceCard;

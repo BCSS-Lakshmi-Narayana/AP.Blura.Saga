@@ -743,6 +743,8 @@ export const TwitterAlertCard = ({ alert, content, source, onResolve, onAddSourc
     const [downloadStatus, setDownloadStatus] = useState('');
     const [downloadError, setDownloadError] = useState(null);
     const [isMonitored, setIsMonitored] = useState(alert?.is_monitored || false);
+    const [isPostEngagersOpen, setIsPostEngagersOpen] = useState(false);
+    const [postEngagersTab, setPostEngagersTab] = useState('all');
     const navigate = useNavigate();
 
     // Sync isMonitored state when alert prop changes
@@ -1280,6 +1282,21 @@ export const TwitterAlertCard = ({ alert, content, source, onResolve, onAddSourc
                             {alert.status !== 'escalated' && <span>Format & Share</span>}
                         </button>
 
+                        {/* Post Engagers (Radial Graph Modal trigger) */}
+                        <button
+                            onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                setPostEngagersTab('all');
+                                setIsPostEngagersOpen(true);
+                            }}
+                            className="text-xs font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 flex items-center gap-1 z-20 px-2 py-1.5 rounded-md hover:bg-accent transition-colors"
+                            title="Post Engagers Graph"
+                        >
+                            <Network className="h-3.5 w-3.5" />
+                            <span>Post Engagers</span>
+                        </button>
+
                         {canDownload && (
                             <DownloadMenu
                                 mediaItems={uniqueMediaItems}
@@ -1645,28 +1662,40 @@ export const TwitterAlertCard = ({ alert, content, source, onResolve, onAddSourc
 
                     {/* Engagement Stats Bar */}
                     <div className="flex justify-between items-center py-1.5 px-1">
-                        <div className="group flex items-center gap-1 cursor-pointer text-muted-foreground hover:text-blue-500 transition-colors p-1.5">
+                        <div
+                            onClick={(e) => { e.stopPropagation(); setPostEngagersTab('comment'); setIsPostEngagersOpen(true); }}
+                            className="group flex items-center gap-1 cursor-pointer text-muted-foreground hover:text-blue-500 transition-colors p-1.5"
+                        >
                             <div className="p-1 rounded-full group-hover:bg-blue-50 dark:group-hover:bg-blue-900/20 transition-colors">
                                 <MessageCircle className="h-4 w-4" />
                             </div>
                             <span className="text-[11px] group-hover:text-blue-500">{metrics.replies > 0 ? formatMetric(metrics.replies) : ''}</span>
                         </div>
 
-                        <div className="group flex items-center gap-1 cursor-pointer text-muted-foreground hover:text-emerald-500 transition-colors p-1.5">
+                        <div
+                            onClick={(e) => { e.stopPropagation(); setPostEngagersTab('retweet'); setIsPostEngagersOpen(true); }}
+                            className="group flex items-center gap-1 cursor-pointer text-muted-foreground hover:text-emerald-500 transition-colors p-1.5"
+                        >
                             <div className="p-1 rounded-full group-hover:bg-emerald-50 dark:group-hover:bg-emerald-900/20 transition-colors">
                                 <Repeat className="h-4 w-4" />
                             </div>
                             <span className="text-[11px] group-hover:text-emerald-500">{metrics.retweets > 0 ? formatMetric(metrics.retweets) : ''}</span>
                         </div>
 
-                        <div className="group flex items-center gap-1 cursor-pointer text-muted-foreground hover:text-pink-600 transition-colors p-1.5">
+                        <div
+                            onClick={(e) => { e.stopPropagation(); setPostEngagersTab('like'); setIsPostEngagersOpen(true); }}
+                            className="group flex items-center gap-1 cursor-pointer text-muted-foreground hover:text-pink-600 transition-colors p-1.5"
+                        >
                             <div className="p-1 rounded-full group-hover:bg-pink-50 dark:group-hover:bg-pink-900/20 transition-colors">
                                 <Heart className="h-4 w-4" />
                             </div>
                             <span className="text-[11px] group-hover:text-pink-600">{metrics.likes > 0 ? formatMetric(metrics.likes) : ''}</span>
                         </div>
 
-                        <div className="group flex items-center gap-1 cursor-pointer text-muted-foreground hover:text-blue-500 transition-colors p-1.5">
+                        <div
+                            onClick={(e) => { e.stopPropagation(); setPostEngagersTab('all'); setIsPostEngagersOpen(true); }}
+                            className="group flex items-center gap-1 cursor-pointer text-muted-foreground hover:text-blue-500 transition-colors p-1.5"
+                        >
                             <div className="p-1 rounded-full group-hover:bg-blue-50 dark:group-hover:bg-blue-900/20 transition-colors">
                                 <Share className="h-4 w-4" />
                             </div>
@@ -1678,6 +1707,17 @@ export const TwitterAlertCard = ({ alert, content, source, onResolve, onAddSourc
                     isOpen={isShareModalOpen}
                     onClose={() => setIsShareModalOpen(false)}
                     initialText={shareText}
+                />
+
+                <PostEngagersDialog
+                    open={isPostEngagersOpen}
+                    onOpenChange={setIsPostEngagersOpen}
+                    contentId={content?.id || alert?.content_id}
+                    platform="x"
+                    onAddSource={onAddSource}
+                    content={content || { id: alert?.content_id, author_handle: alert?.author_handle, author_avatar: alert?.author_avatar }}
+                    initialTab={postEngagersTab}
+                    monitoredHandles={monitoredHandles}
                 />
             </div>
         </>
@@ -1695,6 +1735,8 @@ export const YoutubeAlertCard = ({ alert, content, source, onResolve, onAddSourc
     const [translatedText, setTranslatedText] = useState('');
     const [isTranslating, setIsTranslating] = useState(false);
     const [isExpanded, setIsExpanded] = useState(false);
+    const [isPostEngagersOpen, setIsPostEngagersOpen] = useState(false);
+    const [postEngagersTab, setPostEngagersTab] = useState('all');
     const dropdownRef = useRef(null);
 
     // Sync isMonitored state when alert prop changes
@@ -2182,11 +2224,17 @@ export const YoutubeAlertCard = ({ alert, content, source, onResolve, onAddSourc
 
                     <div className="mt-auto flex items-center justify-between text-muted-foreground pt-2 border-t border-border/50">
                         <div className="flex gap-4">
-                            <div className="flex items-center gap-1 text-[11px]">
+                            <div
+                                onClick={(e) => { e.stopPropagation(); setPostEngagersTab('like'); setIsPostEngagersOpen(true); }}
+                                className="flex items-center gap-1 text-[11px] cursor-pointer hover:text-rose-500 transition-colors p-1 -m-1 rounded-sm"
+                            >
                                 <ThumbsUp className="h-3 w-3" />
                                 <span>{formatMetric(metrics.likes || 0)}</span>
                             </div>
-                            <div className="flex items-center gap-1 text-[11px]">
+                            <div
+                                onClick={(e) => { e.stopPropagation(); setPostEngagersTab('comment'); setIsPostEngagersOpen(true); }}
+                                className="flex items-center gap-1 text-[11px] cursor-pointer hover:text-emerald-500 transition-colors p-1 -m-1 rounded-sm"
+                            >
                                 <MessageSquare className="h-3 w-3" />
                                 <span>{formatMetric(metrics.comments || 0)}</span>
                             </div>
@@ -2477,6 +2525,17 @@ export const YoutubeAlertCard = ({ alert, content, source, onResolve, onAddSourc
                         )}
                     </div>
                 </div>
+
+                <PostEngagersDialog
+                    open={isPostEngagersOpen}
+                    onOpenChange={setIsPostEngagersOpen}
+                    contentId={content?.id || alert?.content_id}
+                    platform="youtube"
+                    onAddSource={onAddSource}
+                    content={content || { id: alert?.content_id, author_handle: alert?.author_handle, author_avatar: alert?.author_avatar }}
+                    initialTab={postEngagersTab}
+                    monitoredHandles={monitoredHandles}
+                />
             </div>
         </>
     );
@@ -2608,6 +2667,590 @@ const RetweetTree = ({ sourceHandle, sourceName, sourceAvatar, topRetweeters, to
                 <text x={cx} y={cy+SRC_R+29} textAnchor="middle" fontSize="9" fill="#6b7280">{totalRetweeters} unique retweeters</text>
             </svg>
         </div>
+    );
+};
+
+/* ── Interactive SVG Post Engagers Network Graph ── */
+const PostEngagersGraph = ({ items = [], postAuthorHandle, postAuthorAvatar, onNodeClick, selectedNode, platform }) => {
+    const W = 540, H = 340;
+    const cx = 270, cy = 155;
+    const ORBIT = 115;
+    const SRC_R = 24;
+    const NODE_R = 13;
+
+    // Slice to top 24 engagers to keep the SVG clean and readable
+    const graphItems = items.slice(0, 24);
+    const n = graphItems.length;
+    const step = n > 0 ? (Math.PI * 2) / n : 0;
+    const startA = -Math.PI / 2;
+
+    const getEdgeColor = (type) => {
+        if (type?.includes('retweet') && type?.includes('like')) return '#8b5cf6'; // Violet
+        if (type?.includes('like')) return '#f43f5e'; // Rose
+        return '#3b82f6'; // Blue
+    };
+
+    const getTierColor = (tier) => {
+        switch (tier) {
+            case 'verified-influencer': return '#a855f7'; // Purple
+            case 'super-active': return '#ef4444'; // Red
+            case 'regular': return '#f97316'; // Orange
+            case 'occasional': return '#f59e0b'; // Amber
+            default: return '#94a3b8'; // Slate
+        }
+    };
+
+    return (
+        <div className="flex justify-center w-full overflow-hidden bg-slate-50/50 dark:bg-slate-950/20 border-b border-border py-4 relative">
+            <svg viewBox={`0 0 ${W} ${H}`} className="w-full max-w-[500px]" style={{ maxHeight: 310 }}>
+                <defs>
+                    <filter id="nodeShadow" x="-20%" y="-20%" width="140%" height="140%">
+                        <feDropShadow dx="0" dy="2" stdDeviation="2.5" floodOpacity="0.08" />
+                    </filter>
+                    <filter id="postGlow" x="-50%" y="-50%" width="200%" height="200%">
+                        <feGaussianBlur stdDeviation="3" result="blur" />
+                        <feFlood floodColor="#3b82f6" floodOpacity="0.2" />
+                        <feComposite in2="blur" operator="in" />
+                        <feMerge>
+                            <feMergeNode />
+                            <feMergeNode in="SourceGraphic" />
+                        </feMerge>
+                    </filter>
+                </defs>
+
+                {/* Orbit ring guide */}
+                <circle cx={cx} cy={cy} r={ORBIT} fill="none" stroke="#3b82f6" strokeOpacity="0.06" strokeWidth="1" strokeDasharray="4 4" />
+
+                {/* Connecting Edges */}
+                {graphItems.map((item, i) => {
+                    const a = startA + step * i;
+                    const nx = cx + ORBIT * Math.cos(a);
+                    const ny = cy + ORBIT * Math.sin(a);
+                    const mx = cx + ORBIT * 0.45 * Math.cos(a);
+                    const my = cy + ORBIT * 0.45 * Math.sin(a);
+                    
+                    const color = getEdgeColor(item.engagement_type);
+                    const path = `M ${cx} ${cy} Q ${mx + (ny - cy) * 0.1} ${my - (nx - cx) * 0.1} ${nx} ${ny}`;
+                    
+                    const isSelected = selectedNode?.handle === item.handle;
+
+                    return (
+                        <g key={`edge-${i}`}>
+                            <path
+                                d={path}
+                                fill="none"
+                                stroke={color}
+                                strokeWidth={isSelected ? 2.5 : 1.5}
+                                strokeOpacity={isSelected ? 0.75 : 0.25}
+                                strokeLinecap="round"
+                            />
+                            {/* Animated particle moving towards the node */}
+                            <circle r="2" fill="white" opacity="0.9">
+                                <animateMotion path={path} dur={`${2.2 + i * 0.2}s`} repeatCount="indefinite" />
+                            </circle>
+                        </g>
+                    );
+                })}
+
+                {/* Orbiting Engager Nodes */}
+                {graphItems.map((item, i) => {
+                    const a = startA + step * i;
+                    const nx = cx + ORBIT * Math.cos(a);
+                    const ny = cy + ORBIT * Math.sin(a);
+                    
+                    const tierColor = getTierColor(item.tier);
+                    const isSelected = selectedNode?.handle === item.handle;
+                    const labelY = ny < cy - 25 ? ny - NODE_R - 10 : ny + NODE_R + 18;
+                    const initials = (item.name || item.handle || '?')[0].toUpperCase();
+
+                    return (
+                        <g key={`node-${i}`} className="cursor-pointer" onClick={() => onNodeClick(item)}>
+                            {/* Selected halo */}
+                            {isSelected && (
+                                <circle cx={nx} cy={ny} r={NODE_R + 6} fill="none" stroke={tierColor} strokeWidth="2.5" strokeOpacity="0.4" className="animate-pulse" />
+                            )}
+                            
+                            {/* Outer Tier Border */}
+                            <circle cx={nx} cy={ny} r={NODE_R + 2} fill="none" stroke={tierColor} strokeWidth="2" strokeOpacity={isSelected ? 1 : 0.8} />
+                            
+                            {/* Node Background */}
+                            <circle cx={nx} cy={ny} r={NODE_R} fill="white" stroke="#e2e8f0" strokeWidth="1" filter="url(#nodeShadow)" />
+                            
+                            {/* User Avatar */}
+                            {item.avatar ? (
+                                <>
+                                    <clipPath id={`clip-node-${i}`}><circle cx={nx} cy={ny} r={NODE_R - 1} /></clipPath>
+                                    <image href={item.avatar} x={nx - NODE_R + 1} y={ny - NODE_R + 1} width={(NODE_R - 1) * 2} height={(NODE_R - 1) * 2} clipPath={`url(#clip-node-${i})`} />
+                                </>
+                            ) : (
+                                <text x={nx} y={ny + 0.5} textAnchor="middle" dominantBaseline="central" fontSize="10" fontWeight="800" fill="#475569">{initials}</text>
+                            )}
+
+                            {/* Label */}
+                            <text
+                                x={nx}
+                                y={labelY}
+                                textAnchor="middle"
+                                fontSize="11"
+                                fontWeight="bold"
+                                fill={isSelected ? '#1e3a8a' : '#334155'}
+                                className="drop-shadow-sm select-none"
+                            >
+                                @{item.handle}
+                            </text>
+                        </g>
+                    );
+                })}
+
+                {/* Central Post Node */}
+                <g filter="url(#postGlow)">
+                    <circle cx={cx} cy={cy} r={SRC_R + 3} fill="none" stroke="#2563eb" strokeWidth="2.5" strokeOpacity="0.25" />
+                    <circle cx={cx} cy={cy} r={SRC_R} fill="#3b82f6" stroke="white" strokeWidth="2" />
+                    {postAuthorAvatar ? (
+                        <>
+                            <clipPath id="clip-post-center"><circle cx={cx} cy={cy} r={SRC_R - 1.5} /></clipPath>
+                            <image href={postAuthorAvatar} x={cx - SRC_R + 1.5} y={cy - SRC_R + 1.5} width={(SRC_R - 1.5) * 2} height={(SRC_R - 1.5) * 2} clipPath="url(#clip-post-center)" />
+                        </>
+                    ) : (
+                        <text x={cx} y={cy + 0.5} textAnchor="middle" dominantBaseline="central" fontSize="14" fontWeight="800" fill="white">
+                            {(postAuthorHandle || 'P')[0].toUpperCase()}
+                        </text>
+                    )}
+                </g>
+                <text x={cx} y={cy + SRC_R + 17} textAnchor="middle" fontSize="12" fontWeight="bold" fill="#1d4ed8" className="select-none">@{postAuthorHandle}</text>
+            </svg>
+
+            {/* Quick legend on top-right of graph */}
+            <div className="absolute right-3 top-3 bg-background/90 dark:bg-slate-900/90 border border-border rounded px-2 py-1.5 flex flex-col gap-1 text-[8px] font-semibold text-muted-foreground shadow-sm">
+                <div className="flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-[#f43f5e]" /> Likes</div>
+                <div className="flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-[#3b82f6]" /> Retweets</div>
+                <div className="flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-[#8b5cf6]" /> Both</div>
+            </div>
+        </div>
+    );
+};
+
+/* ── Post-level Engagers & Commenters Dialog ── */
+export const PostEngagersDialog = ({ open, onOpenChange, contentId, platform, onAddSource, content, initialTab = 'all', monitoredHandles = [] }) => {
+    const [engagers, setEngagers] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [search, setSearch] = useState('');
+    const [activeTab, setActiveTab] = useState('all');
+    const [viewMode, setViewMode] = useState('graph'); // 'graph' | 'list'
+    const [selectedNode, setSelectedNode] = useState(null);
+    const [monitoredHandlesList, setMonitoredHandlesList] = useState(monitoredHandles);
+    const [currentPage, setCurrentPage] = useState(1);
+
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [activeTab, search]);
+
+    useEffect(() => {
+        if (open) {
+            if (Array.isArray(monitoredHandles) && monitoredHandles.length > 0) {
+                setMonitoredHandlesList(monitoredHandles);
+            } else {
+                api.get('/sources')
+                    .then(res => {
+                        const data = Array.isArray(res.data) ? res.data : (res.data?.data || []);
+                        const handles = data.map(s => s.identifier).filter(Boolean);
+                        setMonitoredHandlesList(handles);
+                    })
+                    .catch(err => {
+                        console.error('Failed to load monitored handles in PostEngagersDialog:', err);
+                    });
+            }
+        }
+    }, [open, monitoredHandles]);
+
+    const isMonitored = (handle) => {
+        if (!handle || !Array.isArray(monitoredHandlesList) || monitoredHandlesList.length === 0) return false;
+        const clean = String(handle).replace(/^@/, '').toLowerCase().trim();
+        return monitoredHandlesList.some(h => h && String(h).replace(/^@/, '').toLowerCase().trim() === clean);
+    };
+    const getProfileUrl = (e) => {
+        if (!e) return '#';
+        if (platform === 'x') {
+            if (e.retweet_id) {
+                return `https://x.com/${e.handle}/status/${e.retweet_id}`;
+            }
+            return `https://x.com/${e.handle}`;
+        }
+        return '#';
+    };
+    useEffect(() => {
+        if (open && contentId) {
+            setLoading(true);
+            setSearch('');
+            setActiveTab(initialTab || 'all');
+            setViewMode('graph');
+            setSelectedNode(null);
+            api.get(`/content/${contentId}/engagers`)
+                .then(res => {
+                    setEngagers(res.data?.engagers || []);
+                })
+                .catch(err => {
+                    console.error('Failed to load post engagers:', err);
+                    toast.error('Failed to load post engagers');
+                    setEngagers([]);
+                })
+                .finally(() => setLoading(false));
+        }
+    }, [open, contentId, initialTab]);
+    const filtered = engagers.filter(e => {
+        const type = String(e.engagement_type || '').toLowerCase();
+        // Tab filter
+        if (activeTab === 'like' && !type.includes('like')) return false;
+        if (activeTab === 'retweet' && !type.includes('retweet') && !type.includes('share')) return false;
+        if (activeTab === 'comment' && !type.includes('comment') && !type.includes('reply')) return false;
+
+        // Search filter
+        if (search && search.trim()) {
+            const term = search.toLowerCase().trim();
+            return String(e.handle || '').toLowerCase().includes(term) || String(e.name || '').toLowerCase().includes(term);
+        }
+        return true;
+    });
+    const itemsPerPage = 20;
+    const totalPages = Math.ceil(filtered.length / itemsPerPage);
+    const paginatedItems = filtered.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+    const getEngagementBadge = (type) => {
+        if (type === 'retweet') {
+            return <span className="text-[9px] px-1.5 py-0.5 rounded-full font-medium bg-blue-100 text-blue-700 dark:bg-blue-950/30 dark:text-blue-400">Retweeted</span>;
+        }
+        if (type === 'like') {
+            return <span className="text-[9px] px-1.5 py-0.5 rounded-full font-medium bg-rose-100 text-rose-700 dark:bg-rose-950/30 dark:text-rose-400">Liked</span>;
+        }
+        if (type?.includes('retweet') && type?.includes('like')) {
+            return <span className="text-[9px] px-1.5 py-0.5 rounded-full font-medium bg-violet-100 text-violet-700 dark:bg-violet-950/30 dark:text-violet-400">Liked & Retweeted</span>;
+        }
+        if (type === 'share') {
+            return <span className="text-[9px] px-1.5 py-0.5 rounded-full font-medium bg-blue-100 text-blue-700 dark:bg-blue-950/30 dark:text-blue-400">Shared</span>;
+        }
+        return <span className="text-[9px] px-1.5 py-0.5 rounded-full font-medium bg-emerald-100 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400">Commented</span>;
+    };
+
+    const likesCount = engagers.filter(e => e.engagement_type?.includes('like')).length;
+    const retweetsCount = engagers.filter(e => e.engagement_type?.includes('retweet') || e.engagement_type?.includes('share')).length;
+    const commentsCount = engagers.filter(e => e.engagement_type?.includes('comment')).length;
+
+    return (
+        <Dialog open={open} onOpenChange={onOpenChange}>
+            <DialogContent className="max-w-[45vw] w-[45vw] max-h-[75vh] p-0 gap-0 overflow-hidden flex flex-col">
+                <DialogHeader className="px-5 pt-4 flex flex-row items-center justify-between">
+                    <div className="flex-1">
+                        <DialogTitle>Post Engagers</DialogTitle>
+                        <DialogDescription>
+                            Review the profiles who engaged or commented on this post.
+                        </DialogDescription>
+                    </div>
+                    {platform === 'x' && (
+                        <div className="flex bg-muted p-0.5 rounded-lg border mr-6 shrink-0">
+                            <button
+                                onClick={() => setViewMode('graph')}
+                                className={`px-2.5 py-1 rounded text-xs font-semibold transition-all ${
+                                    viewMode === 'graph'
+                                        ? 'bg-background text-foreground shadow-sm'
+                                        : 'text-muted-foreground hover:text-foreground'
+                                }`}
+                            >
+                                Graph View
+                            </button>
+                            <button
+                                onClick={() => setViewMode('list')}
+                                className={`px-2.5 py-1 rounded text-xs font-semibold transition-all ${
+                                    viewMode === 'list'
+                                        ? 'bg-background text-foreground shadow-sm'
+                                        : 'text-muted-foreground hover:text-foreground'
+                                }`}
+                            >
+                                List View
+                            </button>
+                        </div>
+                    )}
+                </DialogHeader>
+
+                {loading ? (
+                    <div className="flex-grow h-[430px] flex flex-col items-center justify-center gap-3 text-muted-foreground bg-background/50 backdrop-blur-xs">
+                        <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+                        <span className="text-xs font-semibold">Fetching post engagers...</span>
+                    </div>
+                ) : (
+                    <>
+                        {/* Post Stats Bar (Clickable Filter Tabs) */}
+                        {(content?.engagement || engagers.length > 0) && (
+                            <div className="px-5 py-2 bg-slate-50 dark:bg-slate-900/30 border-y border-border flex flex-wrap items-center gap-2 text-[10px] font-semibold text-muted-foreground">
+                                <span className="text-foreground/80 font-bold uppercase tracking-wider text-[9px] mr-2">Filters:</span>
+                                
+                                <button
+                                    onClick={() => setActiveTab('all')}
+                                    className={`px-2 py-1 rounded text-[10px] transition-all font-bold ${
+                                        activeTab === 'all'
+                                            ? 'bg-blue-600 text-white shadow-sm'
+                                            : 'bg-background hover:bg-accent text-muted-foreground border border-border'
+                                    }`}
+                                >
+                                    All ({engagers.length})
+                                </button>
+
+                                <button
+                                    onClick={() => setActiveTab('like')}
+                                    className={`px-2 py-1 rounded text-[10px] transition-all font-bold flex items-center gap-1 ${
+                                        activeTab === 'like'
+                                            ? 'bg-rose-600 text-white shadow-sm'
+                                            : 'bg-background hover:bg-accent text-muted-foreground border border-border'
+                                    }`}
+                                >
+                                    {platform === 'x' ? '❤️' : '👍'} Likes ({likesCount})
+                                </button>
+
+                                <button
+                                    onClick={() => setActiveTab('retweet')}
+                                    className={`px-2 py-1 rounded text-[10px] transition-all font-bold flex items-center gap-1 ${
+                                        activeTab === 'retweet'
+                                            ? 'bg-blue-600 text-white shadow-sm'
+                                            : 'bg-background hover:bg-accent text-muted-foreground border border-border'
+                                    }`}
+                                >
+                                    🔄 {platform === 'x' ? 'Retweets' : 'Shares'} ({retweetsCount})
+                                </button>
+
+                                <button
+                                    onClick={() => setActiveTab('comment')}
+                                    className={`px-2 py-1 rounded text-[10px] transition-all font-bold flex items-center gap-1 ${
+                                        activeTab === 'comment'
+                                            ? 'bg-emerald-600 text-white shadow-sm'
+                                            : 'bg-background hover:bg-accent text-muted-foreground border border-border'
+                                    }`}
+                                >
+                                    💬 Comments ({commentsCount})
+                                </button>
+
+                                {content?.engagement?.views > 0 && (
+                                    <span className="flex items-center gap-1 text-[9px] opacity-75 font-normal ml-auto shrink-0 pr-1">
+                                        👁️ {content.engagement.views} Views
+                                    </span>
+                                )}
+                            </div>
+                        )}
+
+                        {/* GRAPH VIEW PANEL */}
+                        {platform === 'x' && viewMode === 'graph' && (
+                    <div className="flex flex-col flex-1 min-h-0">
+                        <PostEngagersGraph
+                            items={filtered}
+                            postAuthorHandle={content?.author_handle || 'Post'}
+                            postAuthorAvatar={content?.author_avatar}
+                            onNodeClick={(node) => setSelectedNode(node)}
+                            selectedNode={selectedNode}
+                            platform={platform}
+                        />
+                        {/* Selected Node Details Card */}
+                        <div className="p-3 bg-slate-50/50 dark:bg-slate-900/10 min-h-[64px] flex items-center justify-between border-t border-border mt-auto">
+                            {selectedNode ? (
+                                <div className="flex items-center justify-between w-full animate-in fade-in slide-in-from-bottom-2 duration-200">
+                                    <div className="flex items-center gap-3">
+                                        {selectedNode.avatar ? (
+                                            <a href={getProfileUrl(selectedNode)} target="_blank" rel="noopener noreferrer" className="hover:opacity-80 transition-opacity">
+                                                <img src={selectedNode.avatar} alt="" className="w-9 h-9 rounded-full object-cover border border-border" />
+                                            </a>
+                                        ) : (
+                                            <a href={getProfileUrl(selectedNode)} target="_blank" rel="noopener noreferrer" className="hover:opacity-80 transition-opacity">
+                                                <div className="w-9 h-9 rounded-full bg-muted flex items-center justify-center text-xs font-bold border">
+                                                    {selectedNode.handle[0].toUpperCase()}
+                                                </div>
+                                            </a>
+                                        )}
+                                        <div>
+                                            <div className="flex items-center gap-1.5 flex-wrap">
+                                                <a
+                                                    href={getProfileUrl(selectedNode)}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="font-bold text-xs text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 hover:underline"
+                                                >
+                                                    @{selectedNode.handle}
+                                                </a>
+                                                {selectedNode.verified && (
+                                                    <span className="inline-flex items-center justify-center bg-blue-500 text-white rounded-full p-0.5 w-3 h-3">
+                                                        <Check className="h-1.5 w-1.5 stroke-[3]" />
+                                                    </span>
+                                                )}
+                                                {getEngagementBadge(selectedNode.engagement_type)}
+                                                <span className={`text-[8px] px-1.5 py-0.5 rounded font-bold uppercase tracking-wider ${
+                                                    selectedNode.tier === 'verified-influencer' ? 'bg-purple-100 text-purple-700 dark:bg-purple-950/30 dark:text-purple-400 border border-purple-200/50' :
+                                                    selectedNode.tier === 'super-active' ? 'bg-red-100 text-red-700 dark:bg-red-950/30 dark:text-red-400 border border-red-200/50' :
+                                                    selectedNode.tier === 'regular' ? 'bg-orange-100 text-orange-700 dark:bg-orange-950/30 dark:text-orange-400 border border-orange-200/50' :
+                                                    selectedNode.tier === 'occasional' ? 'bg-amber-100 text-amber-700 dark:bg-amber-950/30 dark:text-amber-400 border border-amber-200/50' :
+                                                    selectedNode.tier === 'new-engager' ? 'bg-slate-100 text-slate-600 dark:bg-slate-900/30 dark:text-slate-400' :
+                                                    'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400'
+                                                }`}>
+                                                    {selectedNode.tier.replace('-', ' ')}
+                                                </span>
+                                            </div>
+                                            <p className="text-[10px] text-muted-foreground">{selectedNode.name}</p>
+                                        </div>
+                                    </div>
+                                    {onAddSource && (
+                                        isMonitored(selectedNode.handle) ? (
+                                            <span className="inline-flex items-center gap-0.5 text-[10px] text-green-600 font-semibold shrink-0 ml-3 shadow-xs"><Check className="h-3.5 w-3.5" /> Monitored</span>
+                                        ) : (
+                                            <button
+                                                onClick={() => onAddSource({ platform: 'x', identifier: selectedNode.handle, display_name: selectedNode.name || selectedNode.handle, category: 'unknown' })}
+                                                className="text-[10px] font-semibold text-primary bg-background hover:bg-accent px-2.5 py-1.5 rounded border border-border shrink-0 ml-3 shadow-xs"
+                                            >
+                                                Monitor Profile
+                                            </button>
+                                        )
+                                    )}
+                                </div>
+                            ) : (
+                                <div className="w-full text-center py-2 text-xs text-muted-foreground flex items-center justify-center gap-1.5">
+                                    <Users className="h-4 w-4 opacity-40" />
+                                    <span>Click any profile node in the graph to view details</span>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                )}
+
+                {/* LIST VIEW PANEL */}
+                {(platform !== 'x' || viewMode === 'list') && (
+                    <div className="flex flex-col flex-1 min-h-0">
+                        <div className="px-5 pt-2.5 pb-2.5 border-b border-border">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <p className="text-[10px] text-muted-foreground">
+                                        Profiles fetched from this specific post
+                                    </p>
+                                </div>
+                                <div className="relative w-48">
+                                    <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3 w-3 text-muted-foreground" />
+                                    <input
+                                        type="text"
+                                        placeholder="Search profiles…"
+                                        value={search}
+                                        onChange={(e) => setSearch(e.target.value)}
+                                        className="w-full pl-6 pr-2 py-1 text-[11px] rounded border bg-background placeholder:text-muted-foreground/60 focus:outline-none focus:ring-1 focus:ring-primary"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        <ScrollArea className="flex-1 min-h-0 w-full">
+                            <div className="p-4">
+                                {filtered.length === 0 ? (
+                                    <div className="h-48 flex flex-col items-center justify-center gap-3 text-muted-foreground">
+                                        <Users className="h-10 w-10 opacity-25" />
+                                        <p className="text-xs">No engagers found for this post</p>
+                                    </div>
+                                ) : (
+                                    <div className="space-y-3">
+                                        {paginatedItems.map((e, idx) => (
+                                            <div key={idx} className="flex items-start justify-between p-2 rounded-lg border hover:bg-accent/10 transition-colors">
+                                                <div className="flex items-start gap-3 min-w-0 flex-1">
+                                                    {e.avatar ? (
+                                                        <a href={getProfileUrl(e)} target="_blank" rel="noopener noreferrer" className="shrink-0 mt-0.5 hover:opacity-80 transition-opacity">
+                                                            <img src={e.avatar} alt="" className="h-8 w-8 rounded-full object-cover shrink-0 mt-0.5" />
+                                                        </a>
+                                                    ) : (
+                                                        <a href={getProfileUrl(e)} target="_blank" rel="noopener noreferrer" className="shrink-0 mt-0.5 hover:opacity-80 transition-opacity">
+                                                            <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">
+                                                                {(e.handle || '?')[0].toUpperCase()}
+                                                            </div>
+                                                        </a>
+                                                    )}
+                                                    <div className="min-w-0 flex-1">
+                                                        <div className="flex items-center gap-2 flex-wrap">
+                                                            {platform === 'x' ? (
+                                                                <a
+                                                                    href={getProfileUrl(e)}
+                                                                    target="_blank"
+                                                                    rel="noopener noreferrer"
+                                                                    className="font-semibold text-xs text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 hover:underline truncate"
+                                                                >
+                                                                    @{e.handle}
+                                                                </a>
+                                                            ) : (
+                                                                <span className="font-semibold text-xs text-foreground truncate">
+                                                                    {e.name}
+                                                                </span>
+                                                            )}
+                                                            {platform === 'x' && e.name && e.name !== e.handle && (
+                                                                <span className="text-[10px] text-muted-foreground truncate max-w-[120px]">{e.name}</span>
+                                                            )}
+                                                            {e.verified && (
+                                                                <span className="inline-flex items-center justify-center bg-blue-500 text-white rounded-full p-0.5 w-3 h-3">
+                                                                    <Check className="h-2 w-2 stroke-[3]" />
+                                                                </span>
+                                                            )}
+                                                            {getEngagementBadge(e.engagement_type)}
+                                                            {e.tier && (
+                                                                <span className={`text-[8px] px-1.5 py-0.5 rounded font-bold uppercase tracking-wider ${
+                                                                    e.tier === 'verified-influencer' ? 'bg-purple-100 text-purple-700 dark:bg-purple-950/30 dark:text-purple-400 border border-purple-200/50' :
+                                                                    e.tier === 'super-active' ? 'bg-red-100 text-red-700 dark:bg-red-950/30 dark:text-red-400 border border-red-200/50' :
+                                                                    e.tier === 'regular' ? 'bg-orange-100 text-orange-700 dark:bg-orange-950/30 dark:text-orange-400 border border-orange-200/50' :
+                                                                    e.tier === 'occasional' ? 'bg-amber-100 text-amber-700 dark:bg-amber-950/30 dark:text-amber-400 border border-amber-200/50' :
+                                                                    e.tier === 'new-engager' ? 'bg-slate-100 text-slate-600 dark:bg-slate-900/30 dark:text-slate-400' :
+                                                                    'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400'
+                                                                }`}>
+                                                                    {e.tier.replace('-', ' ')}
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                        {e.text && (
+                                                            <p className="text-[11px] text-muted-foreground mt-1 bg-muted/40 p-1.5 rounded border border-border/40 whitespace-pre-wrap leading-normal italic">
+                                                                "{e.text}"
+                                                            </p>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                                {onAddSource && platform === 'x' && (
+                                                    isMonitored(e.handle) ? (
+                                                        <span className="inline-flex items-center gap-0.5 text-[10px] text-green-600 font-semibold shrink-0 ml-3"><Check className="h-3.5 w-3.5" /> Monitored</span>
+                                                    ) : (
+                                                        <button
+                                                            onClick={() => onAddSource({ platform: 'x', identifier: e.handle, display_name: e.name || e.handle, category: 'unknown' })}
+                                                            className="text-[10px] font-semibold text-primary hover:bg-accent px-2 py-1 rounded border border-border shrink-0 ml-3"
+                                                        >
+                                                            Monitor
+                                                        </button>
+                                                    )
+                                                )}
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        </ScrollArea>
+                        {totalPages > 1 && (
+                            <div className="flex items-center justify-between px-5 py-2.5 border-t border-border mt-auto bg-slate-50 dark:bg-slate-900/30">
+                                <button
+                                    onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                                    disabled={currentPage === 1}
+                                    className="px-2.5 py-1 text-[10px] font-semibold border rounded bg-background hover:bg-accent disabled:opacity-50 transition-opacity"
+                                >
+                                    Previous
+                                </button>
+                                <span className="text-[10px] text-muted-foreground font-semibold">
+                                    Page {currentPage} of {totalPages}
+                                </span>
+                                <button
+                                    onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                                    disabled={currentPage === totalPages}
+                                    className="px-2.5 py-1 text-[10px] font-semibold border rounded bg-background hover:bg-accent disabled:opacity-50 transition-opacity"
+                                >
+                                    Next
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                )}
+                    </>
+                )}
+            </DialogContent>
+        </Dialog>
     );
 };
 

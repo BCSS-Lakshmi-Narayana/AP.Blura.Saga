@@ -161,7 +161,8 @@ const executeAnalysisWork = async (analysisId, cleanHandle, periodDays, analysis
           avatar: prev.avatar || null,
           verified: !!prev.verified,
           user_id: prev.user_id || null,
-          tweet_ids: new Set(prev.tweet_ids || [])
+          tweet_ids: new Set(prev.tweet_ids || []),
+          retweet_ids: prev.retweet_ids ? (prev.retweet_ids instanceof Map ? prev.retweet_ids : new Map(Object.entries(prev.retweet_ids))) : new Map()
         });
       }
     }
@@ -227,7 +228,8 @@ const executeAnalysisWork = async (analysisId, cleanHandle, periodDays, analysis
                   avatar: rt.avatar || null,
                   verified: !!rt.verified,
                   user_id: rt.id || null,
-                  tweet_ids: new Set()
+                  tweet_ids: new Set(),
+                  retweet_ids: new Map()
                 });
               }
               const entry = engagerMap.get(rtHandle);
@@ -236,6 +238,10 @@ const executeAnalysisWork = async (analysisId, cleanHandle, periodDays, analysis
               if (rt.avatar) entry.avatar = rt.avatar;
               if (rt.verified) entry.verified = true;
               if (rt.id) entry.user_id = rt.id;
+              if (rt.retweet_id) {
+                if (!entry.retweet_ids) entry.retweet_ids = new Map();
+                entry.retweet_ids.set(tweetId, rt.retweet_id);
+              }
             }
           } catch (err) {
             console.warn(`[EngagerAnalysis] Failed to fetch retweeters for tweet ${tweetId}: ${err.message}`);
@@ -288,7 +294,8 @@ const executeAnalysisWork = async (analysisId, cleanHandle, periodDays, analysis
         user_id: entry.user_id,
         tweets_retweeted: tweetsRetweeted,
         tweet_ids: Array.from(entry.tweet_ids),
-        frequency
+        frequency,
+        retweet_ids: entry.retweet_ids ? (entry.retweet_ids instanceof Map ? Object.fromEntries(entry.retweet_ids) : entry.retweet_ids) : {}
       });
     }
 
