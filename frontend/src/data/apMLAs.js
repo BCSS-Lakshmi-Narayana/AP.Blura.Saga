@@ -394,7 +394,7 @@ export const AP_MLAS = [
   },
   {
     "constituency": "GANNAVARAM (KRISHNA)",
-    "key": "gannavaram",
+    "key": "gannavaramkrishna",
     "mla": "Yarlagadda Venkata Rao",
     "party": "TDP",
     "alliance": "NDA",
@@ -405,7 +405,7 @@ export const AP_MLAS = [
   },
   {
     "constituency": "GANNAVARAM (SC)",
-    "key": "gannavaram",
+    "key": "gannavaramsc",
     "mla": "Giddi. Satyanarayana S/O Mahalakshmi",
     "party": "JSP",
     "alliance": "NDA",
@@ -1307,7 +1307,7 @@ export const AP_MLAS = [
   },
   {
     "constituency": "PRATHIPADU (SC)",
-    "key": "prathipadu",
+    "key": "prathipadusc",
     "mla": "Burla Ramanjaneyulu",
     "party": "TDP",
     "alliance": "NDA",

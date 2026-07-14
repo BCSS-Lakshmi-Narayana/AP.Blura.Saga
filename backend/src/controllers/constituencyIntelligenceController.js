@@ -329,8 +329,168 @@ const getConstituencyDetail = async (req, res) => {
   }
 };
 
+/* ─── GET /api/constituency-intel/:constituency/narrative ─────────────
+ * Social-media narrative intelligence for one seat: platform-wide sentiment,
+ * conversation-volume trend, platform mix, trending topics/hashtags,
+ * top influencers, narrative themes, and rule-based insights.
+ * All figures are aggregated from the Grievance collection (ingested social
+ * mentions) scoped to this constituency — real, not illustrative.
+ */
+const getConstituencyNarrative = async (req, res) => {
+  try {
+    const { constituency } = req.params;
+    const { days } = req.query;
+    const decoded = decodeURIComponent(constituency || '');
+    const mla = getMlaByConstituency(decoded);
+
+    if (!isInScope(decoded, req.scope)) {
+      return res.status(403).json({ success: false, code: 'CONSTITUENCY_FORBIDDEN', message: 'Not authorized to view this constituency' });
+    }
+
+    const windowDays = Number(days) > 0 ? Number(days) : 30;
+    const since = new Date(Date.now() - windowDays * 86400000);
+    const prevSince = new Date(Date.now() - 2 * windowDays * 86400000);
+    const constFilter = mla ? new RegExp(`^${mla.constituency}$`, 'i') : decoded;
+
+    const baseMatch = { is_active: true, 'detected_location.constituency': constFilter, post_date: { $gte: since } };
+    const prevMatch = { is_active: true, 'detected_location.constituency': constFilter, post_date: { $gte: prevSince, $lt: since } };
+
+    const sentimentGroup = {
+      _id: null,
+      total: { $sum: 1 },
+      positive: { $sum: { $cond: [{ $eq: ['$analysis.sentiment', 'positive'] }, 1, 0] } },
+      negative: { $sum: { $cond: [{ $eq: ['$analysis.sentiment', 'negative'] }, 1, 0] } },
+      neutral: { $sum: { $cond: [{ $in: ['$analysis.sentiment', ['neutral', 'moderate']] }, 1, 0] } },
+    };
+
+    const [curAgg, prevAgg, volume, platforms, influencers, recent] = await Promise.all([
+      Grievance.aggregate([{ $match: baseMatch }, { $group: sentimentGroup }]),
+      Grievance.aggregate([{ $match: prevMatch }, { $group: sentimentGroup }]),
+      Grievance.aggregate([
+        { $match: baseMatch },
+        { $group: { _id: { $dateToString: { format: '%Y-%m-%d', date: '$post_date' } }, count: { $sum: 1 } } },
+        { $sort: { _id: 1 } },
+      ]),
+      Grievance.aggregate([
+        { $match: baseMatch },
+        { $group: { _id: '$platform', count: { $sum: 1 } } },
+        { $sort: { count: -1 } },
+      ]),
+      Grievance.aggregate([
+        { $match: { ...baseMatch, 'posted_by.handle': { $nin: [null, ''] } } },
+        {
+          $group: {
+            _id: '$posted_by.handle',
+            display_name: { $first: '$posted_by.display_name' },
+            followers: { $max: '$posted_by.follower_count' },
+            verified: { $max: { $cond: ['$posted_by.is_verified', 1, 0] } },
+            posts: { $sum: 1 },
+            reach: { $sum: '$engagement.views' },
+          },
+        },
+        { $sort: { followers: -1, reach: -1 } },
+        { $limit: 8 },
+      ]),
+      Grievance.find(baseMatch)
+        .select('content.text analysis.category analysis.grievance_type analysis.sentiment')
+        .sort({ post_date: -1 })
+        .limit(600)
+        .lean(),
+    ]);
+
+    const cur = curAgg[0] || { total: 0, positive: 0, negative: 0, neutral: 0 };
+    const prev = prevAgg[0] || { total: 0, positive: 0, negative: 0, neutral: 0 };
+    const pct = (n, t) => (t > 0 ? Math.round((n / t) * 100) : 0);
+    // Sentiment score 0-100 (positive weight 1, neutral 0.5).
+    const scoreOf = (s) => (s.total > 0 ? Math.round(((s.positive + 0.5 * s.neutral) / s.total) * 100) : 0);
+    const curScore = scoreOf(cur);
+    const prevScore = scoreOf(prev);
+
+    // Topics: merge classified categories + extracted hashtags.
+    const topicCounts = {};
+    const hashtagCounts = {};
+    const HASHTAG_RE = /#[\wऀ-ॿఀ-౿]+/g;
+    const bySentimentCat = { positive: {}, negative: {}, neutral: {} };
+    for (const g of recent) {
+      const cat = g?.analysis?.grievance_type || g?.analysis?.category;
+      if (cat) topicCounts[cat] = (topicCounts[cat] || 0) + 1;
+      const sent = g?.analysis?.sentiment === 'negative' ? 'negative'
+        : g?.analysis?.sentiment === 'positive' ? 'positive' : 'neutral';
+      if (cat) bySentimentCat[sent][cat] = (bySentimentCat[sent][cat] || 0) + 1;
+      const text = g?.content?.text || '';
+      const tags = text.match(HASHTAG_RE) || [];
+      for (const t of tags) {
+        const k = t.toLowerCase();
+        hashtagCounts[k] = (hashtagCounts[k] || 0) + 1;
+      }
+    }
+    const topList = (obj, n) => Object.entries(obj).map(([k, v]) => ({ name: k, count: v })).sort((a, b) => b.count - a.count).slice(0, n);
+    const topTopics = topList(topicCounts, 6);
+    const trendingHashtags = topList(hashtagCounts, 6);
+    const topCatOf = (sent) => topList(bySentimentCat[sent], 1)[0] || null;
+
+    const PLATFORM_LABELS = { x: 'X (Twitter)', twitter: 'X (Twitter)', facebook: 'Facebook', youtube: 'YouTube', instagram: 'Instagram', whatsapp: 'WhatsApp' };
+    const platformMix = platforms.map((p) => ({
+      platform: p._id || 'unknown',
+      label: PLATFORM_LABELS[p._id] || (p._id || 'Unknown'),
+      count: p.count,
+      pct: pct(p.count, cur.total),
+    }));
+
+    // Rule-based (non-LLM) insights derived from the real aggregates.
+    const insights = [];
+    if (topTopics.length) insights.push(`Top conversation drivers: ${topTopics.slice(0, 3).map((t) => t.name).join(', ')}.`);
+    if (cur.total > 0) {
+      const delta = curScore - prevScore;
+      if (delta !== 0) insights.push(`Sentiment score ${delta > 0 ? 'up' : 'down'} ${Math.abs(delta)} pts vs previous ${windowDays}d (now ${curScore}/100).`);
+    }
+    if (platformMix.length) insights.push(`Most conversation on ${platformMix[0].label} (${platformMix[0].pct}%).`);
+    const negTop = topCatOf('negative');
+    if (negTop && pct(cur.negative, cur.total) >= 25) insights.push(`Elevated negative sentiment — “${negTop.name}” is the main driver; consider a response.`);
+    if (cur.total === 0) insights.push('No social mentions detected for this constituency in the selected window.');
+
+    return res.json({
+      success: true,
+      constituency: mla ? mla.constituency : decoded,
+      mla: mla ? { name: mla.mla, party: mla.party, alliance: mla.alliance } : null,
+      window_days: windowDays,
+      sentiment: {
+        total: cur.total,
+        positive: cur.positive, negative: cur.negative, neutral: cur.neutral,
+        positive_pct: pct(cur.positive, cur.total),
+        negative_pct: pct(cur.negative, cur.total),
+        neutral_pct: pct(cur.neutral, cur.total),
+        score: curScore,
+        score_change: curScore - prevScore,
+      },
+      volume_trend: volume.map((v) => ({ date: v._id, count: v.count })),
+      platforms: platformMix,
+      top_topics: topTopics,
+      trending_hashtags: trendingHashtags,
+      narratives: {
+        positive: topCatOf('positive'),
+        negative: topCatOf('negative'),
+        neutral: topCatOf('neutral'),
+      },
+      top_influencers: influencers.map((i) => ({
+        handle: i._id,
+        display_name: i.display_name || i._id,
+        followers: i.followers || 0,
+        verified: !!i.verified,
+        posts: i.posts,
+        reach: i.reach || 0,
+      })),
+      ai_insights: insights,
+    });
+  } catch (err) {
+    console.error('[constituencyIntel] narrative error:', err.message);
+    return res.status(500).json({ success: false, message: 'Failed to build narrative intelligence' });
+  }
+};
+
 module.exports = {
   getLeaderboard,
   getSummary,
   getConstituencyDetail,
+  getConstituencyNarrative,
 };

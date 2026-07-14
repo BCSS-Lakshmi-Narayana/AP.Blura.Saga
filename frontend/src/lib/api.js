@@ -12,31 +12,9 @@ const getDefaultBackendUrl = () => {
     return envBackendUrl;
   }
 
-  if (typeof window === 'undefined') return 'http://178.255.44.130:8000';
-
-  const { hostname, port } = window.location;
-  const isIP = /^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/.test(hostname);
-
-  // If accessing specifically via the production IP directly
-  if (hostname === '178.255.44.130' || hostname === '103.211.37.124') {
-    return `http://${hostname}:5000`;
-  }
-
-  // Handle local development (localhost or 127.0.0.1)
-  if (hostname === 'localhost' || hostname === '127.0.0.1') {
-    return 'http://localhost:5000';
-  }
-
-  // If accessing via other IP or dev port, use relative or local backend
-  if (isIP || port === '3000') {
-    return hostname === 'localhost' || hostname === '127.0.0.1'
-      ? `http://localhost:5000`
-      : `http://103.211.37.124:5000`;
-  }
-
-  // Production (Vercel/HTTPS or Nginx Reverse Proxy) - use relative URL
-  // This avoids mixed content (HTTPS page calling HTTP backend)
-  // When hitting https://tgp.blura.in/api/... Nginx intercepts and proxies to backend
+  // No REACT_APP_BACKEND_URL set - this should only happen if the .env file
+  // is missing. Fall back to relative URLs so a reverse proxy (Nginx/Vercel)
+  // can still route /api requests, avoiding mixed-content and wrong-port guesses.
   return '';
 };
 

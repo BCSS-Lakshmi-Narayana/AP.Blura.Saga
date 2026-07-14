@@ -10,6 +10,7 @@
     "reprocess:sangrur:dry": "node scripts/reprocess_sangrur_ac.js --dry-run",
     "reprocess:sangrur": "node scripts/reprocess_sangrur_ac.js --execute",
     "db:clean": "node scripts/clean-db.js",
+    "seed:policies": "node scripts/seed_policy_mappings.js",
     "fetch:bsk": "node scripts/fetch_bsk_now.js",
     "fetch:bsk:x": "node scripts/fetch_bsk_now.js x",
     "pipeline:alerts": "node scripts/alerts_to_mentions.js",
