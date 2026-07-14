@@ -1,0 +1,259 @@
+{
+  "_meta": {
+    "description": "Census 2011 worker classification (% of total workers) per AP district, resolved from each 2022 district to its undivided-AP Census-2011 parent district. Percentages are scale-invariant so serve as an AC-level proxy (all ACs in a district share the district figure). Source: Census 2011 Primary Census Abstract via nishusharma1608/India-Census-2011-Analysis (india-districts-census-2011.csv).",
+    "vintage": "2011",
+    "granularity": "district (proxy for AC)"
+  },
+  "srikakulam": {
+    "work_participation_rate": 47.7,
+    "cultivators": 12.8,
+    "agricultural_labourers": 54.3,
+    "household_industry": 2.7,
+    "other_workers": 30.2,
+    "census_parent_district": "Srikakulam",
+    "source": "Census 2011 Primary Census Abstract (district-level worker classification)"
+  },
+  "vizianagaram": {
+    "work_participation_rate": 49.4,
+    "cultivators": 18.3,
+    "agricultural_labourers": 48.1,
+    "household_industry": 2.4,
+    "other_workers": 31.2,
+    "census_parent_district": "Vizianagaram",
+    "source": "Census 2011 Primary Census Abstract (district-level worker classification)"
+  },
+  "parvathipurammanyam": {
+    "work_participation_rate": 49.4,
+    "cultivators": 18.3,
+    "agricultural_labourers": 48.1,
+    "household_industry": 2.4,
+    "other_workers": 31.2,
+    "census_parent_district": "Vizianagaram",
+    "source": "Census 2011 Primary Census Abstract (district-level worker classification)"
+  },
+  "visakhapatnam": {
+    "work_participation_rate": 44,
+    "cultivators": 17,
+    "agricultural_labourers": 30.6,
+    "household_industry": 2.9,
+    "other_workers": 49.4,
+    "census_parent_district": "Visakhapatnam",
+    "source": "Census 2011 Primary Census Abstract (district-level worker classification)"
+  },
+  "anakapalli": {
+    "work_participation_rate": 44,
+    "cultivators": 17,
+    "agricultural_labourers": 30.6,
+    "household_industry": 2.9,
+    "other_workers": 49.4,
+    "census_parent_district": "Visakhapatnam",
+    "source": "Census 2011 Primary Census Abstract (district-level worker classification)"
+  },
+  "allurisitharamaraju": {
+    "work_participation_rate": 44,
+    "cultivators": 17,
+    "agricultural_labourers": 30.6,
+    "household_industry": 2.9,
+    "other_workers": 49.4,
+    "census_parent_district": "Visakhapatnam",
+    "source": "Census 2011 Primary Census Abstract (district-level worker classification)"
+  },
+  "kakinada": {
+    "work_participation_rate": 40.6,
+    "cultivators": 7.7,
+    "agricultural_labourers": 53.6,
+    "household_industry": 2.8,
+    "other_workers": 36,
+    "census_parent_district": "East Godavari",
+    "source": "Census 2011 Primary Census Abstract (district-level worker classification)"
+  },
+  "eastgodavari": {
+    "work_participation_rate": 40.6,
+    "cultivators": 7.7,
+    "agricultural_labourers": 53.6,
+    "household_industry": 2.8,
+    "other_workers": 36,
+    "census_parent_district": "East Godavari",
+    "source": "Census 2011 Primary Census Abstract (district-level worker classification)"
+  },
+  "konaseema": {
+    "work_participation_rate": 40.6,
+    "cultivators": 7.7,
+    "agricultural_labourers": 53.6,
+    "household_industry": 2.8,
+    "other_workers": 36,
+    "census_parent_district": "East Godavari",
+    "source": "Census 2011 Primary Census Abstract (district-level worker classification)"
+  },
+  "polavaram": {
+    "work_participation_rate": 45,
+    "cultivators": 8.8,
+    "agricultural_labourers": 59.9,
+    "household_industry": 1.9,
+    "other_workers": 29.5,
+    "census_parent_district": "West Godavari",
+    "source": "Census 2011 Primary Census Abstract (district-level worker classification)"
+  },
+  "westgodavari": {
+    "work_participation_rate": 45,
+    "cultivators": 8.8,
+    "agricultural_labourers": 59.9,
+    "household_industry": 1.9,
+    "other_workers": 29.5,
+    "census_parent_district": "West Godavari",
+    "source": "Census 2011 Primary Census Abstract (district-level worker classification)"
+  },
+  "eluru": {
+    "work_participation_rate": 45,
+    "cultivators": 8.8,
+    "agricultural_labourers": 59.9,
+    "household_industry": 1.9,
+    "other_workers": 29.5,
+    "census_parent_district": "West Godavari",
+    "source": "Census 2011 Primary Census Abstract (district-level worker classification)"
+  },
+  "ntr": {
+    "work_participation_rate": 45.4,
+    "cultivators": 7.3,
+    "agricultural_labourers": 49.1,
+    "household_industry": 2.4,
+    "other_workers": 41.2,
+    "census_parent_district": "Krishna",
+    "source": "Census 2011 Primary Census Abstract (district-level worker classification)"
+  },
+  "krishna": {
+    "work_participation_rate": 45.4,
+    "cultivators": 7.3,
+    "agricultural_labourers": 49.1,
+    "household_industry": 2.4,
+    "other_workers": 41.2,
+    "census_parent_district": "Krishna",
+    "source": "Census 2011 Primary Census Abstract (district-level worker classification)"
+  },
+  "palnadu": {
+    "work_participation_rate": 48.7,
+    "cultivators": 12.7,
+    "agricultural_labourers": 51.6,
+    "household_industry": 2,
+    "other_workers": 33.8,
+    "census_parent_district": "Guntur",
+    "source": "Census 2011 Primary Census Abstract (district-level worker classification)"
+  },
+  "guntur": {
+    "work_participation_rate": 48.7,
+    "cultivators": 12.7,
+    "agricultural_labourers": 51.6,
+    "household_industry": 2,
+    "other_workers": 33.8,
+    "census_parent_district": "Guntur",
+    "source": "Census 2011 Primary Census Abstract (district-level worker classification)"
+  },
+  "bapatla": {
+    "work_participation_rate": 48.7,
+    "cultivators": 12.7,
+    "agricultural_labourers": 51.6,
+    "household_industry": 2,
+    "other_workers": 33.8,
+    "census_parent_district": "Guntur",
+    "source": "Census 2011 Primary Census Abstract (district-level worker classification)"
+  },
+  "markapuram": {
+    "work_participation_rate": 50.1,
+    "cultivators": 16.5,
+    "agricultural_labourers": 52.3,
+    "household_industry": 2.5,
+    "other_workers": 28.7,
+    "census_parent_district": "Prakasam",
+    "source": "Census 2011 Primary Census Abstract (district-level worker classification)"
+  },
+  "prakasam": {
+    "work_participation_rate": 50.1,
+    "cultivators": 16.5,
+    "agricultural_labourers": 52.3,
+    "household_industry": 2.5,
+    "other_workers": 28.7,
+    "census_parent_district": "Prakasam",
+    "source": "Census 2011 Primary Census Abstract (district-level worker classification)"
+  },
+  "nellore": {
+    "work_participation_rate": 44.4,
+    "cultivators": 12.6,
+    "agricultural_labourers": 47.6,
+    "household_industry": 2.7,
+    "other_workers": 37.2,
+    "census_parent_district": "Sri Potti Sriramulu Nellore",
+    "source": "Census 2011 Primary Census Abstract (district-level worker classification)"
+  },
+  "tirupati": {
+    "work_participation_rate": 46.3,
+    "cultivators": 22.5,
+    "agricultural_labourers": 38.7,
+    "household_industry": 3,
+    "other_workers": 35.9,
+    "census_parent_district": "Chittoor",
+    "source": "Census 2011 Primary Census Abstract (district-level worker classification)"
+  },
+  "ysrkadapa": {
+    "work_participation_rate": 45.8,
+    "cultivators": 18.4,
+    "agricultural_labourers": 41.1,
+    "household_industry": 4.2,
+    "other_workers": 36.2,
+    "census_parent_district": "Y.S.R.",
+    "source": "Census 2011 Primary Census Abstract (district-level worker classification)"
+  },
+  "annamayya": {
+    "work_participation_rate": 45.8,
+    "cultivators": 18.4,
+    "agricultural_labourers": 41.1,
+    "household_industry": 4.2,
+    "other_workers": 36.2,
+    "census_parent_district": "Y.S.R.",
+    "source": "Census 2011 Primary Census Abstract (district-level worker classification)"
+  },
+  "nandyal": {
+    "work_participation_rate": 50.1,
+    "cultivators": 15.3,
+    "agricultural_labourers": 51.1,
+    "household_industry": 3,
+    "other_workers": 30.6,
+    "census_parent_district": "Kurnool",
+    "source": "Census 2011 Primary Census Abstract (district-level worker classification)"
+  },
+  "kurnool": {
+    "work_participation_rate": 50.1,
+    "cultivators": 15.3,
+    "agricultural_labourers": 51.1,
+    "household_industry": 3,
+    "other_workers": 30.6,
+    "census_parent_district": "Kurnool",
+    "source": "Census 2011 Primary Census Abstract (district-level worker classification)"
+  },
+  "ananthapuramu": {
+    "work_participation_rate": 49.9,
+    "cultivators": 20.3,
+    "agricultural_labourers": 43.2,
+    "household_industry": 5.2,
+    "other_workers": 31.3,
+    "census_parent_district": "Anantapur",
+    "source": "Census 2011 Primary Census Abstract (district-level worker classification)"
+  },
+  "srisathyasai": {
+    "work_participation_rate": 49.9,
+    "cultivators": 20.3,
+    "agricultural_labourers": 43.2,
+    "household_industry": 5.2,
+    "other_workers": 31.3,
+    "census_parent_district": "Anantapur",
+    "source": "Census 2011 Primary Census Abstract (district-level worker classification)"
+  },
+  "chittoor": {
+    "work_participation_rate": 46.3,
+    "cultivators": 22.5,
+    "agricultural_labourers": 38.7,
+    "household_industry": 3,
+    "other_workers": 35.9,
+    "census_parent_district": "Chittoor",
+    "source": "Census 2011 Primary Census Abstract (district-level worker classification)"
+  }
+}

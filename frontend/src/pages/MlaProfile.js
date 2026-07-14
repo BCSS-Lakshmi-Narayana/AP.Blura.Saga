@@ -1,20 +1,8 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { geoMercator, geoPath } from 'd3-geo';
-import {
-  ArrowLeft,
-  Loader2,
-  MapPin,
-  Users,
-  Bell,
-  Megaphone,
-  TrendingUp,
-  TrendingDown,
-  Activity,
-  Shield,
-  Calendar,
-  ExternalLink,
-} from 'lucide-react';
+import { ArrowLeft, MapPin, Loader2, Calendar, ExternalLink } from 'lucide-react';
+import VoterProfilePanel from '../components/VoterProfilePanel';
+import SocialNarrativePanel from '../components/SocialNarrativePanel';
 import api from '../lib/api';
 import { Card } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
@@ -32,23 +20,11 @@ const PARTY_STYLES = {
   YSRCP: 'bg-blue-100 text-blue-700 border-blue-300',
 };
 
-const PARTY_FILL = {
-  TDP: '#facc15',
-  JSP: '#dc2626',
-  BJP: '#f97316',
-  YSRCP: '#2563eb',
-};
-
 const titleCase = (value) =>
   String(value || '')
     .toLowerCase()
     .replace(/\b\w/g, (c) => c.toUpperCase())
     .trim();
-
-const normalize = (v) =>
-  String(v || '')
-    .toLowerCase()
-    .replace(/[^a-z0-9]/g, '');
 
 const getProxiedMediaUrl = (rawUrl) => {
   if (!rawUrl || typeof rawUrl !== 'string') return rawUrl;
@@ -63,172 +39,6 @@ const getProxiedMediaUrl = (rawUrl) => {
     rawUrl.includes('googleusercontent.com');
   if (needsProxy) return `${BACKEND_URL}/api/media/stream?url=${encodeURIComponent(rawUrl)}`;
   return rawUrl;
-};
-
-const StatTile = ({ icon: Icon, label, value, accent, sub }) => (
-  <div className="flex items-start gap-2 rounded-md border border-slate-200 bg-white px-3 py-2">
-    <Icon className={`h-4 w-4 mt-0.5 ${accent || 'text-slate-500'}`} />
-    <div className="min-w-0">
-      <div className="text-[11px] uppercase tracking-wide text-slate-400">{label}</div>
-      <div className="text-sm font-semibold text-slate-800 truncate">{value || '—'}</div>
-      {sub && <div className="text-[10px] text-slate-400 truncate">{sub}</div>}
-    </div>
-  </div>
-);
-
-/* Mini-map: zoomed into THIS constituency, with clickable neighbours */
-const ConstituencyMiniMap = ({ constituency, mla }) => {
-  const navigate = useNavigate();
-  const [geo, setGeo] = useState(null);
-  const [hover, setHover] = useState(null);
-
-  useEffect(() => {
-    let cancelled = false;
-    const load = async () => {
-      const sources = [
-        '/Constituencies_AndhraPradesh_2024.geojson',
-        '/andhra_pradesh_ac.geojson',
-      ];
-      for (const src of sources) {
-        try {
-          const res = await fetch(src);
-          if (!res.ok) continue;
-          const text = await res.text();
-          const parsed = JSON.parse(text);
-          if (!parsed?.features?.length) continue;
-          if (!cancelled) setGeo(parsed);
-          return;
-        } catch (_e) {
-          /* try next */
-        }
-      }
-    };
-    load();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  const target = normalize(constituency);
-
-  const acName = useCallback(
-    (f) =>
-      f?.properties?.AC_NAME ||
-      f?.properties?.ac_name ||
-      f?.properties?.NAME ||
-      f?.properties?.name ||
-      '',
-    []
-  );
-
-  const { path, highlight, partyFill } = useMemo(() => {
-    if (!geo) return { path: null, highlight: null, partyFill: '#94a3b8' };
-    const highlightFeature = geo.features.find((f) => normalize(acName(f)) === target);
-    const projection = geoMercator();
-    // Zoom INTO the selected constituency so it fills the frame; fall back to
-    // the whole-state fit when the seat can't be located in the GeoJSON.
-    if (highlightFeature) {
-      projection.fitExtent(
-        [
-          [40, 40],
-          [480, 320],
-        ],
-        highlightFeature
-      );
-    } else {
-      projection.fitSize([520, 360], geo);
-    }
-    return {
-      path: geoPath().projection(projection),
-      highlight: highlightFeature,
-      partyFill: PARTY_FILL[mla?.party] || '#0f172a',
-    };
-  }, [geo, target, mla, acName]);
-
-  if (!geo || !path) {
-    return (
-      <div className="h-[360px] w-full flex items-center justify-center text-slate-400 text-sm">
-        <Loader2 className="h-5 w-5 animate-spin mr-2" /> Loading map…
-      </div>
-    );
-  }
-
-  return (
-    <div className="relative">
-      <svg viewBox="0 0 520 360" className="w-full h-auto">
-        <rect width="520" height="360" fill="#f8fafc" />
-        {geo.features.map((f, i) => {
-          const isTarget = highlight && f === highlight;
-          const name = acName(f);
-          const isHover = !isTarget && hover === normalize(name);
-          return (
-            <path
-              key={i}
-              d={path(f)}
-              fill={isTarget ? partyFill : isHover ? '#cbd5e1' : '#e2e8f0'}
-              stroke={isTarget ? '#0f172a' : '#ffffff'}
-              strokeWidth={isTarget ? 1.6 : 0.4}
-              opacity={isTarget ? 1 : 0.9}
-              className={isTarget ? '' : 'cursor-pointer transition-colors'}
-              onMouseEnter={() => !isTarget && setHover(normalize(name))}
-              onMouseLeave={() => setHover(null)}
-              onClick={() => {
-                if (isTarget || !name) return;
-                navigate(`/mla/${encodeURIComponent(titleCase(name))}`);
-              }}
-            />
-          );
-        })}
-      </svg>
-
-      {/* Center label for the focused constituency */}
-      <div className="absolute top-2 left-2 bg-white/95 border border-slate-200 rounded px-2 py-1 text-[11px] shadow-sm">
-        <span className="font-semibold text-slate-800">{titleCase(constituency)}</span>
-        {mla && <span className="text-slate-400"> · {mla.party}</span>}
-      </div>
-
-      {/* Hovered neighbour hint */}
-      {hover && hover !== target && (
-        <div className="absolute bottom-2 right-2 bg-white/95 border border-slate-200 rounded px-2 py-1 text-[11px] shadow-sm text-slate-600">
-          Open{' '}
-          <span className="font-medium text-slate-800">
-            {titleCase(
-              acName(geo.features.find((f) => normalize(acName(f)) === hover)) || ''
-            )}
-          </span>{' '}
-          →
-        </div>
-      )}
-
-      {!highlight && (
-        <div className="absolute bottom-2 left-2 text-[11px] bg-white/95 border border-slate-200 rounded px-2 py-1 text-slate-500">
-          Constituency boundary not found in GeoJSON
-        </div>
-      )}
-    </div>
-  );
-};
-
-/* Sentiment bar */
-const SentimentBar = ({ positive, negative, neutral }) => {
-  const total = positive + negative + neutral || 1;
-  const pp = Math.round((positive / total) * 100);
-  const pn = Math.round((negative / total) * 100);
-  const pu = 100 - pp - pn;
-  return (
-    <div>
-      <div className="h-2 w-full overflow-hidden rounded-full bg-slate-100 flex">
-        <div className="bg-emerald-500" style={{ width: `${pp}%` }} />
-        <div className="bg-red-500" style={{ width: `${pn}%` }} />
-        <div className="bg-slate-300" style={{ width: `${pu}%` }} />
-      </div>
-      <div className="flex justify-between text-[10px] mt-1 text-slate-500">
-        <span className="text-emerald-700">{pp}% positive</span>
-        <span className="text-red-600">{pn}% negative</span>
-        <span>{pu}% neutral</span>
-      </div>
-    </div>
-  );
 };
 
 const AlertItem = ({ alert }) => {
@@ -298,92 +108,63 @@ const MlaProfile = () => {
     }
   }, [decoded, isScoped, isSuperAdmin, assignedConstituency, canAccessConstituency, navigate]);
 
+  const [topIssues, setTopIssues] = useState([]);
+  const [recentNegative, setRecentNegative] = useState([]);
   const [grievances, setGrievances] = useState([]);
   const [alerts, setAlerts] = useState([]);
-  const [intel, setIntel] = useState(null);
-  const [sentiment, setSentiment] = useState({ positive: 0, negative: 0, neutral: 0 });
   const [loading, setLoading] = useState(true);
   const [alertsLoading, setAlertsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [voterProfile, setVoterProfile] = useState(null);
+  const [voterProfileLoading, setVoterProfileLoading] = useState(true);
 
   useEffect(() => {
     let cancelled = false;
+    const constName = mla?.constituency || decoded;
 
-    const fetchAll = async () => {
-      setLoading(true);
-      setAlertsLoading(true);
-      setError(null);
+    setLoading(true);
+    setAlertsLoading(true);
+    setError(null);
+    setVoterProfileLoading(true);
 
-      const constName = mla?.constituency || decoded;
+    // Fire every request in PARALLEL so the fast static voter profile isn't
+    // blocked behind the slower grievance/alert aggregations. Each response
+    // updates its own slice + loading flag as soon as it arrives.
 
-      // 1) Constituency Intelligence (sentiment + issues + negatives)
-      try {
-        const intelRes = await api.get(
-          `/constituency-intel/${encodeURIComponent(constName)}`,
-          { params: { days: 365 } }
-        );
-        if (!cancelled) {
-          setIntel(intelRes.data || null);
-          const s = intelRes.data?.sentiment;
-          if (s) {
-            setSentiment({
-              positive: s.positive || 0,
-              negative: s.negative || 0,
-              neutral: s.neutral || 0,
-            });
-          }
-        }
-      } catch (_e) {
-        /* fall through to grievance counts */
-      }
+    // Voter profile — static ECI data, fastest; drives the left panel.
+    api.get(`/voter-profiles/${encodeURIComponent(constName)}`)
+      .then((res) => { if (!cancelled) setVoterProfile(res.data?.data || null); })
+      .catch(() => { if (!cancelled) setVoterProfile(null); })
+      .finally(() => { if (!cancelled) setVoterProfileLoading(false); });
 
-      // 2) Grievances list for constituency
-      try {
-        const res = await api.get('/grievances', {
-          params: { location_city: constName, limit: 100 },
-        });
+    // Constituency intel — top issues + recent negative mentions.
+    api.get(`/constituency-intel/${encodeURIComponent(constName)}`, { params: { days: 365 } })
+      .then((res) => {
         if (cancelled) return;
-        const rows = Array.isArray(res.data?.grievances) ? res.data.grievances : [];
-        setGrievances(rows);
+        setTopIssues(res.data?.top_issues || []);
+        setRecentNegative(res.data?.recent_negative || []);
+      })
+      .catch(() => { if (!cancelled) { setTopIssues([]); setRecentNegative([]); } });
 
-        const counts = res.data?.pagination?.sentiment_counts;
-        if (counts && !intel) {
-          setSentiment({
-            positive: Number(counts.positive || 0),
-            negative: Number(counts.negative || 0),
-            neutral: Number(counts.neutral || 0),
-          });
-        }
-      } catch (_e) {
-        if (!cancelled) setError('Could not load grievances for this constituency.');
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
+    // Grievances for the constituency.
+    api.get('/grievances', { params: { location_city: constName, limit: 100 } })
+      .then((res) => { if (!cancelled) setGrievances(Array.isArray(res.data?.grievances) ? res.data.grievances : []); })
+      .catch(() => { if (!cancelled) setError('Could not load grievances for this constituency.'); })
+      .finally(() => { if (!cancelled) setLoading(false); });
 
-      // 3) Alerts mentioning the constituency
-      try {
-        const res = await api.get('/alerts', {
-          params: { search: constName, limit: 50, status: 'all' },
-        });
+    // Alerts mentioning the constituency.
+    api.get('/alerts', { params: { search: constName, limit: 50, status: 'all' } })
+      .then((res) => {
         if (cancelled) return;
-        const list =
-          res.data?.alerts ||
-          res.data?.data ||
-          (Array.isArray(res.data) ? res.data : []) ||
-          [];
+        const list = res.data?.alerts || res.data?.data || (Array.isArray(res.data) ? res.data : []) || [];
         setAlerts(list);
-      } catch (_e) {
-        if (!cancelled) setAlerts([]);
-      } finally {
-        if (!cancelled) setAlertsLoading(false);
-      }
-    };
+      })
+      .catch(() => { if (!cancelled) setAlerts([]); })
+      .finally(() => { if (!cancelled) setAlertsLoading(false); });
 
-    fetchAll();
     return () => {
       cancelled = true;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [decoded, mla?.constituency]);
 
   const handleAction = useCallback((action, payload) => {
@@ -394,34 +175,18 @@ const MlaProfile = () => {
     }
   }, []);
 
-  const total = sentiment.positive + sentiment.negative + sentiment.neutral;
   const partyStyle = mla ? PARTY_STYLES[mla.party] || 'bg-slate-100 text-slate-700 border-slate-300' : '';
-  const sentimentIndex = intel?.sentiment?.sentiment_index ?? 0;
-  const indexAccent =
-    sentimentIndex >= 25
-      ? 'text-emerald-700'
-      : sentimentIndex >= 0
-      ? 'text-slate-700'
-      : sentimentIndex >= -25
-      ? 'text-amber-600'
-      : 'text-red-700';
-
-  const topIssues = intel?.top_issues || [];
-  const recentNegative = intel?.recent_negative || [];
-
-  const criticalAlertCount = alerts.filter((a) =>
-    ['critical', 'high'].includes(String(a.severity || a.risk_level || '').toLowerCase())
-  ).length;
 
   return (
     <div className="space-y-4">
+      {/* Breadcrumb */}
       <div className="flex items-center gap-3">
         <button
           type="button"
-          onClick={() => navigate('/andhra-pradesh-map')}
+          onClick={() => navigate('/dashboard')}
           className="flex items-center gap-1.5 text-sm text-slate-600 hover:text-slate-900"
         >
-          <ArrowLeft className="h-4 w-4" /> Back to map
+          <ArrowLeft className="h-4 w-4" /> Back to dashboard
         </button>
         <span className="text-slate-300">/</span>
         <span className="text-sm text-slate-500">Andhra Pradesh</span>
@@ -429,153 +194,54 @@ const MlaProfile = () => {
         <span className="text-sm font-medium text-slate-700">{titleCase(decoded)}</span>
       </div>
 
-      {/* MLA header */}
-      <Card className="p-5 border border-slate-200">
-        <div className="flex items-start justify-between gap-4 flex-wrap">
+      {/* Compact MLA identity header */}
+      <Card className="p-4 border border-slate-200">
+        <div className="flex items-center justify-between gap-3 flex-wrap">
           <div className="min-w-0">
-            <div className="flex items-center gap-2 text-slate-500 text-sm">
-              <MapPin className="h-4 w-4" />
+            <div className="flex items-center gap-2 text-slate-500 text-xs">
+              <MapPin className="h-3.5 w-3.5" />
               <span className="uppercase tracking-wide">{titleCase(decoded)} Constituency</span>
             </div>
-            <h1 className="text-2xl font-bold text-slate-900 mt-1">
+            <h1 className="text-xl font-bold text-slate-900 mt-0.5">
               {mla ? mla.mla : 'No MLA on record'}
             </h1>
-            {mla && (
-              <div className="flex items-center gap-2 mt-2">
-                <Badge className={`border ${partyStyle}`}>{mla.party}</Badge>
-                <Badge variant="outline" className="border-slate-300 text-slate-600">
-                  {mla.alliance}
-                </Badge>
-              </div>
-            )}
-            {!mla && (
-              <p className="text-sm text-slate-500 mt-2 max-w-xl">
-                This constituency isn't present in the 2024 MLA dataset (it may be the one seat
-                missing from the source list, or a non-AP enclave). Related social-media content is
-                still shown below.
-              </p>
-            )}
           </div>
-
-          {/* Sentiment summary */}
-          <div className="flex items-center gap-2 flex-wrap">
-            <div className="text-center px-3 py-2 rounded-md bg-emerald-50 border border-emerald-200 min-w-[70px]">
-              <div className="text-lg font-bold text-emerald-700">{sentiment.positive}</div>
-              <div className="text-[10px] uppercase text-emerald-600">Positive</div>
-            </div>
-            <div className="text-center px-3 py-2 rounded-md bg-red-50 border border-red-200 min-w-[70px]">
-              <div className="text-lg font-bold text-red-700">{sentiment.negative}</div>
-              <div className="text-[10px] uppercase text-red-600">Negative</div>
-            </div>
-            <div className="text-center px-3 py-2 rounded-md bg-slate-50 border border-slate-200 min-w-[70px]">
-              <div className="text-lg font-bold text-slate-700">{sentiment.neutral}</div>
-              <div className="text-[10px] uppercase text-slate-500">Neutral</div>
-            </div>
-            <div className="text-center px-3 py-2 rounded-md bg-white border border-slate-300 min-w-[90px]">
-              <div className={`text-lg font-bold flex items-center justify-center gap-1 ${indexAccent}`}>
-                {sentimentIndex > 0 ? (
-                  <TrendingUp className="h-4 w-4" />
-                ) : sentimentIndex < 0 ? (
-                  <TrendingDown className="h-4 w-4" />
-                ) : (
-                  <Activity className="h-4 w-4" />
-                )}
-                {sentimentIndex}
-              </div>
-              <div className="text-[10px] uppercase text-slate-500">Net Index</div>
-            </div>
-          </div>
-        </div>
-
-        {total > 0 && (
-          <div className="mt-4">
-            <SentimentBar
-              positive={sentiment.positive}
-              negative={sentiment.negative}
-              neutral={sentiment.neutral}
-            />
-          </div>
-        )}
-      </Card>
-
-      {/* Quick stats strip */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-        <StatTile icon={Users} label="Total Mentions" value={total} accent="text-slate-600" />
-        <StatTile
-          icon={Bell}
-          label="Alerts"
-          value={alerts.length}
-          sub={`${criticalAlertCount} critical/high`}
-          accent="text-amber-600"
-        />
-        <StatTile
-          icon={Megaphone}
-          label="Grievances"
-          value={grievances.length}
-          accent="text-slate-600"
-        />
-        <StatTile
-          icon={Shield}
-          label="High Priority"
-          value={intel?.sentiment?.high_priority || 0}
-          accent="text-red-600"
-        />
-      </div>
-
-      {/* Map + Top issues row */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <Card className="p-3 border border-slate-200 lg:col-span-2">
-          <div className="flex items-center justify-between mb-2">
-            <h2 className="text-sm font-semibold text-slate-800 flex items-center gap-2">
-              <MapPin className="h-4 w-4 text-slate-500" /> Constituency Location
-            </h2>
-            <Link to="/andhra-pradesh-map" className="text-xs text-blue-600 hover:underline">
-              Open full map →
-            </Link>
-          </div>
-          <ConstituencyMiniMap constituency={decoded} mla={mla} />
-        </Card>
-
-        <Card className="p-3 border border-slate-200">
-          <h2 className="text-sm font-semibold text-slate-800 mb-2 flex items-center gap-2">
-            <Activity className="h-4 w-4 text-slate-500" /> Top Issues
-          </h2>
-          {topIssues.length === 0 ? (
-            <div className="text-xs text-slate-500 py-6 text-center">
-              No issue patterns detected yet.
-            </div>
-          ) : (
-            <div className="space-y-2">
-              {topIssues.slice(0, 8).map(({ issue, count }) => {
-                const max = topIssues[0]?.count || 1;
-                const pct = Math.round((count / max) * 100);
-                return (
-                  <div key={issue}>
-                    <div className="flex justify-between text-xs text-slate-700 mb-0.5">
-                      <span className="capitalize">{issue.replace(/_/g, ' ')}</span>
-                      <span className="text-slate-500">{count}</span>
-                    </div>
-                    <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-slate-700"
-                        style={{ width: `${pct}%` }}
-                      />
-                    </div>
-                  </div>
-                );
-              })}
+          {mla && (
+            <div className="flex items-center gap-2">
+              <Badge className={`border ${partyStyle}`}>{mla.party}</Badge>
+              <Badge variant="outline" className="border-slate-300 text-slate-600">{mla.alliance}</Badge>
             </div>
           )}
-        </Card>
+        </div>
+      </Card>
+
+      {/* Voter Profiling (left) + Social Media Narrative (right).
+          Side-by-side on wide screens (xl+), stacks on smaller. */}
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-5 items-start">
+        <div className="min-w-0">
+          <VoterProfilePanel
+            dense
+            sectionNumber={1}
+            profile={voterProfile}
+            loading={voterProfileLoading}
+            topIssues={topIssues}
+            constituencyDisplayName={titleCase(decoded)}
+          />
+        </div>
+        <div className="min-w-0">
+          <SocialNarrativePanel
+            dense
+            sectionNumber={2}
+            constituency={mla?.constituency || decoded}
+          />
+        </div>
       </div>
 
-      {/* Detail tabs */}
+      {/* Detail tabs — grievances / alerts / negative mentions for this seat */}
       <Card className="p-4 border border-slate-200">
         <Tabs defaultValue="grievances" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 max-w-md">
-            <TabsTrigger value="grievances">
-              Grievances ({grievances.length})
-            </TabsTrigger>
+          <TabsList className="grid w-full grid-cols-3 max-w-xl">
+            <TabsTrigger value="grievances">Grievances ({grievances.length})</TabsTrigger>
             <TabsTrigger value="alerts">Alerts ({alerts.length})</TabsTrigger>
             <TabsTrigger value="negative">Negative Mentions</TabsTrigger>
           </TabsList>

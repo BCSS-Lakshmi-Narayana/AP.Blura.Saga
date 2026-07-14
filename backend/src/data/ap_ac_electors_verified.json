@@ -1,0 +1,1411 @@
+{
+  "1": {
+    "electors_male": 132646,
+    "electors_female": 137517,
+    "electors_other": 17,
+    "electors_total": 270180,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "2": {
+    "electors_male": 110198,
+    "electors_female": 112159,
+    "electors_other": 21,
+    "electors_total": 222378,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "3": {
+    "electors_male": 120665,
+    "electors_female": 118572,
+    "electors_other": 9,
+    "electors_total": 239246,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "4": {
+    "electors_male": 114159,
+    "electors_female": 112998,
+    "electors_other": 10,
+    "electors_total": 227167,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "5": {
+    "electors_male": 136514,
+    "electors_female": 137978,
+    "electors_other": 31,
+    "electors_total": 274523,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "6": {
+    "electors_male": 98313,
+    "electors_female": 97770,
+    "electors_other": 15,
+    "electors_total": 196098,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "7": {
+    "electors_male": 123967,
+    "electors_female": 121715,
+    "electors_other": 14,
+    "electors_total": 245696,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "8": {
+    "electors_male": 109263,
+    "electors_female": 107818,
+    "electors_other": 13,
+    "electors_total": 217094,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "9": {
+    "electors_male": 115342,
+    "electors_female": 113029,
+    "electors_other": 19,
+    "electors_total": 228390,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "10": {
+    "electors_male": 95601,
+    "electors_female": 100057,
+    "electors_other": 15,
+    "electors_total": 195673,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "11": {
+    "electors_male": 94805,
+    "electors_female": 99769,
+    "electors_other": 42,
+    "electors_total": 194616,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "12": {
+    "electors_male": 94173,
+    "electors_female": 96328,
+    "electors_other": 11,
+    "electors_total": 190512,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "13": {
+    "electors_male": 100133,
+    "electors_female": 104737,
+    "electors_other": 4,
+    "electors_total": 204874,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "14": {
+    "electors_male": 115110,
+    "electors_female": 117050,
+    "electors_other": 10,
+    "electors_total": 232170,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "15": {
+    "electors_male": 103026,
+    "electors_female": 102882,
+    "electors_other": 10,
+    "electors_total": 205918,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "16": {
+    "electors_male": 101776,
+    "electors_female": 104729,
+    "electors_other": 5,
+    "electors_total": 206510,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "17": {
+    "electors_male": 106574,
+    "electors_female": 107973,
+    "electors_other": 3,
+    "electors_total": 214550,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "18": {
+    "electors_male": 125329,
+    "electors_female": 132402,
+    "electors_other": 29,
+    "electors_total": 257760,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "19": {
+    "electors_male": 109053,
+    "electors_female": 114298,
+    "electors_other": 2,
+    "electors_total": 223353,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "20": {
+    "electors_male": 179337,
+    "electors_female": 184952,
+    "electors_other": 15,
+    "electors_total": 364304,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "21": {
+    "electors_male": 142764,
+    "electors_female": 149660,
+    "electors_other": 20,
+    "electors_total": 292444,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "22": {
+    "electors_male": 106623,
+    "electors_female": 110314,
+    "electors_other": 33,
+    "electors_total": 216970,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "23": {
+    "electors_male": 140998,
+    "electors_female": 144996,
+    "electors_other": 22,
+    "electors_total": 286016,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "24": {
+    "electors_male": 105645,
+    "electors_female": 108256,
+    "electors_other": 11,
+    "electors_total": 213912,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "25": {
+    "electors_male": 167859,
+    "electors_female": 166528,
+    "electors_other": 12,
+    "electors_total": 334399,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "26": {
+    "electors_male": 106201,
+    "electors_female": 111887,
+    "electors_other": 7,
+    "electors_total": 218095,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "27": {
+    "electors_male": 92648,
+    "electors_female": 96911,
+    "electors_other": 1,
+    "electors_total": 189560,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "28": {
+    "electors_male": 119550,
+    "electors_female": 126066,
+    "electors_other": 7,
+    "electors_total": 245623,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "29": {
+    "electors_male": 119861,
+    "electors_female": 128596,
+    "electors_other": 16,
+    "electors_total": 248473,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "30": {
+    "electors_male": 104093,
+    "electors_female": 110661,
+    "electors_other": 5,
+    "electors_total": 214759,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "31": {
+    "electors_male": 153035,
+    "electors_female": 154984,
+    "electors_other": 5,
+    "electors_total": 308024,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "32": {
+    "electors_male": 101369,
+    "electors_female": 106002,
+    "electors_other": 9,
+    "electors_total": 207380,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "33": {
+    "electors_male": 123793,
+    "electors_female": 127390,
+    "electors_other": 2,
+    "electors_total": 251185,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "34": {
+    "electors_male": 103052,
+    "electors_female": 109306,
+    "electors_other": 4,
+    "electors_total": 212362,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "35": {
+    "electors_male": 110855,
+    "electors_female": 113822,
+    "electors_other": 25,
+    "electors_total": 224702,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "36": {
+    "electors_male": 107259,
+    "electors_female": 110059,
+    "electors_other": 21,
+    "electors_total": 217339,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "37": {
+    "electors_male": 118321,
+    "electors_female": 118227,
+    "electors_other": 3,
+    "electors_total": 236551,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "38": {
+    "electors_male": 133593,
+    "electors_female": 135852,
+    "electors_other": 8,
+    "electors_total": 269453,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "39": {
+    "electors_male": 105911,
+    "electors_female": 109298,
+    "electors_other": 13,
+    "electors_total": 215222,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "40": {
+    "electors_male": 110564,
+    "electors_female": 115536,
+    "electors_other": 3,
+    "electors_total": 226103,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "41": {
+    "electors_male": 115630,
+    "electors_female": 125964,
+    "electors_other": 103,
+    "electors_total": 241697,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "42": {
+    "electors_male": 100813,
+    "electors_female": 102527,
+    "electors_other": 1,
+    "electors_total": 203341,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "43": {
+    "electors_male": 122298,
+    "electors_female": 123173,
+    "electors_other": 0,
+    "electors_total": 245471,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "44": {
+    "electors_male": 106386,
+    "electors_female": 107243,
+    "electors_other": 1,
+    "electors_total": 213630,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "45": {
+    "electors_male": 97893,
+    "electors_female": 100116,
+    "electors_other": 1,
+    "electors_total": 198010,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "46": {
+    "electors_male": 100074,
+    "electors_female": 98659,
+    "electors_other": 6,
+    "electors_total": 198739,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "47": {
+    "electors_male": 125143,
+    "electors_female": 127326,
+    "electors_other": 6,
+    "electors_total": 252475,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "48": {
+    "electors_male": 107291,
+    "electors_female": 113266,
+    "electors_other": 6,
+    "electors_total": 220563,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "49": {
+    "electors_male": 106945,
+    "electors_female": 109608,
+    "electors_other": 6,
+    "electors_total": 216559,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "50": {
+    "electors_male": 128835,
+    "electors_female": 138706,
+    "electors_other": 50,
+    "electors_total": 267591,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "51": {
+    "electors_male": 133343,
+    "electors_female": 139575,
+    "electors_other": 24,
+    "electors_total": 272942,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "52": {
+    "electors_male": 113665,
+    "electors_female": 116279,
+    "electors_other": 13,
+    "electors_total": 229957,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "53": {
+    "electors_male": 131965,
+    "electors_female": 145401,
+    "electors_other": 16,
+    "electors_total": 277382,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "54": {
+    "electors_male": 89850,
+    "electors_female": 94390,
+    "electors_other": 5,
+    "electors_total": 184245,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "55": {
+    "electors_male": 104388,
+    "electors_female": 109167,
+    "electors_other": 4,
+    "electors_total": 213559,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "56": {
+    "electors_male": 88974,
+    "electors_female": 91132,
+    "electors_other": 4,
+    "electors_total": 180110,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "57": {
+    "electors_male": 95826,
+    "electors_female": 99314,
+    "electors_other": 6,
+    "electors_total": 195146,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "58": {
+    "electors_male": 84736,
+    "electors_female": 85785,
+    "electors_other": 0,
+    "electors_total": 170521,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "59": {
+    "electors_male": 122870,
+    "electors_female": 130280,
+    "electors_other": 51,
+    "electors_total": 253201,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "60": {
+    "electors_male": 110250,
+    "electors_female": 114579,
+    "electors_other": 2,
+    "electors_total": 224831,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "61": {
+    "electors_male": 114524,
+    "electors_female": 120148,
+    "electors_other": 5,
+    "electors_total": 234677,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "62": {
+    "electors_male": 105208,
+    "electors_female": 110107,
+    "electors_other": 10,
+    "electors_total": 215325,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "63": {
+    "electors_male": 101740,
+    "electors_female": 104888,
+    "electors_other": 6,
+    "electors_total": 206634,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "64": {
+    "electors_male": 109013,
+    "electors_female": 115092,
+    "electors_other": 9,
+    "electors_total": 224114,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "65": {
+    "electors_male": 112539,
+    "electors_female": 122878,
+    "electors_other": 47,
+    "electors_total": 235464,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "66": {
+    "electors_male": 119050,
+    "electors_female": 123798,
+    "electors_other": 5,
+    "electors_total": 242853,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "67": {
+    "electors_male": 122822,
+    "electors_female": 131216,
+    "electors_other": 9,
+    "electors_total": 254047,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "68": {
+    "electors_male": 134363,
+    "electors_female": 138737,
+    "electors_other": 41,
+    "electors_total": 273141,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "69": {
+    "electors_male": 102041,
+    "electors_female": 105192,
+    "electors_other": 6,
+    "electors_total": 207239,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "70": {
+    "electors_male": 118153,
+    "electors_female": 120871,
+    "electors_other": 10,
+    "electors_total": 239034,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "71": {
+    "electors_male": 134294,
+    "electors_female": 144821,
+    "electors_other": 12,
+    "electors_total": 279127,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "72": {
+    "electors_male": 97795,
+    "electors_female": 106555,
+    "electors_other": 11,
+    "electors_total": 204361,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "73": {
+    "electors_male": 101271,
+    "electors_female": 104407,
+    "electors_other": 4,
+    "electors_total": 205682,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "74": {
+    "electors_male": 83065,
+    "electors_female": 84557,
+    "electors_other": 0,
+    "electors_total": 167622,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "75": {
+    "electors_male": 94869,
+    "electors_female": 101885,
+    "electors_other": 11,
+    "electors_total": 196765,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "76": {
+    "electors_male": 104687,
+    "electors_female": 107750,
+    "electors_other": 18,
+    "electors_total": 212455,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "77": {
+    "electors_male": 89498,
+    "electors_female": 95215,
+    "electors_other": 3,
+    "electors_total": 184716,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "78": {
+    "electors_male": 142414,
+    "electors_female": 152583,
+    "electors_other": 2,
+    "electors_total": 294999,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "79": {
+    "electors_male": 126685,
+    "electors_female": 129303,
+    "electors_other": 33,
+    "electors_total": 256021,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "80": {
+    "electors_male": 134890,
+    "electors_female": 142856,
+    "electors_other": 50,
+    "electors_total": 277796,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "81": {
+    "electors_male": 132504,
+    "electors_female": 138167,
+    "electors_other": 23,
+    "electors_total": 270694,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "82": {
+    "electors_male": 136787,
+    "electors_female": 144976,
+    "electors_other": 20,
+    "electors_total": 281783,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "83": {
+    "electors_male": 99437,
+    "electors_female": 106078,
+    "electors_other": 6,
+    "electors_total": 205521,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "84": {
+    "electors_male": 98513,
+    "electors_female": 106889,
+    "electors_other": 13,
+    "electors_total": 205415,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "85": {
+    "electors_male": 113544,
+    "electors_female": 119044,
+    "electors_other": 16,
+    "electors_total": 232604,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "86": {
+    "electors_male": 100301,
+    "electors_female": 107530,
+    "electors_other": 1,
+    "electors_total": 207832,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "87": {
+    "electors_male": 140786,
+    "electors_female": 151769,
+    "electors_other": 13,
+    "electors_total": 292568,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "88": {
+    "electors_male": 109505,
+    "electors_female": 118132,
+    "electors_other": 11,
+    "electors_total": 227648,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "89": {
+    "electors_male": 96145,
+    "electors_female": 101877,
+    "electors_other": 16,
+    "electors_total": 198038,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "90": {
+    "electors_male": 112955,
+    "electors_female": 116037,
+    "electors_other": 13,
+    "electors_total": 229005,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "91": {
+    "electors_male": 129357,
+    "electors_female": 138524,
+    "electors_other": 33,
+    "electors_total": 267914,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "92": {
+    "electors_male": 94040,
+    "electors_female": 98142,
+    "electors_other": 10,
+    "electors_total": 192192,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "93": {
+    "electors_male": 129618,
+    "electors_female": 138611,
+    "electors_other": 23,
+    "electors_total": 268252,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "94": {
+    "electors_male": 135579,
+    "electors_female": 142697,
+    "electors_other": 44,
+    "electors_total": 278320,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "95": {
+    "electors_male": 121939,
+    "electors_female": 128817,
+    "electors_other": 34,
+    "electors_total": 250790,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "96": {
+    "electors_male": 108599,
+    "electors_female": 118219,
+    "electors_other": 49,
+    "electors_total": 226867,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "97": {
+    "electors_male": 113319,
+    "electors_female": 119602,
+    "electors_other": 30,
+    "electors_total": 232951,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "98": {
+    "electors_male": 118676,
+    "electors_female": 123640,
+    "electors_other": 12,
+    "electors_total": 242328,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "99": {
+    "electors_male": 131375,
+    "electors_female": 133375,
+    "electors_other": 20,
+    "electors_total": 264770,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "100": {
+    "electors_male": 133503,
+    "electors_female": 140579,
+    "electors_other": 42,
+    "electors_total": 274124,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "101": {
+    "electors_male": 128749,
+    "electors_female": 133747,
+    "electors_other": 22,
+    "electors_total": 262518,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "102": {
+    "electors_male": 105445,
+    "electors_female": 101988,
+    "electors_other": 2,
+    "electors_total": 207435,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "103": {
+    "electors_male": 114448,
+    "electors_female": 112134,
+    "electors_other": 8,
+    "electors_total": 226590,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "104": {
+    "electors_male": 112338,
+    "electors_female": 117477,
+    "electors_other": 6,
+    "electors_total": 229821,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "105": {
+    "electors_male": 119696,
+    "electors_female": 124482,
+    "electors_other": 12,
+    "electors_total": 244190,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "106": {
+    "electors_male": 99137,
+    "electors_female": 103975,
+    "electors_other": 24,
+    "electors_total": 203136,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "107": {
+    "electors_male": 105648,
+    "electors_female": 109143,
+    "electors_other": 4,
+    "electors_total": 214795,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "108": {
+    "electors_male": 115626,
+    "electors_female": 124706,
+    "electors_other": 53,
+    "electors_total": 240385,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "109": {
+    "electors_male": 113224,
+    "electors_female": 115729,
+    "electors_other": 26,
+    "electors_total": 228979,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "110": {
+    "electors_male": 118713,
+    "electors_female": 120986,
+    "electors_other": 3,
+    "electors_total": 239702,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "111": {
+    "electors_male": 108451,
+    "electors_female": 106565,
+    "electors_other": 8,
+    "electors_total": 215024,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "112": {
+    "electors_male": 124779,
+    "electors_female": 120315,
+    "electors_other": 20,
+    "electors_total": 245114,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "113": {
+    "electors_male": 121547,
+    "electors_female": 118715,
+    "electors_other": 13,
+    "electors_total": 240275,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "114": {
+    "electors_male": 117152,
+    "electors_female": 121465,
+    "electors_other": 28,
+    "electors_total": 238645,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "115": {
+    "electors_male": 105873,
+    "electors_female": 109579,
+    "electors_other": 8,
+    "electors_total": 215460,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "116": {
+    "electors_male": 129004,
+    "electors_female": 138374,
+    "electors_other": 25,
+    "electors_total": 267403,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "117": {
+    "electors_male": 116764,
+    "electors_female": 122713,
+    "electors_other": 67,
+    "electors_total": 239544,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "118": {
+    "electors_male": 136691,
+    "electors_female": 144237,
+    "electors_other": 20,
+    "electors_total": 280948,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "119": {
+    "electors_male": 112812,
+    "electors_female": 119196,
+    "electors_other": 26,
+    "electors_total": 232034,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "120": {
+    "electors_male": 119199,
+    "electors_female": 126008,
+    "electors_other": 34,
+    "electors_total": 245241,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "121": {
+    "electors_male": 118187,
+    "electors_female": 124493,
+    "electors_other": 24,
+    "electors_total": 242704,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "122": {
+    "electors_male": 118942,
+    "electors_female": 124691,
+    "electors_other": 4,
+    "electors_total": 243637,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "123": {
+    "electors_male": 120108,
+    "electors_female": 121743,
+    "electors_other": 10,
+    "electors_total": 241861,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "124": {
+    "electors_male": 110067,
+    "electors_female": 110148,
+    "electors_other": 5,
+    "electors_total": 220220,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "125": {
+    "electors_male": 117734,
+    "electors_female": 123623,
+    "electors_other": 6,
+    "electors_total": 241363,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "126": {
+    "electors_male": 138368,
+    "electors_female": 145160,
+    "electors_other": 90,
+    "electors_total": 283618,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "127": {
+    "electors_male": 100775,
+    "electors_female": 103798,
+    "electors_other": 9,
+    "electors_total": 204582,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "128": {
+    "electors_male": 126342,
+    "electors_female": 129055,
+    "electors_other": 27,
+    "electors_total": 255424,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "129": {
+    "electors_male": 112097,
+    "electors_female": 117945,
+    "electors_other": 19,
+    "electors_total": 230061,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "130": {
+    "electors_male": 100062,
+    "electors_female": 104291,
+    "electors_other": 34,
+    "electors_total": 204387,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "131": {
+    "electors_male": 118010,
+    "electors_female": 124801,
+    "electors_other": 15,
+    "electors_total": 242826,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "132": {
+    "electors_male": 120120,
+    "electors_female": 127935,
+    "electors_other": 48,
+    "electors_total": 248103,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "133": {
+    "electors_male": 104353,
+    "electors_female": 107776,
+    "electors_other": 5,
+    "electors_total": 212134,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "134": {
+    "electors_male": 115509,
+    "electors_female": 117716,
+    "electors_other": 12,
+    "electors_total": 233237,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "135": {
+    "electors_male": 96241,
+    "electors_female": 100311,
+    "electors_other": 44,
+    "electors_total": 196596,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "136": {
+    "electors_male": 107008,
+    "electors_female": 111344,
+    "electors_other": 18,
+    "electors_total": 218370,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "137": {
+    "electors_male": 132856,
+    "electors_female": 141670,
+    "electors_other": 31,
+    "electors_total": 274557,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "138": {
+    "electors_male": 161612,
+    "electors_female": 170326,
+    "electors_other": 74,
+    "electors_total": 332012,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "139": {
+    "electors_male": 133482,
+    "electors_female": 140874,
+    "electors_other": 90,
+    "electors_total": 274446,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "140": {
+    "electors_male": 118621,
+    "electors_female": 123050,
+    "electors_other": 24,
+    "electors_total": 241695,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "141": {
+    "electors_male": 112357,
+    "electors_female": 115408,
+    "electors_other": 70,
+    "electors_total": 227835,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "142": {
+    "electors_male": 112039,
+    "electors_female": 111988,
+    "electors_other": 22,
+    "electors_total": 224049,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "143": {
+    "electors_male": 123631,
+    "electors_female": 123153,
+    "electors_other": 16,
+    "electors_total": 246800,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "144": {
+    "electors_male": 122223,
+    "electors_female": 125670,
+    "electors_other": 47,
+    "electors_total": 247940,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "145": {
+    "electors_male": 102209,
+    "electors_female": 106175,
+    "electors_other": 23,
+    "electors_total": 208407,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "146": {
+    "electors_male": 130469,
+    "electors_female": 132648,
+    "electors_other": 52,
+    "electors_total": 263169,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "147": {
+    "electors_male": 130350,
+    "electors_female": 128866,
+    "electors_other": 53,
+    "electors_total": 259269,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "148": {
+    "electors_male": 130858,
+    "electors_female": 133518,
+    "electors_other": 42,
+    "electors_total": 264418,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "149": {
+    "electors_male": 110772,
+    "electors_female": 113774,
+    "electors_other": 28,
+    "electors_total": 224574,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "150": {
+    "electors_male": 133347,
+    "electors_female": 137635,
+    "electors_other": 75,
+    "electors_total": 271057,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "151": {
+    "electors_male": 123714,
+    "electors_female": 125363,
+    "electors_other": 26,
+    "electors_total": 249103,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "152": {
+    "electors_male": 123351,
+    "electors_female": 124423,
+    "electors_other": 29,
+    "electors_total": 247803,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "153": {
+    "electors_male": 137890,
+    "electors_female": 143486,
+    "electors_other": 27,
+    "electors_total": 281403,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "154": {
+    "electors_male": 114473,
+    "electors_female": 116426,
+    "electors_other": 7,
+    "electors_total": 230906,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "155": {
+    "electors_male": 125430,
+    "electors_female": 125537,
+    "electors_other": 12,
+    "electors_total": 250979,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "156": {
+    "electors_male": 105836,
+    "electors_female": 105046,
+    "electors_other": 1,
+    "electors_total": 210883,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "157": {
+    "electors_male": 124812,
+    "electors_female": 124430,
+    "electors_other": 19,
+    "electors_total": 249261,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "158": {
+    "electors_male": 118153,
+    "electors_female": 118032,
+    "electors_other": 4,
+    "electors_total": 236189,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "159": {
+    "electors_male": 104611,
+    "electors_female": 106896,
+    "electors_other": 12,
+    "electors_total": 211519,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "160": {
+    "electors_male": 122013,
+    "electors_female": 123983,
+    "electors_other": 20,
+    "electors_total": 246016,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "161": {
+    "electors_male": 124906,
+    "electors_female": 128768,
+    "electors_other": 8,
+    "electors_total": 253682,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "162": {
+    "electors_male": 110797,
+    "electors_female": 114169,
+    "electors_other": 12,
+    "electors_total": 224978,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "163": {
+    "electors_male": 115358,
+    "electors_female": 119634,
+    "electors_other": 22,
+    "electors_total": 235014,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "164": {
+    "electors_male": 130627,
+    "electors_female": 136090,
+    "electors_other": 51,
+    "electors_total": 266768,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "165": {
+    "electors_male": 117448,
+    "electors_female": 121803,
+    "electors_other": 5,
+    "electors_total": 239256,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "166": {
+    "electors_male": 153379,
+    "electors_female": 162117,
+    "electors_other": 62,
+    "electors_total": 315558,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "167": {
+    "electors_male": 149933,
+    "electors_female": 152628,
+    "electors_other": 35,
+    "electors_total": 302596,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "168": {
+    "electors_male": 120064,
+    "electors_female": 128555,
+    "electors_other": 14,
+    "electors_total": 248633,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "169": {
+    "electors_male": 104460,
+    "electors_female": 111002,
+    "electors_other": 11,
+    "electors_total": 215473,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "170": {
+    "electors_male": 98671,
+    "electors_female": 104034,
+    "electors_other": 8,
+    "electors_total": 202713,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "171": {
+    "electors_male": 102319,
+    "electors_female": 103099,
+    "electors_other": 6,
+    "electors_total": 205424,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "172": {
+    "electors_male": 99557,
+    "electors_female": 104124,
+    "electors_other": 31,
+    "electors_total": 203712,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "173": {
+    "electors_male": 109856,
+    "electors_female": 112211,
+    "electors_other": 7,
+    "electors_total": 222074,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "174": {
+    "electors_male": 132885,
+    "electors_female": 135250,
+    "electors_other": 0,
+    "electors_total": 268135,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "175": {
+    "electors_male": 112707,
+    "electors_female": 113252,
+    "electors_other": 18,
+    "electors_total": 225977,
+    "source": "ECI AP Assembly Election 2024 Statistical Report #11 (AC Wise Number Of Electors) — All Electors incl. service voters",
+    "as_of": "2024"
+  },
+  "_meta": {
+    "description": "Verified 2024 gender-split elector counts per AC, keyed by AC number (string). Source: ECI AP Assembly Election 2024 Statistical Report #11 \"AC Wise Number Of Electors\" (frontend/public/11-AC-Wise-Number-Of-Electors.xlsx). \"All Electors\" column set (incl. service voters). Merged into voter profiles by ac_number in voterProfileService. Every row validated: male+female+third_gender === total.",
+    "state_totals_2024": {
+      "male": 20339851,
+      "female": 21058615,
+      "third_gender": 3421,
+      "total": 41401887
+    }
+  }
+}
