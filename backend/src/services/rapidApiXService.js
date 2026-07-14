@@ -90,6 +90,7 @@ const getTimelineInstructions = (data) => {
         data?.data?.user?.result?.timeline_response?.timeline?.instructions ||
         data?.data?.search_by_raw_query?.search_timeline?.timeline?.instructions ||
         data?.data?.threaded_conversation_with_injections_v2?.instructions ||
+        data?.data?.favoriters_timeline?.timeline?.instructions ||
         [];
 };
 
@@ -557,13 +558,19 @@ const fetchTweetRetweeters = async (tweetId, { count = 200 } = {}) => {
                     const handle = String(resolved.screen_name).replace(/^@/, '').trim().toLowerCase();
                     if (!handle || seenHandles.has(handle)) continue;
 
+                    const retweetId = entry?.content?.itemContent?.tweet_results?.result?.rest_id ||
+                        entry?.item?.itemContent?.tweet_results?.result?.rest_id ||
+                        entry?.content?.itemContent?.tweet_results?.result?.legacy?.id_str ||
+                        (entry?.entryId?.startsWith('tweet-') ? entry.entryId.split('tweet-')[1] : null);
+
                     seenHandles.add(handle);
                     retweeters.push({
                         id: resolved.id || null,
                         handle,
                         name: resolved.name || handle,
                         avatar: resolved.profile_image_url_https || null,
-                        verified: !!resolved.verified
+                        verified: !!resolved.verified,
+                        retweet_id: retweetId || null
                     });
                     addedThisPage += 1;
 
@@ -1217,11 +1224,217 @@ const fetchTweetDetail = async (tweetId, options = {}) => {
     }
 };
 
+const fetchRetweetIdForUser = async (handle, originalTweetId) => {
+    const cleanHandle = String(handle || '').replace(/^@/, '').trim();
+    if (!cleanHandle || !originalTweetId) return null;
+
+    try {
+        // 1. Resolve user profile to get userId
+        const profile = await fetchUserProfile(cleanHandle);
+        const userId = profile?.id || userIdCache.get(cleanHandle);
+        if (!userId) {
+            console.warn(`[RapidAPI] Could not resolve user ID for @${cleanHandle}`);
+            return null;
+        }
+
+        // 2. Fetch latest user tweets/retweets (timeline)
+        const data = await rapidGet('user-tweets', { user: userId, count: 100 });
+        const entries = getTimelineEntries(data);
+
+        // 3. Scan timeline entries for a retweet of originalTweetId
+        for (const entry of entries) {
+            const rawTweet = entry?.content?.itemContent?.tweet_results?.result ||
+                entry?.item?.itemContent?.tweet_results?.result ||
+                entry?.tweet_results?.result ||
+                entry?.content?.tweetResult?.result ||
+                null;
+
+            if (!rawTweet) continue;
+
+            // Unwrap any outer wrappers
+            let tweet = rawTweet;
+            for (let i = 0; i < 4; i++) {
+                if (!tweet || typeof tweet !== 'object') break;
+                if (tweet.result) tweet = tweet.result;
+                else if (tweet.tweet) tweet = tweet.tweet;
+                else break;
+            }
+
+            if (!tweet || !tweet.legacy) continue;
+
+            const outerTweetId = tweet.rest_id || tweet.legacy.id_str;
+
+            // Check if it's a retweet/repost
+            let retweetResult = tweet.legacy.retweeted_status_result?.result;
+            if (retweetResult && retweetResult.result) retweetResult = retweetResult.result;
+            if (retweetResult && retweetResult.tweet) retweetResult = retweetResult.tweet;
+
+            if (retweetResult) {
+                const origTweetId = retweetResult.rest_id || retweetResult.legacy?.id_str;
+                if (origTweetId === originalTweetId && outerTweetId) {
+                    console.log(`[RapidAPI] Found retweet ID ${outerTweetId} for @${cleanHandle} retweeting ${originalTweetId}`);
+                    return String(outerTweetId);
+                }
+            }
+        }
+    } catch (err) {
+        console.warn(`[RapidAPI] fetchRetweetIdForUser failed for @${cleanHandle}:`, err.message);
+    }
+    return null;
+};
+
+const fetchTweetLikers = async (tweetId, { count = 200 } = {}) => {
+    const key = String(tweetId || '').trim();
+    if (!key) return [];
+
+    const attempts = [
+        { path: 'likes', baseParams: { pid: key, count: Math.min(count, 100) } },
+        { path: 'likes', baseParams: { tweet_id: key, count: Math.min(count, 100) } },
+        { path: 'favoriters', baseParams: { pid: key, count: Math.min(count, 100) } },
+        { path: 'favoriters', baseParams: { tweet_id: key, count: Math.min(count, 100) } }
+    ];
+
+    for (const attempt of attempts) {
+        try {
+            const likers = [];
+            const seenHandles = new Set();
+            let cursor = null;
+            let page = 0;
+            const maxPages = Math.max(1, Math.ceil(count / 100));
+
+            while (likers.length < count && page < maxPages) {
+                page += 1;
+                const params = { ...attempt.baseParams };
+                if (cursor) params.cursor = cursor;
+
+                const data = await rapidGet(attempt.path, params);
+                const entries = getTimelineEntries(data);
+                let addedThisPage = 0;
+
+                for (const entry of entries) {
+                    const rawUser = entry?.content?.itemContent?.user_results?.result ||
+                        entry?.content?.itemContent?.user_result?.result ||
+                        entry?.item?.itemContent?.user_results?.result ||
+                        entry?.user_results?.result ||
+                        entry?.content?.user ||
+                        null;
+
+                    const resolved = resolveUser(rawUser);
+                    if (!resolved?.screen_name) continue;
+
+                    const handle = String(resolved.screen_name).replace(/^@/, '').trim().toLowerCase();
+                    if (!handle || seenHandles.has(handle)) continue;
+
+                    seenHandles.add(handle);
+                    likers.push({
+                        id: resolved.id || null,
+                        handle,
+                        name: resolved.name || handle,
+                        avatar: resolved.profile_image_url_https || null,
+                        verified: !!resolved.verified
+                    });
+                    addedThisPage += 1;
+
+                    if (likers.length >= count) break;
+                }
+
+                if (addedThisPage === 0) break;
+                const nextCursor = extractBottomCursor(entries);
+                if (!nextCursor || nextCursor === cursor) break;
+                cursor = nextCursor;
+            }
+
+            if (likers.length > 0) {
+                return likers;
+            }
+        } catch (error) {
+            console.warn(`[RapidAPI] Likers fetch attempt failed for tweet ${key} via ${attempt.path}:`, error.message);
+        }
+    }
+
+    return [];
+};
+
+const fetchTweetComments = async (tweetId, { count = 100 } = {}) => {
+    const key = String(tweetId || '').trim();
+    if (!key) return [];
+
+    try {
+        const raw = await rapidGet('comments', { pid: key });
+        const instructions = raw?.result?.instructions || [];
+        const entries = [];
+        for (const instruction of instructions) {
+            if (Array.isArray(instruction?.entries)) {
+                entries.push(...instruction.entries);
+            }
+        }
+
+        const comments = [];
+        const seenCommentIds = new Set();
+
+        const parseCommentFromTweetResult = (result) => {
+            if (!result) return null;
+            const core = result.core || {};
+            const userResult = core.user_results?.result || {};
+            const userCore = userResult.core || {};
+            const legacyUser = userResult.legacy || {};
+            
+            const handle = userCore.screen_name || legacyUser.screen_name || '';
+            if (!handle) return null;
+
+            const legacyTweet = result.legacy || {};
+            const text = legacyTweet.full_text || '';
+            const avatar = userResult.avatar?.image_url || legacyUser.profile_image_url_https || null;
+            const name = userCore.name || legacyUser.name || handle;
+            const verified = !!(userResult.is_blue_verified || legacyUser.verified);
+            return {
+                id: result.rest_id || legacyTweet.id_str,
+                handle,
+                name,
+                avatar,
+                verified,
+                text,
+                engagement_type: 'comment'
+            };
+        };
+
+        for (const entry of entries) {
+            const entryId = entry?.entryId || '';
+            if (entryId.startsWith('conversationthread-')) {
+                const items = entry?.content?.items || [];
+                for (const item of items) {
+                    const tweetResult = item?.item?.itemContent?.tweet_results?.result;
+                    const comment = parseCommentFromTweetResult(tweetResult);
+                    if (comment && comment.id !== key && !seenCommentIds.has(comment.id)) {
+                        seenCommentIds.add(comment.id);
+                        comments.push(comment);
+                    }
+                }
+            } else if (entryId.startsWith('tweet-')) {
+                const tweetResult = entry?.content?.itemContent?.tweet_results?.result;
+                const comment = parseCommentFromTweetResult(tweetResult);
+                if (comment && comment.id !== key && !seenCommentIds.has(comment.id)) {
+                    seenCommentIds.add(comment.id);
+                    comments.push(comment);
+                }
+            }
+        }
+
+        return comments;
+    } catch (error) {
+        console.warn(`[RapidAPI] Comments fetch failed for tweet ${key}:`, error.message);
+        return [];
+    }
+};
+
 module.exports = {
     rapidGet,
     fetchUserTweets,
     fetchAllUserTweetsSince,
     fetchTweetRetweeters,
+    fetchRetweetIdForUser,
+    fetchTweetLikers,
+    fetchTweetComments,
     searchUsers,
     searchTweets,
     fetchUserProfile,

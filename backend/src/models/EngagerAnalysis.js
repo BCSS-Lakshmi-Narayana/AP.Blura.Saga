@@ -9,7 +9,8 @@ const engagerSchema = new mongoose.Schema({
   user_id: { type: String, default: null },
   tweets_retweeted: { type: Number, default: 0 },
   tweet_ids: [{ type: String }],
-  frequency: { type: String, enum: ['super-active', 'regular', 'occasional', 'one-time'], default: 'one-time' }
+  frequency: { type: String, enum: ['super-active', 'regular', 'occasional', 'one-time'], default: 'one-time' },
+  retweet_ids: { type: Map, of: String, default: {} }
 }, { _id: false });
 
 const tweetSnapshotSchema = new mongoose.Schema({
