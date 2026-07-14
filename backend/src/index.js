@@ -79,6 +79,7 @@ app.use('/api/news',  require('./routes/newsRoutes'));
 app.use('/api/intelligence-reports', require('./routes/intelligenceReportRoutes'));
 app.use('/api/search-trends', require('./routes/searchTrends'));
 app.use('/api/constituency-intel', require('./routes/constituencyIntelligenceRoutes'));
+app.use('/api/dashboard', require('./routes/apDashboardRoutes'));
 
 // Proxy for Location Service (to share ngrok tunnel)
 app.post('/api/location-extraction/:path*', async (req, res) => {

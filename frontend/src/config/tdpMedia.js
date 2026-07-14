@@ -23,7 +23,7 @@ export const TDP_PORTRAITS = [
   },
   {
     id: 'portrait-lokesh',
-    src: wiki('Nara Lokesh.jpg'),
+    src: '/custom_lokesh.jpg',
     alt: 'Nara Lokesh — Minister & TDP National Working President',
     caption: 'TDP Leadership',
   },
