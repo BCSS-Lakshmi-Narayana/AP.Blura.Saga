@@ -1,0 +1,35 @@
+{
+  "_meta": {
+    "description": "Latest available socio-economic/workforce indicators for Andhra Pradesh — sourced from the AP Government's own 'Socio Economic Survey 2024-25' (Finance Department, apfinance.gov.in), General Overview chapter, which itself cites PLFS (Periodic Labour Force Survey) 2023-24 data. This REPLACES the earlier Census-2011 district-level worker-classification proxy, which was 14 years stale.",
+    "source": "Andhra Pradesh Socio Economic Survey 2024-25 (Govt. of AP, Finance Dept.), citing PLFS 2023-24",
+    "source_url": "https://s3.ap-south-1.amazonaws.com/apfinance.gov.in/uploads/index-docs/AP_Socio_Economic_Survey_2024_25.pdf",
+    "vintage": "2023-24",
+    "granularity": "statewide",
+    "granularity_note": "IMPORTANT TRADE-OFF: this source publishes STATE-LEVEL figures only — it does not break workforce/sector composition down by district or constituency. Census 2011 did offer district-level splits but was 14 years old. This is the most current AP-government-published figure available; every AC will show the same statewide numbers until a district/AC-level current source is found."
+  },
+  "statewide": {
+    "labour_force_participation_rate": 47.5,
+    "lfpr_male": 59.5,
+    "lfpr_female": 35.8,
+    "work_participation_rate": 45.6,
+    "wpr_male": 57.0,
+    "wpr_female": 34.5,
+    "lfpr_rural": 50.1,
+    "lfpr_urban": 41.3,
+    "sector_employment": {
+      "agriculture": 45.6,
+      "manufacturing_and_industry": 22.8,
+      "construction": 12.3,
+      "services": 31.6
+    },
+    "unemployment_rate": 4.1,
+    "unemployment_rural": 3.4,
+    "unemployment_urban": 5.9,
+    "unemployment_youth_15_29": 17.5,
+    "unemployment_female": 6.9,
+    "unemployment_male": 4.3,
+    "unemployment_female_urban": 12.1,
+    "informal_sector_rural": 62.3,
+    "informal_sector_urban": 45.6
+  }
+}

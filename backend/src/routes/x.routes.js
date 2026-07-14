@@ -20,6 +20,7 @@ const {
     autoQueueNewHandles
 } = require('../services/engagerAnalysisService');
 const xActionService = require('../services/xActionService');
+const cacheService = require('../services/cacheService');
 
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 15 * 1024 * 1024 } });
 
@@ -275,7 +276,16 @@ router.post('/engager-analysis-auto-queue', async (req, res) => {
 router.get('/engager-top', async (req, res) => {
     try {
         const limit = Math.min(parseInt(req.query.limit) || 200, 500);
+        
+        const cacheKey = `x:top-engagers:${limit}`;
+        const cached = await cacheService.get(cacheKey);
+        if (cached) {
+            return res.json({ engagers: cached });
+        }
+
         const engagers = await getTopEngagers(limit);
+        await cacheService.set(cacheKey, engagers, 900); // Cache for 15 mins
+
         return res.json({ engagers });
     } catch (error) {
         return res.status(500).json({ error: 'Failed to fetch top engagers', message: error.message });

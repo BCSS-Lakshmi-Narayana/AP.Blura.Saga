@@ -29,8 +29,19 @@ const app = express();
 app.set('trust proxy', 1);
 
 // Middleware
+const allowedOrigins = String(process.env.CORS_ORIGINS || '')
+  .split(',')
+  .map(o => o.trim())
+  .filter(Boolean);
+
 app.use(cors({
-  origin: true,
+  origin: (origin, callback) => {
+    // Allow requests with no Origin header (server-to-server, curl, mobile apps).
+    if (!origin || allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    callback(new Error(`Origin ${origin} not allowed by CORS`));
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'ngrok-skip-browser-warning']
@@ -80,6 +91,7 @@ app.use('/api/intelligence-reports', require('./routes/intelligenceReportRoutes'
 app.use('/api/search-trends', require('./routes/searchTrends'));
 app.use('/api/constituency-intel', require('./routes/constituencyIntelligenceRoutes'));
 app.use('/api/dashboard', require('./routes/apDashboardRoutes'));
+app.use('/api/voter-profiles', require('./routes/voterProfileRoutes'));
 
 // Proxy for Location Service (to share ngrok tunnel)
 app.post('/api/location-extraction/:path*', async (req, res) => {
