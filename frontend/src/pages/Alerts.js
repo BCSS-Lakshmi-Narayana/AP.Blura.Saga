@@ -56,6 +56,7 @@ const Alerts = () => {
   // Search & Pagination States
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
+  const [targetAlertId, setTargetAlertId] = useState(null);
   const [platformFilter, setPlatformFilter] = useState('all');
   const [keywordFilter, setKeywordFilter] = useState('all');
   const [availableKeywords, setAvailableKeywords] = useState([]);
@@ -150,6 +151,7 @@ const Alerts = () => {
     const searchParam = searchParams.get('search');
     const platformParam = searchParams.get('platform');
     const categoryParam = searchParams.get('category');
+    const alertIdParam = searchParams.get('alertId');
 
     if (platformParam) {
       setPlatformFilter(platformParam);
@@ -163,6 +165,12 @@ const Alerts = () => {
     if (searchParam) {
       setSearchQuery(searchParam);
       setDebouncedSearchQuery(searchParam);
+    }
+
+    if (alertIdParam) {
+      setTargetAlertId(alertIdParam);
+    } else {
+      setTargetAlertId(null);
     }
   }, [searchParams]);
 
@@ -401,8 +409,25 @@ const Alerts = () => {
         params.risk_level = alertCategory;
       }
 
-      const response = await api.get('/alerts', { params, signal: controller.signal, timeout: 60000 });
+      const promises = [
+        api.get('/alerts', { params, signal: controller.signal, timeout: 60000 })
+      ];
+
+      if (targetAlertId && !isLoadMore) {
+        promises.push(
+          api.get(`/alerts/${targetAlertId}`).catch((err) => {
+            console.error('[Alerts] Failed to fetch target alert:', err);
+            return null;
+          })
+        );
+      }
+
+      const results = await Promise.all(promises);
       if (requestSeq !== fetchRequestSeqRef.current) return;
+
+      const response = results[0];
+      const targetAlertRes = results[1];
+      const targetAlert = targetAlertRes?.data || null;
 
       const newAlerts = response.data.alerts || [];
       const pagination = response.data.pagination || {};
@@ -422,10 +447,17 @@ const Alerts = () => {
           return [...prev, ...trulyUnique];
         });
       } else {
-        setAlerts(newAlerts);
+        if (targetAlert) {
+          const filteredNew = newAlerts.filter((a) => a.id !== targetAlert.id && a._id !== targetAlert._id);
+          setAlerts([targetAlert, ...filteredNew]);
+        } else {
+          setAlerts(newAlerts);
+        }
         // Cache the first page for fast paint on next navigation
         writeCache(buildCacheKey(), {
-          alerts: newAlerts,
+          alerts: targetAlert 
+            ? [targetAlert, ...newAlerts.filter((a) => a.id !== targetAlert.id && a._id !== targetAlert._id)] 
+            : newAlerts,
           totalResults: pagination.total || 0,
           totalPages: pagination.totalPages || 1,
           alertStats: response.data.stats || null
@@ -444,7 +476,7 @@ const Alerts = () => {
       isFirstLoadRef.current = false;
       isFetchingRef.current = false;
     }
-  }, [debouncedSearchQuery, platformFilter, keywordFilter, alertCategory, dateRange, sourceCategoryFilter, topicClassificationFilter, buildCacheKey, writeCache, page]);
+  }, [debouncedSearchQuery, targetAlertId, platformFilter, keywordFilter, alertCategory, dateRange, sourceCategoryFilter, topicClassificationFilter, buildCacheKey, writeCache, page]);
 
   const fetchCapturedStories = useCallback(async () => {
     if (!isCapturedStoriesView) {
@@ -1192,8 +1224,8 @@ const Alerts = () => {
   const handleSearchChange = (value) => {
     setSearchQuery(value);
 
-    // If it looks like a URL and user presses Enter, we'll investigate
-    // Otherwise, it's normal filtering
+    // Clear the highlighted target alert if they change the query
+    setTargetAlertId(null);
   };
 
   // Handle search submit (Enter key or button click)

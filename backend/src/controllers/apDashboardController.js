@@ -507,11 +507,38 @@ const getAPAlertsSummary = async (req, res) => {
         { $match: alertDateMatch(from, to) },
         { $group: { _id: '$risk_level', count: { $sum: 1 } } }
       ]),
-      Alert.find(alertDateMatch(from, to))
-        .sort({ created_at: -1 })
-        .limit(5)
-        .select('title description risk_level platform created_at status author')
-        .lean()
+      Alert.aggregate([
+        { $match: alertDateMatch(from, to) },
+        { $sort: { created_at: -1 } },
+        { $limit: 5 },
+        {
+          $lookup: {
+            from: 'contents',
+            localField: 'content_id',
+            foreignField: 'id',
+            pipeline: [{ $project: { text: 1 } }],
+            as: 'content_details'
+          }
+        },
+        { $unwind: { path: '$content_details', preserveNullAndEmptyArrays: true } },
+        {
+          $project: {
+            id: 1,
+            title: 1,
+            description: 1,
+            risk_level: 1,
+            platform: 1,
+            created_at: 1,
+            status: 1,
+            author: 1,
+            author_handle: 1,
+            alert_type: 1,
+            priority: 1,
+            intent: '$threat_details.intent',
+            post_text: '$content_details.text'
+          }
+        }
+      ])
     ]);
 
     const summary = { high: 0, medium: 0, low: 0, critical: 0 };

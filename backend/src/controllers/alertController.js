@@ -480,10 +480,11 @@ const getAlerts = async (req, res) => {
         { $unwind: { path: '$source_data', preserveNullAndEmptyArrays: true } }
       );
 
-      const terms = search.trim().split(/[\s,]+/).filter(Boolean);
+      const cleanSearch = search.trim().startsWith('@') ? search.trim().substring(1) : search.trim();
+      const terms = search.trim().split(/[\s,]+/).filter(Boolean).map(t => t.startsWith('@') ? t.substring(1) : t);
       const searchRegex = terms.length > 0
         ? { $regex: terms.map(t => escapeRegex(t)).join('|'), $options: 'i' }
-        : { $regex: escapeRegex(search), $options: 'i' };
+        : { $regex: escapeRegex(cleanSearch), $options: 'i' };
       pipeline.push({
         $match: {
           $or: [
@@ -960,16 +961,27 @@ const markAllAsRead = async (req, res) => {
 // @access  Private
 const getAlertById = async (req, res) => {
   try {
-    const alert = await Alert.findOne({ id: req.params.id });
+    const mongoose = require('mongoose');
+    const isValidObjectId = mongoose.Types.ObjectId.isValid(req.params.id);
+    const findQuery = isValidObjectId
+      ? { $or: [{ id: req.params.id }, { _id: req.params.id }] }
+      : { id: req.params.id };
+
+    const alert = await Alert.findOne(findQuery);
 
     if (!alert) {
       return res.status(404).json({ message: 'Alert not found' });
     }
 
+    // Match criteria for aggregation
+    const matchQuery = isValidObjectId
+      ? { $or: [{ id: req.params.id }, { _id: new mongoose.Types.ObjectId(req.params.id) }] }
+      : { id: req.params.id };
+
     // Manual lookup for content details if needed by frontend
     // Alternatively, use an aggregate pipeline like in getAlerts
     const result = await Alert.aggregate([
-      { $match: { id: req.params.id } },
+      { $match: matchQuery },
       {
         $lookup: {
           from: 'contents',
