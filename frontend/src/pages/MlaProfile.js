@@ -8,8 +8,11 @@ import { Card } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '../components/ui/tabs';
 import { GrievanceCard } from '../components/grievances/GrievanceCard';
+import GrievanceAnalysisModal from '../components/grievances/GrievanceAnalysisModal';
 import { getMlaByConstituency } from '../data/apMLAs';
 import { useAuth } from '../contexts/AuthContext';
+import { canManageRestrictedGrievanceUi } from '../lib/grievanceUiPermissions';
+import { toast } from 'sonner';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8000';
 
@@ -94,7 +97,8 @@ const MlaProfile = () => {
   const navigate = useNavigate();
   const decoded = decodeURIComponent(constituency || '');
   const mla = useMemo(() => getMlaByConstituency(decoded), [decoded]);
-  const { isScoped, isSuperAdmin, assignedConstituency, canAccessConstituency } = useAuth();
+  const { user, isScoped, isSuperAdmin, assignedConstituency, canAccessConstituency } = useAuth();
+  const canManageSpecialGrievanceUi = canManageRestrictedGrievanceUi(user);
 
   // RBAC guard: scoped users (MLA / MP / Nara Lokesh) can't view other seats —
   // bounce them back to their own constituency on URL manipulation.
@@ -167,11 +171,71 @@ const MlaProfile = () => {
     };
   }, [decoded, mla?.constituency]);
 
-  const handleAction = useCallback((action, payload) => {
+  const [analysisGrievance, setAnalysisGrievance] = useState(null);
+  const [isAnalysisOpen, setIsAnalysisOpen] = useState(false);
+
+  const handleAction = useCallback(async (action, payload) => {
+    const g = payload?.grievance;
     if (action === 'view') {
-      const g = payload?.grievance;
       const url = g?.tweet_url || g?.url;
       if (url) window.open(url, '_blank', 'noopener,noreferrer');
+    } else if (action === 'view_analysis') {
+      setAnalysisGrievance(g || null);
+      setIsAnalysisOpen(true);
+    } else if (action === 'delete') {
+      if (!canManageSpecialGrievanceUi) {
+        toast.error('You do not have access to delete grievances');
+        return;
+      }
+      if (!g?.id) return;
+      try {
+        await api.delete(`/grievances/${g.id}`);
+        setGrievances((prev) => prev.filter((item) => item.id !== g.id));
+        toast.success('Grievance deleted successfully');
+      } catch (err) {
+        toast.error(err?.response?.data?.message || 'Failed to delete grievance');
+      }
+    }
+  }, [canManageSpecialGrievanceUi]);
+
+  // Risk-level / sentiment overrides on the analysis modal — same
+  // /risk-level endpoint the main Grievances page uses, gated behind the
+  // same whitelisted-admin-email check.
+  const handleRiskLevelChange = useCallback(async (g, newLevel) => {
+    try {
+      const res = await api.put(`/grievances/${g.id}/risk-level`, { risk_level: newLevel });
+      const updatedAnalysis = res?.data?.analysis;
+      if (!updatedAnalysis) throw new Error('No analysis returned');
+      const patch = { ...updatedAnalysis, risk_level: newLevel };
+      setGrievances((prev) => prev.map((item) => (
+        item.id === g.id ? { ...item, analysis: { ...(item.analysis || {}), ...patch } } : item
+      )));
+      setAnalysisGrievance((prev) => (
+        prev && prev.id === g.id ? { ...prev, analysis: { ...(prev.analysis || {}), ...patch } } : prev
+      ));
+      toast.success(`Risk level updated to ${newLevel.toUpperCase()} (${updatedAnalysis.risk_score}%)`);
+    } catch (err) {
+      toast.error(err?.response?.data?.message || 'Failed to update risk level');
+      throw err;
+    }
+  }, []);
+
+  const handleSentimentChange = useCallback(async (g, newSentiment) => {
+    try {
+      const res = await api.put(`/grievances/${g.id}/risk-level`, { sentiment: newSentiment });
+      const updatedAnalysis = res?.data?.analysis;
+      if (!updatedAnalysis) throw new Error('No analysis returned');
+      const patch = { ...updatedAnalysis, sentiment: newSentiment };
+      setGrievances((prev) => prev.map((item) => (
+        item.id === g.id ? { ...item, analysis: { ...(item.analysis || {}), ...patch } } : item
+      )));
+      setAnalysisGrievance((prev) => (
+        prev && prev.id === g.id ? { ...prev, analysis: { ...(prev.analysis || {}), ...patch } } : prev
+      ));
+      toast.success(`Sentiment updated to ${newSentiment.toUpperCase()}`);
+    } catch (err) {
+      toast.error(err?.response?.data?.message || 'Failed to update sentiment');
+      throw err;
     }
   }, []);
 
@@ -271,15 +335,19 @@ const MlaProfile = () => {
                 No social-media content detected for this constituency yet.
               </div>
             ) : (
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+              // Masonry (Pinterest-style) layout: CSS columns let each card keep
+              // its natural height instead of a rigid row-grid stretching every
+              // card to match its tallest neighbour.
+              <div className="columns-1 md:columns-2 xl:columns-3 gap-3 [column-fill:_balance]">
                 {grievances.map((g) => (
-                  <GrievanceCard
-                    key={g._id || g.id}
-                    grievance={g}
-                    onAction={handleAction}
-                    getProxiedMediaUrl={getProxiedMediaUrl}
-                    compact
-                  />
+                  <div key={g._id || g.id} className="break-inside-avoid mb-3">
+                    <GrievanceCard
+                      grievance={g}
+                      onAction={handleAction}
+                      getProxiedMediaUrl={getProxiedMediaUrl}
+                      compact
+                    />
+                  </div>
                 ))}
               </div>
             )}
@@ -336,6 +404,14 @@ const MlaProfile = () => {
           </TabsContent>
         </Tabs>
       </Card>
+
+      <GrievanceAnalysisModal
+        open={isAnalysisOpen}
+        onClose={() => setIsAnalysisOpen(false)}
+        grievance={analysisGrievance}
+        onRiskLevelChange={canManageSpecialGrievanceUi ? handleRiskLevelChange : undefined}
+        onSentimentChange={canManageSpecialGrievanceUi ? handleSentimentChange : undefined}
+      />
     </div>
   );
 };
