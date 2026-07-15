@@ -79,7 +79,11 @@ const APAlertsWidget = ({ data, loading }) => {
             return (
               <div
                 key={alert.id || alert._id}
-                onClick={() => navigate(`/alerts?search=${encodeURIComponent(alert.title)}`)}
+                onClick={() => {
+                  const authorClean = alert.author_handle || alert.author || '';
+                  const searchVal = authorClean ? (authorClean.startsWith('@') ? authorClean : `@${authorClean}`) : '';
+                  navigate(`/alerts?alertId=${alert.id || alert._id}&search=${encodeURIComponent(searchVal)}`);
+                }}
                 className="flex items-start gap-2.5 p-2.5 rounded-lg border border-slate-100 hover:bg-slate-50 hover:border-yellow-400 cursor-pointer shadow-sm hover:shadow transition-all duration-150"
               >
                 <div className={`p-2 rounded-md ${style.split(' ')[0]} ${style.split(' ')[1]} flex-shrink-0`}>
@@ -88,16 +92,34 @@ const APAlertsWidget = ({ data, loading }) => {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between gap-1.5">
                     <span className="text-xs font-bold text-slate-800 truncate">
-                      {alert.title}
+                      @{alert.author_handle || alert.author || 'system'}
                     </span>
                     <span className="text-[9px] text-slate-400 whitespace-nowrap">
                       {new Date(alert.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </span>
                   </div>
                   <p className="text-[10px] text-slate-500 line-clamp-2 mt-0.5 leading-normal">
-                    {alert.description}
+                    {alert.post_text || alert.description}
                   </p>
-                  <div className="flex items-center justify-between mt-2">
+                  
+                  {/* Category & Status Badges */}
+                  <div className="flex flex-wrap items-center gap-1 mt-2">
+                    <span className={`inline-flex items-center text-[8px] font-bold px-1.5 py-0.5 rounded capitalize ${style}`}>
+                      {alert.risk_level} Risk
+                    </span>
+                    {(alert.alert_type === 'velocity' || String(alert.title).toLowerCase().includes('viral') || alert.priority === 'HIGH' || alert.priority === 'MEDIUM') && (
+                      <span className="inline-flex items-center gap-0.5 text-[8px] font-bold px-1.5 py-0.5 rounded bg-rose-50 text-rose-700 border border-rose-100">
+                        🔥 Viral: {alert.priority || 'Medium'}
+                      </span>
+                    )}
+                    {alert.intent && alert.intent !== 'Neutral' && alert.intent !== 'Unknown' && alert.intent !== 'Normal' && alert.intent !== 'Monitor' && (
+                      <span className="inline-flex items-center text-[8px] font-bold px-1.5 py-0.5 rounded bg-purple-50 text-purple-700 border border-purple-100 capitalize">
+                        {String(alert.intent).replace(/_/g, ' ')}
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="flex items-center justify-between mt-2 pt-1.5 border-t border-slate-100/50">
                     <span className="text-[9px] font-semibold text-slate-400 uppercase tracking-wider">
                       {alert.platform} &middot; By {alert.author || 'system'}
                     </span>
