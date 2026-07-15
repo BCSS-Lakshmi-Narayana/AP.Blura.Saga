@@ -106,17 +106,17 @@ const SocialNarrativePanel = ({ constituency, dense = false, sectionNumber }) =>
   return (
     <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-500">
       {/* Banner */}
-      <div className="rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 px-5 py-3 text-white flex items-center justify-between flex-wrap gap-2">
+      <div className="rounded-xl bg-white border border-slate-200 px-5 py-3 flex items-center justify-between flex-wrap gap-2 shadow-sm">
         <div className="flex items-center gap-3">
           {sectionNumber != null && (
-            <div className="w-7 h-7 rounded-full bg-white/25 flex items-center justify-center text-sm font-bold shrink-0">{sectionNumber}</div>
+            <div className="w-7 h-7 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center text-sm font-bold shrink-0">{sectionNumber}</div>
           )}
           <div>
-            <div className="text-sm font-bold">Social Media Narrative Intelligence</div>
-            <div className="text-[11px] text-indigo-100">Listen to people. Decode narratives. Stay ahead.</div>
+            <div className="text-sm font-bold text-slate-800">Social Media Narrative Intelligence</div>
+            <div className="text-[11px] text-slate-500">Listen to people. Decode narratives. Stay ahead.</div>
           </div>
         </div>
-        <div className="text-[10px] text-indigo-100 flex items-center gap-1.5">
+        <div className="text-[10px] text-slate-400 flex items-center gap-1.5">
           <Info className="h-3 w-3" /> Live · social monitoring · 30 days
         </div>
       </div>
