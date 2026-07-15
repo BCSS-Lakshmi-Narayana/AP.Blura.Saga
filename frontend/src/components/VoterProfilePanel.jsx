@@ -260,17 +260,17 @@ const VoterProfilePanel = ({ profile, loading, topIssues = [], constituencyDispl
   return (
     <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-500">
       {/* Banner */}
-      <div className="rounded-xl bg-gradient-to-r from-violet-600 to-fuchsia-600 px-5 py-3 text-white flex items-center justify-between flex-wrap gap-2">
+      <div className="rounded-xl bg-white border border-slate-200 px-5 py-3 flex items-center justify-between flex-wrap gap-2 shadow-sm">
         <div className="flex items-center gap-3">
           {sectionNumber != null && (
-            <div className="w-7 h-7 rounded-full bg-white/25 flex items-center justify-center text-sm font-bold shrink-0">{sectionNumber}</div>
+            <div className="w-7 h-7 rounded-full bg-violet-100 text-violet-700 flex items-center justify-center text-sm font-bold shrink-0">{sectionNumber}</div>
           )}
           <div>
-            <div className="text-sm font-bold">Voter Profiling &amp; Constituency Intelligence</div>
-            <div className="text-[11px] text-violet-100">Know your voters. Understand their needs. Serve better.</div>
+            <div className="text-sm font-bold text-slate-800">Voter Profiling &amp; Constituency Intelligence</div>
+            <div className="text-[11px] text-slate-500">Know your voters. Understand their needs. Serve better.</div>
           </div>
         </div>
-        <div className="text-[10px] text-violet-100 flex items-center gap-1.5">
+        <div className="text-[10px] text-slate-400 flex items-center gap-1.5">
           <Info className="h-3 w-3" /> ECI 2024 verified
         </div>
       </div>
