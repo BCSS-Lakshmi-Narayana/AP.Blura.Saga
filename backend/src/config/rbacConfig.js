@@ -27,7 +27,8 @@ const PAGE_FEATURES = {
     { id: 'x', label: 'X Monitor' },
     { id: 'facebook', label: 'Facebook Monitor' },
     { id: 'instagram', label: 'Instagram Monitor' },
-    { id: 'youtube', label: 'YouTube Monitor' }
+    { id: 'youtube', label: 'YouTube Monitor' },
+    { id: 'rss', label: 'RSS Feed' }
   ],
   '/grievances': [
     { id: 'all', label: 'All' },

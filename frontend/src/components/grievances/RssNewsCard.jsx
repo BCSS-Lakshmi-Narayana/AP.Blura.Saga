@@ -62,7 +62,12 @@ export const RssNewsCard = ({ article }) => {
       <div className="flex">
 
         {/* Image panel */}
-        <div className="w-44 shrink-0 self-stretch relative overflow-hidden bg-slate-100">
+        <a
+          href={article.source_url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="w-44 shrink-0 self-stretch relative overflow-hidden bg-slate-100 block"
+        >
           {article.image_url && !imgError ? (
             <img
               src={article.image_url}
@@ -81,7 +86,7 @@ export const RssNewsCard = ({ article }) => {
               {srcConfig.label}
             </span>
           </div>
-        </div>
+        </a>
 
         {/* Content panel */}
         <div className="flex-1 p-4 flex flex-col gap-2 min-w-0">
@@ -89,9 +94,16 @@ export const RssNewsCard = ({ article }) => {
           {/* Row 1 — Title + Category / Language badges */}
           <div className="flex items-start justify-between gap-3">
             <div className="flex-1 min-w-0">
-              <h3 className="text-sm font-bold text-slate-900 leading-snug group-hover:text-violet-700 transition-colors">
-                {displayTitle}
-              </h3>
+              <a
+                href={article.source_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:underline"
+              >
+                <h3 className="text-sm font-bold text-slate-900 leading-snug group-hover:text-violet-700 transition-colors">
+                  {displayTitle}
+                </h3>
+              </a>
               {showOriginal && (
                 <p className="text-[11px] text-slate-400 italic mt-0.5 line-clamp-1">
                   Original: {article.title}
@@ -112,24 +124,15 @@ export const RssNewsCard = ({ article }) => {
           {displaySummary ? (
             <p className="text-xs text-slate-600 leading-relaxed">{displaySummary}</p>
           ) : (
-            <p className="text-xs text-slate-300 italic">No preview available — click Read Article for the full story.</p>
+            <p className="text-xs text-slate-300 italic">No preview available.</p>
           )}
 
-          {/* Row 3 — Source + Read link */}
+          {/* Row 3 — Source */}
           <div className="flex items-center gap-1.5 text-xs min-w-0">
             <Globe className="h-3 w-3 text-slate-400 shrink-0" />
             <span className="font-semibold text-slate-800 break-words">
               {article.source_name || article.source_domain || 'Unknown Source'}
             </span>
-            <a
-              href={article.source_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={(e) => e.stopPropagation()}
-              className="ml-auto flex items-center gap-1 text-violet-600 hover:text-violet-800 font-semibold shrink-0 text-[11px] hover:underline"
-            >
-              Read Article <ExternalLink className="h-3 w-3" />
-            </a>
           </div>
 
           {/* Row 4 — Dates + Location */}

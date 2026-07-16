@@ -1,6 +1,6 @@
 import React, { lazy, Suspense, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronRight, Monitor, Twitter, Youtube, Facebook, Instagram } from 'lucide-react';
+import { ChevronRight, Monitor, Twitter, Youtube, Facebook, Instagram, Rss } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { useRbac } from '../contexts/RbacContext';
 
@@ -8,12 +8,14 @@ const XMonitor = lazy(() => import('./XMonitor'));
 const FacebookMonitor = lazy(() => import('./FacebookMonitor'));
 const YouTubeMonitor = lazy(() => import('./YouTubeMonitor'));
 const InstagramMonitor = lazy(() => import('./InstagramMonitor'));
+const RSSMonitor = lazy(() => import('./RSSMonitor'));
 
 const MONITORS = [
   { id: 'x', label: 'X Monitor', icon: Twitter },
   { id: 'facebook', label: 'Facebook Monitor', icon: Facebook },
   { id: 'instagram', label: 'Instagram Monitor', icon: Instagram },
-  { id: 'youtube', label: 'YouTube Monitor', icon: Youtube }
+  { id: 'youtube', label: 'YouTube Monitor', icon: Youtube },
+  { id: 'rss', label: 'RSS Feed', icon: Rss }
 ];
 
 const UnifiedMonitors = ({ embedded = false }) => {
@@ -92,6 +94,7 @@ const UnifiedMonitors = ({ embedded = false }) => {
             {effectiveActiveTab === 'facebook' && <FacebookMonitor />}
             {effectiveActiveTab === 'instagram' && <InstagramMonitor />}
             {effectiveActiveTab === 'youtube' && <YouTubeMonitor />}
+            {effectiveActiveTab === 'rss' && <RSSMonitor />}
           </Suspense>
         </div>
       </div>
