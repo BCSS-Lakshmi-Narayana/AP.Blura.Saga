@@ -86,3 +86,7 @@ backend/logs/Blura-Engine-master/
 Blura-Engine-master/config.py
 Blura-Engine-master/.env.punjab
 Blura-Engine-master/*.env*
+
+# Logs
+*.log
+
