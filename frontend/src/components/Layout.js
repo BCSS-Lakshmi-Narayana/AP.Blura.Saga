@@ -16,7 +16,8 @@ import {
   BellOff,
   MessageSquare,
   UserSearch,
-  TrendingUp
+  TrendingUp,
+  Newspaper
 } from 'lucide-react';
 import { Button } from './ui/button';
 import { toast } from 'sonner';
@@ -72,6 +73,7 @@ const Layout = () => {
     { name: 'Andhra Pradesh', href: '/andhra-pradesh-map', icon: Globe },
     { name: 'Overview', href: '/dashboard', icon: LayoutDashboard },
     { name: 'Mentions', href: '/grievances', icon: MessageSquare },
+    { name: 'Web Articles', href: '/public-web-articles', icon: Newspaper },
     { name: 'Alerts', href: '/alerts', icon: AlertTriangle },
     { name: 'Reports', href: '/intelligence-dashboard', icon: BarChart3 },
     { name: 'Events', href: '/events', icon: CalendarDays },
