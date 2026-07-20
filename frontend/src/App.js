@@ -49,6 +49,7 @@ const MlaProfile = lazy(() => import('./pages/MlaProfile'));
 const UnrestPredictor = lazy(() => import('./pages/UnrestPredictor'));
 const EventsReport = lazy(() => import('./pages/EventsReport'));
 const SearchAnalytics = lazy(() => import('./pages/SearchAnalytics'));
+const PublicWebArticles = lazy(() => import('./pages/PublicWebArticles'));
 
 // Loading fallback
 const PageLoader = () => (
@@ -128,6 +129,7 @@ function App() {
                     <Route path="deepfake-analysis" element={<DeepfakeAnalysis />} />
                     <Route path="telegram" element={<Telegram />} />
                     <Route path="andhra-pradesh-map" element={<AndhraPradeshMap />} />
+                    <Route path="public-web-articles" element={<PublicWebArticles />} />
                     <Route path="war-room" element={<Navigate to="/andhra-pradesh-map" replace />} />
                     <Route path="mla/:constituency" element={<MlaProfile />} />
                     <Route path="telangana-map" element={<Navigate to="/andhra-pradesh-map" replace />} />

@@ -3,6 +3,7 @@ const ALL_PAGES = [
   { path: '/alerts', name: 'Alerts', icon: 'AlertTriangle' },
   { path: '/monitors', name: 'Profiles Live Monitor', icon: 'Monitor' },
   { path: '/grievances', name: 'Grievances', icon: 'MessageSquare' },
+  { path: '/public-web-articles', name: 'Web Articles', icon: 'Newspaper' },
   { path: '/global-search', name: 'Global Search', icon: 'Globe' },
   { path: '/events', name: 'Events', icon: 'CalendarDays' },
   { path: '/unified-reports', name: 'Unified Reports', icon: 'FileText' },
