@@ -203,7 +203,7 @@ const SocialNarrativePanel = ({ constituency, dense = false, sectionNumber }) =>
           {trend.length === 0 ? <Empty>No conversation volume in this window.</Empty> : (
             <div className="h-[180px]">
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={trend} margin={{ top: 5, right: 10, left: -18, bottom: 0 }}>
+                <LineChart data={trend} margin={{ top: 5, right: 10, left: -18, bottom: 0 }} onClick={handleChartClick} className="cursor-pointer">
                   <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
                   <XAxis dataKey="date" tick={{ fontSize: 10, fill: '#94a3b8' }} axisLine={false} tickLine={false} minTickGap={20} />
                   <YAxis tick={{ fontSize: 10, fill: '#94a3b8' }} axisLine={false} tickLine={false} />

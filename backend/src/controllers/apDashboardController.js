@@ -14,8 +14,8 @@ const { isAndhraPradeshLocation, AP_DISTRICTS } = require('../config/andhraPrade
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-const startOfDay = (d) => { const x = new Date(d); x.setHours(0,0,0,0); return x; };
-const endOfDay   = (d) => { const x = new Date(d); x.setHours(23,59,59,999); return x; };
+const startOfDay = (d) => { const x = new Date(d); x.setUTCHours(0,0,0,0); return x; };
+const endOfDay   = (d) => { const x = new Date(d); x.setUTCHours(23,59,59,999); return x; };
 
 const parseFrom = (v) => {
   if (!v) return null;

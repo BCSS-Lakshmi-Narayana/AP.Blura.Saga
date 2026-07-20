@@ -34,6 +34,12 @@ const ISSUE_COLORS = {
   sand_mining: '#92400e', infrastructure: '#0ea5e9',
 };
 
+const formatIssueLabel = (i) => {
+  if (!i) return '';
+  const val = ISSUE_LABELS[i] || i;
+  return val.replace(/[_-]+/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+};
+
 const DAY_RANGE_OPTIONS = [1, 2, 3, 7, 30, 90];
 
 // ── Sub-components ────────────────────────────────────────────────────────────
@@ -93,7 +99,7 @@ function ConstituencyRow({ item, rank, selected, onClick }) {
           {item.top_issues?.[0] && (
             <>
               <span className="text-xs text-gray-400">·</span>
-              <span className="text-xs text-gray-500">{ISSUE_LABELS[item.top_issues[0].type] || item.top_issues[0].type}</span>
+              <span className="text-xs text-gray-500">{formatIssueLabel(item.top_issues[0].type)}</span>
             </>
           )}
         </div>
@@ -184,20 +190,35 @@ export default function UnrestPredictor() {
     (overview?.constituencies || []).flatMap(c => (c.top_issues || []).map(i => i.type))
   )).filter(Boolean);
 
-  const filteredConstituencies = (overview?.constituencies || []).filter(c => {
-    if (!searchQ.trim()) return true;
-    const q = searchQ.toLowerCase();
-    return c.constituency.toLowerCase().includes(q) || (c.district || '').toLowerCase().includes(q);
-  }).filter(c => {
-    if (levelFilter === 'all') return true;
-    return c.level === levelFilter;
-  }).filter(c => {
-    if (districtFilter === 'all') return true;
-    return (c.district || '').toLowerCase() === districtFilter.toLowerCase();
-  }).filter(c => {
-    if (issueFilter === 'all') return true;
-    return (c.top_issues || []).some(i => i.type === issueFilter);
-  }).sort((a, b) => b.score - a.score);
+  const filteredConstituencies = React.useMemo(() => {
+    return (overview?.constituencies || []).filter(c => {
+      if (!searchQ.trim()) return true;
+      const q = searchQ.toLowerCase();
+      return c.constituency.toLowerCase().includes(q) || (c.district || '').toLowerCase().includes(q);
+    }).filter(c => {
+      if (levelFilter === 'all') return true;
+      return c.level === levelFilter;
+    }).filter(c => {
+      if (districtFilter === 'all') return true;
+      return (c.district || '').toLowerCase() === districtFilter.toLowerCase();
+    }).filter(c => {
+      if (issueFilter === 'all') return true;
+      return (c.top_issues || []).some(i => i.type === issueFilter);
+    }).sort((a, b) => b.score - a.score);
+  }, [overview, searchQ, levelFilter, districtFilter, issueFilter]);
+
+  useEffect(() => {
+    if (filteredConstituencies.length > 0) {
+      const isStillVisible = filteredConstituencies.some(c => c.constituency === selectedConstituency);
+      if (!selectedConstituency || !isStillVisible) {
+        openDetail(filteredConstituencies[0].constituency);
+      }
+    } else {
+      setSelectedConstituency(null);
+      setDetail(null);
+      setTrend([]);
+    }
+  }, [filteredConstituencies, selectedConstituency, openDetail]);
 
   const recentGrievances = detail?.recent_grievances || [];
   const grievanceMarqueeItems = recentGrievances.length > 1
@@ -299,7 +320,7 @@ export default function UnrestPredictor() {
             >
               <option value="all">All issues</option>
               {issueOptions.map(i => (
-                <option key={i} value={i}>{ISSUE_LABELS[i] || i}</option>
+                <option key={i} value={i}>{formatIssueLabel(i)}</option>
               ))}
             </select>
           </div>
@@ -508,7 +529,7 @@ export default function UnrestPredictor() {
                         {detail.top_issues.slice(0, 6).map(issue => (
                           <div key={issue.type} className="flex items-center gap-2">
                             <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: ISSUE_COLORS[issue.type] || '#9ca3af' }} />
-                            <span className="text-xs text-gray-700 flex-1">{ISSUE_LABELS[issue.type] || issue.type}</span>
+                            <span className="text-xs text-gray-700 flex-1">{formatIssueLabel(issue.type)}</span>
                             <div className="w-20 bg-gray-100 rounded-full h-1.5">
                               <div
                                 className="h-1.5 rounded-full"
@@ -532,9 +553,9 @@ export default function UnrestPredictor() {
                             <div className="bg-green-400" style={{ width: `${(detail.sentiment_breakdown.positive / Math.max(detail.total_grievances, 1)) * 100}%` }} />
                           </div>
                           <div className="flex gap-3 mt-1.5 text-xs text-gray-500">
-                            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-red-400" />{detail.sentiment_breakdown.negative} neg</span>
-                            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-gray-300" />{detail.sentiment_breakdown.neutral} neu</span>
-                            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-green-400" />{detail.sentiment_breakdown.positive} pos</span>
+                            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-red-400" />{detail.sentiment_breakdown.negative} Negative</span>
+                            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-gray-300" />{detail.sentiment_breakdown.neutral} Neutral</span>
+                            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-green-400" />{detail.sentiment_breakdown.positive} Positive</span>
                           </div>
                         </div>
                       )}
@@ -578,7 +599,7 @@ export default function UnrestPredictor() {
                                 <p className="text-xs text-gray-700 line-clamp-2">{g.text || '—'}</p>
                                 <div className="flex items-center gap-2 mt-0.5 text-xs text-gray-400">
                                   <span className="capitalize">{g.platform}</span>
-                                  {g.issue_type && <span>· {ISSUE_LABELS[g.issue_type] || g.issue_type}</span>}
+                                  {g.issue_type && <span>· {formatIssueLabel(g.issue_type)}</span>}
                                   <span>· {g.post_date ? new Date(g.post_date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' }) : ''}</span>
                                 </div>
                               </div>
