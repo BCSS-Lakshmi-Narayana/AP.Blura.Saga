@@ -190,20 +190,35 @@ export default function UnrestPredictor() {
     (overview?.constituencies || []).flatMap(c => (c.top_issues || []).map(i => i.type))
   )).filter(Boolean);
 
-  const filteredConstituencies = (overview?.constituencies || []).filter(c => {
-    if (!searchQ.trim()) return true;
-    const q = searchQ.toLowerCase();
-    return c.constituency.toLowerCase().includes(q) || (c.district || '').toLowerCase().includes(q);
-  }).filter(c => {
-    if (levelFilter === 'all') return true;
-    return c.level === levelFilter;
-  }).filter(c => {
-    if (districtFilter === 'all') return true;
-    return (c.district || '').toLowerCase() === districtFilter.toLowerCase();
-  }).filter(c => {
-    if (issueFilter === 'all') return true;
-    return (c.top_issues || []).some(i => i.type === issueFilter);
-  }).sort((a, b) => b.score - a.score);
+  const filteredConstituencies = React.useMemo(() => {
+    return (overview?.constituencies || []).filter(c => {
+      if (!searchQ.trim()) return true;
+      const q = searchQ.toLowerCase();
+      return c.constituency.toLowerCase().includes(q) || (c.district || '').toLowerCase().includes(q);
+    }).filter(c => {
+      if (levelFilter === 'all') return true;
+      return c.level === levelFilter;
+    }).filter(c => {
+      if (districtFilter === 'all') return true;
+      return (c.district || '').toLowerCase() === districtFilter.toLowerCase();
+    }).filter(c => {
+      if (issueFilter === 'all') return true;
+      return (c.top_issues || []).some(i => i.type === issueFilter);
+    }).sort((a, b) => b.score - a.score);
+  }, [overview, searchQ, levelFilter, districtFilter, issueFilter]);
+
+  useEffect(() => {
+    if (filteredConstituencies.length > 0) {
+      const isStillVisible = filteredConstituencies.some(c => c.constituency === selectedConstituency);
+      if (!selectedConstituency || !isStillVisible) {
+        openDetail(filteredConstituencies[0].constituency);
+      }
+    } else {
+      setSelectedConstituency(null);
+      setDetail(null);
+      setTrend([]);
+    }
+  }, [filteredConstituencies, selectedConstituency, openDetail]);
 
   const recentGrievances = detail?.recent_grievances || [];
   const grievanceMarqueeItems = recentGrievances.length > 1
