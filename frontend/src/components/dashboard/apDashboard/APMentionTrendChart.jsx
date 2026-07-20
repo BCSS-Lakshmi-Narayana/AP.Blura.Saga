@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid,
   Tooltip, ResponsiveContainer
@@ -22,8 +23,27 @@ const CustomTooltip = ({ active, payload, label }) => {
 /**
  * APMentionTrendChart — Total mentions area chart
  */
-const APMentionTrendChart = ({ data, loading }) => {
+const APMentionTrendChart = ({ data, loading, filters }) => {
   const series = data?.series || [];
+  const navigate = useNavigate();
+
+  const handleChartClick = (state) => {
+    if (state && state.activePayload && state.activePayload.length > 0) {
+      const clickedData = state.activePayload[0].payload;
+      const clickedDate = clickedData.date;
+      
+      const params = [
+        `from=${encodeURIComponent(clickedDate)}`,
+        `to=${encodeURIComponent(clickedDate)}`
+      ];
+      if (filters?.district) params.push(`location=${encodeURIComponent(filters.district)}`);
+      if (filters?.platform && filters.platform !== 'all') params.push(`platform=${encodeURIComponent(filters.platform)}`);
+      if (filters?.sentiment && filters.sentiment !== 'all') params.push(`sentiment=${encodeURIComponent(filters.sentiment)}`);
+
+      navigate(`/grievances?${params.join('&')}`);
+    }
+  };
+
   const formatted = series.map(d => ({
     ...d,
     label: (() => {
@@ -57,7 +77,7 @@ const APMentionTrendChart = ({ data, loading }) => {
         <span className="text-xs text-slate-400">Total mentions per day</span>
       </div>
       <ResponsiveContainer width="100%" height={190}>
-        <AreaChart data={formatted} margin={{ top: 4, right: 8, left: -20, bottom: 0 }}>
+        <AreaChart data={formatted} margin={{ top: 4, right: 8, left: -20, bottom: 0 }} className="cursor-pointer">
           <defs>
             <linearGradient id="mentionGrad" x1="0" y1="0" x2="0" y2="1">
               <stop offset="5%"  stopColor="#eab308" stopOpacity={0.3} />
@@ -68,7 +88,31 @@ const APMentionTrendChart = ({ data, loading }) => {
           <XAxis dataKey="label" tick={{ fontSize: 10, fill: '#94a3b8' }} tickLine={false} axisLine={false} />
           <YAxis tick={{ fontSize: 10, fill: '#94a3b8' }} tickLine={false} axisLine={false} />
           <Tooltip content={<CustomTooltip />} />
-          <Area type="monotone" dataKey="count" stroke="#ca8a04" strokeWidth={2} fill="url(#mentionGrad)" dot={false} activeDot={{ r: 4, fill: '#ca8a04' }} />
+          <Area
+            type="monotone"
+            dataKey="count"
+            stroke="#ca8a04"
+            strokeWidth={2}
+            fill="url(#mentionGrad)"
+            dot={{ r: 3, fill: '#ca8a04', cursor: 'pointer' }}
+            activeDot={{
+              r: 5,
+              fill: '#a16207',
+              cursor: 'pointer',
+              onClick: (e, p) => {
+                if (p?.payload?.date) {
+                  const params = [
+                    `from=${encodeURIComponent(p.payload.date)}`,
+                    `to=${encodeURIComponent(p.payload.date)}`
+                  ];
+                  if (filters?.district) params.push(`location=${encodeURIComponent(filters.district)}`);
+                  if (filters?.platform && filters.platform !== 'all') params.push(`platform=${encodeURIComponent(filters.platform)}`);
+                  if (filters?.sentiment && filters.sentiment !== 'all') params.push(`sentiment=${encodeURIComponent(filters.sentiment)}`);
+                  navigate(`/grievances?${params.join('&')}`);
+                }
+              }
+            }}
+          />
         </AreaChart>
       </ResponsiveContainer>
     </div>

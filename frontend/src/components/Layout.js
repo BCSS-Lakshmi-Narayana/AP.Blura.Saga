@@ -76,7 +76,7 @@ const Layout = () => {
     { name: 'Reports', href: '/intelligence-dashboard', icon: BarChart3 },
     { name: 'Events', href: '/events', icon: CalendarDays },
     { name: 'Search', href: '/global-search', icon: Globe },
-    { name: 'Search Analytics', href: '/search-analytics', icon: TrendingUp },
+    // { name: 'Search Analytics', href: '/search-analytics', icon: TrendingUp },
     //{ name: 'Profile', href: '/person-of-interest', icon: UserSearch },
     { name: 'Settings', href: '/settings', icon: Settings }
   ];

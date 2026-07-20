@@ -563,6 +563,8 @@ const InstagramReelCard = ({ content, source, onRefresh }) => {
         alert={content}
         content={content}
         analysis={content.analysis}
+        onRiskLevelChange={onRiskLevelChange}
+        onSentimentChange={onSentimentChange}
       />
     </div>
   );

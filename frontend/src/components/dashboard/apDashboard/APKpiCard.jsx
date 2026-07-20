@@ -18,7 +18,8 @@ const APKpiCard = ({
   format = 'number',
   loading = false,
   compareLabel = 'vs Last 7 days',
-  hideCompare = false
+  hideCompare = false,
+  onClick
 }) => {
   const formatValue = (v) => {
     if (v === null || v === undefined) return '—';
@@ -51,8 +52,8 @@ const APKpiCard = ({
 
   return (
     <div
-      className="bg-white rounded-xl border border-slate-200 shadow-sm p-3.5 hover:shadow-md hover:border-yellow-300 transition-all duration-200 flex items-center gap-3"
-      title={tooltip}
+      onClick={onClick}
+      className={`bg-white rounded-xl border border-slate-200 shadow-sm p-3.5 hover:shadow-md hover:border-rose-500 transition-all duration-200 flex items-center gap-3 ${onClick ? 'cursor-pointer' : ''}`}
     >
       {/* Left Icon Circle */}
       {Icon && (

@@ -189,13 +189,20 @@ const APConstituencyPanel = ({ constituencyName, onClose, fromDate, toDate }) =>
 
                 {/* External Links */}
                 <div className="pt-2">
-                  <a
-                    href={`/grievances?location=${encodeURIComponent(constituencyName)}`}
-                    className="flex items-center justify-center gap-1.5 w-full bg-yellow-600 text-white hover:bg-yellow-700 transition-colors font-semibold text-xs py-2 rounded-xl"
-                  >
-                    View Content Feed
-                    <ArrowRight className="h-3.5 w-3.5" />
-                  </a>
+                  {(() => {
+                    const params = [`location=${encodeURIComponent(constituencyName)}`];
+                    if (fromDate) params.push(`from=${encodeURIComponent(fromDate)}`);
+                    if (toDate) params.push(`to=${encodeURIComponent(toDate)}`);
+                    return (
+                      <a
+                        href={`/grievances?${params.join('&')}`}
+                        className="flex items-center justify-center gap-1.5 w-full bg-yellow-600 text-white hover:bg-yellow-700 transition-colors font-semibold text-xs py-2 rounded-xl"
+                      >
+                        View Content Feed
+                        <ArrowRight className="h-3.5 w-3.5" />
+                      </a>
+                    );
+                  })()}
                 </div>
               </>
             );

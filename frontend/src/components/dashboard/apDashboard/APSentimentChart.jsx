@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
   Legend, ResponsiveContainer
@@ -24,8 +25,26 @@ const CustomTooltip = ({ active, payload, label }) => {
 /**
  * APSentimentChart — Positive/Neutral/Negative line chart over time
  */
-const APSentimentChart = ({ data, loading }) => {
+const APSentimentChart = ({ data, loading, filters }) => {
   const series = data?.series || [];
+  const navigate = useNavigate();
+
+  const handleChartClick = (state) => {
+    if (state && state.activePayload && state.activePayload.length > 0) {
+      const clickedData = state.activePayload[0].payload;
+      const clickedDate = clickedData.date;
+      
+      const params = [
+        `from=${encodeURIComponent(clickedDate)}`,
+        `to=${encodeURIComponent(clickedDate)}`
+      ];
+      if (filters?.district) params.push(`location=${encodeURIComponent(filters.district)}`);
+      if (filters?.platform && filters.platform !== 'all') params.push(`platform=${encodeURIComponent(filters.platform)}`);
+      if (filters?.sentiment && filters.sentiment !== 'all') params.push(`sentiment=${encodeURIComponent(filters.sentiment)}`);
+
+      navigate(`/grievances?${params.join('&')}`);
+    }
+  };
 
   const formatted = series.map(d => ({
     ...d,
@@ -64,14 +83,14 @@ const APSentimentChart = ({ data, loading }) => {
         </div>
       </div>
       <ResponsiveContainer width="100%" height={190}>
-        <LineChart data={formatted} margin={{ top: 4, right: 8, left: -20, bottom: 0 }}>
+        <LineChart data={formatted} margin={{ top: 4, right: 8, left: -20, bottom: 0 }} className="cursor-pointer">
           <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
           <XAxis dataKey="label" tick={{ fontSize: 10, fill: '#94a3b8' }} tickLine={false} axisLine={false} />
           <YAxis tick={{ fontSize: 10, fill: '#94a3b8' }} tickLine={false} axisLine={false} />
           <Tooltip content={<CustomTooltip />} />
-          <Line type="monotone" dataKey="positive" stroke="#10b981" strokeWidth={2} dot={false} activeDot={{ r: 4 }} />
-          <Line type="monotone" dataKey="neutral"  stroke="#f59e0b" strokeWidth={2} dot={false} activeDot={{ r: 4 }} />
-          <Line type="monotone" dataKey="negative" stroke="#ef4444" strokeWidth={2} dot={false} activeDot={{ r: 4 }} />
+          <Line type="monotone" dataKey="positive" stroke="#10b981" strokeWidth={2} dot={{ r: 2, fill: '#10b981' }} activeDot={{ r: 4, cursor: 'pointer', fill: '#059669', onClick: (e, p) => { if (p?.payload?.date) { const params = [`from=${encodeURIComponent(p.payload.date)}`, `to=${encodeURIComponent(p.payload.date)}`]; if (filters?.district) params.push(`location=${encodeURIComponent(filters.district)}`); if (filters?.platform && filters.platform !== 'all') params.push(`platform=${encodeURIComponent(filters.platform)}`); navigate(`/grievances?${params.join('&')}`); } } }} />
+          <Line type="monotone" dataKey="neutral"  stroke="#f59e0b" strokeWidth={2} dot={{ r: 2, fill: '#f59e0b' }} activeDot={{ r: 4, cursor: 'pointer', fill: '#d97706', onClick: (e, p) => { if (p?.payload?.date) { const params = [`from=${encodeURIComponent(p.payload.date)}`, `to=${encodeURIComponent(p.payload.date)}`]; if (filters?.district) params.push(`location=${encodeURIComponent(filters.district)}`); if (filters?.platform && filters.platform !== 'all') params.push(`platform=${encodeURIComponent(filters.platform)}`); navigate(`/grievances?${params.join('&')}`); } } }} />
+          <Line type="monotone" dataKey="negative" stroke="#ef4444" strokeWidth={2} dot={{ r: 2, fill: '#ef4444' }} activeDot={{ r: 4, cursor: 'pointer', fill: '#dc2626', onClick: (e, p) => { if (p?.payload?.date) { const params = [`from=${encodeURIComponent(p.payload.date)}`, `to=${encodeURIComponent(p.payload.date)}`]; if (filters?.district) params.push(`location=${encodeURIComponent(filters.district)}`); if (filters?.platform && filters.platform !== 'all') params.push(`platform=${encodeURIComponent(filters.platform)}`); navigate(`/grievances?${params.join('&')}`); } } }} />
         </LineChart>
       </ResponsiveContainer>
     </div>

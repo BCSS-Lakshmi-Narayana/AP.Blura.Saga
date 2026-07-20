@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   LineChart, Line, XAxis, YAxis, Tooltip as RTooltip, ResponsiveContainer, CartesianGrid,
 } from 'recharts';
@@ -30,17 +30,35 @@ const PLATFORM_COLOR = {
   instagram: '#db2777', whatsapp: '#16a34a', unknown: '#64748b',
 };
 
-const PanelCard = ({ icon: Icon, title, badge, children, className = '' }) => (
-  <Card className={`border-slate-200 overflow-hidden flex flex-col transition-shadow duration-200 hover:shadow-md ${className}`}>
-    <div className="flex items-center justify-between px-4 py-2.5 border-b border-slate-100 bg-slate-50/60">
-      <h3 className="text-xs font-bold text-slate-700 flex items-center gap-1.5 uppercase tracking-wide">
-        <Icon className="h-3.5 w-3.5 text-slate-500" /> {title}
-      </h3>
-      {badge}
-    </div>
-    <div className="p-4 flex-1">{children}</div>
-  </Card>
-);
+const PanelCard = ({ icon: Icon, title, badge, children, className = '', href }) => {
+  const cardContent = (
+    <>
+      <div className="flex items-center justify-between px-4 py-2.5 border-b border-slate-100 bg-slate-50/60">
+        <h3 className="text-xs font-bold text-slate-700 flex items-center gap-1.5 uppercase tracking-wide">
+          <Icon className="h-3.5 w-3.5 text-slate-500" /> {title}
+        </h3>
+        {badge}
+      </div>
+      <div className="p-4 flex-1 flex flex-col">{children}</div>
+    </>
+  );
+
+  if (href) {
+    return (
+      <Card className={`border-slate-200 overflow-hidden flex flex-col transition-all duration-200 hover:shadow-md hover:border-slate-300 cursor-pointer ${className}`}>
+        <Link to={href} className="flex flex-col flex-1 h-full">
+          {cardContent}
+        </Link>
+      </Card>
+    );
+  }
+
+  return (
+    <Card className={`border-slate-200 overflow-hidden flex flex-col transition-shadow duration-200 hover:shadow-md ${className}`}>
+      {cardContent}
+    </Card>
+  );
+};
 
 const Empty = ({ children }) => (
   <div className="flex items-start gap-2 text-[11px] text-slate-400 leading-relaxed">
@@ -49,10 +67,14 @@ const Empty = ({ children }) => (
 );
 
 /* Sentiment donut (single value). */
-const SentimentDonut = ({ label, pct, color }) => {
+const SentimentDonut = ({ label, pct, color, constituency }) => {
   const gradient = `conic-gradient(${color} 0% ${pct}%, #f1f5f9 ${pct}% 100%)`;
+  const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
   return (
-    <div className="flex flex-col items-center gap-1.5">
+    <Link
+      to={`/grievances?location=${encodeURIComponent(constituency)}&sentiment=${label.toLowerCase()}&from=${encodeURIComponent(thirtyDaysAgo)}`}
+      className="flex flex-col items-center gap-1.5 hover:opacity-80 transition-opacity cursor-pointer"
+    >
       <div className="relative w-20 h-20">
         <div className="w-20 h-20 rounded-full" style={{ background: gradient }} />
         <div className="absolute inset-2.5 rounded-full bg-white flex items-center justify-center">
@@ -60,11 +82,22 @@ const SentimentDonut = ({ label, pct, color }) => {
         </div>
       </div>
       <span className="text-[11px] font-medium text-slate-600">{label}</span>
-    </div>
+    </Link>
   );
 };
 
+const getGrievancePlatform = (pName) => {
+  const p = String(pName).toLowerCase();
+  if (p === 'twitter' || p === 'x') return 'x';
+  if (p === 'facebook') return 'facebook';
+  if (p === 'instagram') return 'instagram';
+  if (p === 'youtube') return 'youtube';
+  return 'all';
+};
+
 const SocialNarrativePanel = ({ constituency, dense = false, sectionNumber }) => {
+  const navigate = useNavigate();
+  const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -93,7 +126,20 @@ const SocialNarrativePanel = ({ constituency, dense = false, sectionNumber }) =>
 
   const s = data.sentiment || {};
   const hasData = (s.total || 0) > 0;
-  const trend = (data.volume_trend || []).map((d) => ({ date: d.date.slice(5), count: d.count }));
+  const trend = (data.volume_trend || []).map((d) => ({ date: d.date.slice(5), fullDate: d.date, count: d.count }));
+
+  const handleChartClick = (state) => {
+    if (state && state.activePayload && state.activePayload.length > 0) {
+      const clickedData = state.activePayload[0].payload;
+      const clickedDate = clickedData.fullDate;
+      const params = [
+        `location=${encodeURIComponent(constituency)}`,
+        `from=${encodeURIComponent(clickedDate)}`,
+        `to=${encodeURIComponent(clickedDate)}`
+      ];
+      navigate(`/grievances?${params.join('&')}`);
+    }
+  };
   const maxInfluencerFollowers = (data.top_influencers || []).reduce((m, i) => Math.max(m, i.followers), 0) || 1;
   const topics = data.trending_hashtags?.length ? data.trending_hashtags : data.top_topics || [];
   const maxPlatform = (data.platforms || []).reduce((m, p) => Math.max(m, p.pct), 0) || 100;
@@ -132,9 +178,9 @@ const SocialNarrativePanel = ({ constituency, dense = false, sectionNumber }) =>
       <div className={grid3}>
         <PanelCard icon={MessageSquare} title="Sentiment Overview (All Platforms)" className={span2}>
           <div className="flex items-center justify-around gap-2 flex-wrap">
-            <SentimentDonut label="Positive" pct={s.positive_pct || 0} color="#22c55e" />
-            <SentimentDonut label="Negative" pct={s.negative_pct || 0} color="#ef4444" />
-            <SentimentDonut label="Neutral" pct={s.neutral_pct || 0} color="#f59e0b" />
+            <SentimentDonut label="Positive" pct={s.positive_pct || 0} color="#22c55e" constituency={constituency} />
+            <SentimentDonut label="Negative" pct={s.negative_pct || 0} color="#ef4444" constituency={constituency} />
+            <SentimentDonut label="Neutral" pct={s.neutral_pct || 0} color="#f59e0b" constituency={constituency} />
           </div>
         </PanelCard>
         <PanelCard icon={Sparkles} title="Overall Sentiment Score">
@@ -162,7 +208,24 @@ const SocialNarrativePanel = ({ constituency, dense = false, sectionNumber }) =>
                   <XAxis dataKey="date" tick={{ fontSize: 10, fill: '#94a3b8' }} axisLine={false} tickLine={false} minTickGap={20} />
                   <YAxis tick={{ fontSize: 10, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
                   <RTooltip contentStyle={{ fontSize: 11, borderRadius: 8, border: 'none', boxShadow: '0 4px 16px rgba(0,0,0,0.12)' }} />
-                  <Line type="monotone" dataKey="count" stroke="#7c3aed" strokeWidth={2} dot={{ r: 2, fill: '#7c3aed' }} activeDot={{ r: 4 }} />
+                  <Line
+                    type="monotone"
+                    dataKey="count"
+                    stroke="#7c3aed"
+                    strokeWidth={2}
+                    dot={{ r: 3, fill: '#7c3aed', cursor: 'pointer' }}
+                    activeDot={{
+                      r: 5,
+                      fill: '#5b21b6',
+                      cursor: 'pointer',
+                      onClick: (event, payload) => {
+                        if (payload && payload.payload && payload.payload.fullDate) {
+                          const d = payload.payload.fullDate;
+                          navigate(`/grievances?location=${encodeURIComponent(constituency)}&from=${encodeURIComponent(d)}&to=${encodeURIComponent(d)}`);
+                        }
+                      }
+                    }}
+                  />
                 </LineChart>
               </ResponsiveContainer>
             </div>
@@ -176,14 +239,18 @@ const SocialNarrativePanel = ({ constituency, dense = false, sectionNumber }) =>
                 const Icon = PLATFORM_ICON[p.platform] || Newspaper;
                 const color = PLATFORM_COLOR[p.platform] || '#64748b';
                 return (
-                  <div key={p.platform} className="flex items-center gap-2">
+                  <Link
+                    key={p.platform}
+                    to={`/grievances?location=${encodeURIComponent(constituency)}&platform=${getGrievancePlatform(p.platform)}&from=${encodeURIComponent(thirtyDaysAgo)}`}
+                    className="flex items-center gap-2 w-full hover:bg-slate-50 rounded px-1 -mx-1 py-0.5 transition-colors cursor-pointer"
+                  >
                     <Icon className="h-4 w-4 shrink-0" style={{ color }} />
                     <span className="text-[11px] text-slate-600 w-24 shrink-0 truncate" title={p.label}>{p.label}</span>
                     <div className="flex-1 h-1.5 rounded-full bg-slate-100 overflow-hidden">
                       <div className="h-full rounded-full" style={{ width: `${(p.pct / maxPlatform) * 100}%`, background: color }} />
                     </div>
                     <span className="text-[11px] font-bold text-slate-700 w-8 text-right">{p.pct}%</span>
-                  </div>
+                  </Link>
                 );
               })}
             </div>
@@ -197,11 +264,15 @@ const SocialNarrativePanel = ({ constituency, dense = false, sectionNumber }) =>
           {topics.length === 0 ? <Empty>No trending topics/hashtags detected yet.</Empty> : (
             <div className="space-y-1.5">
               {topics.map((t, i) => (
-                <div key={t.name} className="flex items-center gap-2">
+                <Link
+                  key={t.name}
+                  to={`/grievances?location=${encodeURIComponent(constituency)}&search=${encodeURIComponent(t.name)}&from=${encodeURIComponent(thirtyDaysAgo)}`}
+                  className="flex items-center gap-2 w-full hover:bg-slate-50 rounded px-1 -mx-1 py-0.5 transition-colors cursor-pointer"
+                >
                   <span className="text-[11px] font-bold text-slate-400 w-4">{i + 1}</span>
                   <span className="text-[11px] text-violet-700 font-medium flex-1 truncate">{t.name}</span>
                   <span className="text-[10px] text-slate-500 font-semibold">{fmtShort(t.count)}</span>
-                </div>
+                </Link>
               ))}
             </div>
           )}
@@ -220,13 +291,18 @@ const SocialNarrativePanel = ({ constituency, dense = false, sectionNumber }) =>
                 const item = data.narratives[n.key];
                 if (!item) return null;
                 return (
-                  <div key={n.key} className="rounded-lg px-3 py-2" style={{ background: n.bg }}>
+                  <Link
+                    key={n.key}
+                    to={`/grievances?location=${encodeURIComponent(constituency)}&sentiment=${n.key}&from=${encodeURIComponent(thirtyDaysAgo)}`}
+                    className="block rounded-lg px-3 py-2 hover:opacity-85 transition-opacity cursor-pointer"
+                    style={{ background: n.bg }}
+                  >
                     <div className="flex items-center justify-between">
                       <span className="text-[11px] font-bold" style={{ color: n.color }}>{n.label}</span>
                       <span className="text-[10px] text-slate-500">{item.count} mentions</span>
                     </div>
                     <div className="text-[11px] text-slate-700 capitalize mt-0.5">{String(item.name).replace(/_/g, ' ')}</div>
-                  </div>
+                  </Link>
                 );
               })}
             </div>
@@ -237,7 +313,11 @@ const SocialNarrativePanel = ({ constituency, dense = false, sectionNumber }) =>
           {(data.top_influencers || []).length === 0 ? <Empty>No influencer data for this seat yet.</Empty> : (
             <div className="space-y-2">
               {data.top_influencers.map((inf) => (
-                <div key={inf.handle} className="flex items-center gap-2">
+                <Link
+                  key={inf.handle}
+                  to={`/grievances?location=${encodeURIComponent(constituency)}&posted_by=${encodeURIComponent(inf.handle)}&from=${encodeURIComponent(thirtyDaysAgo)}`}
+                  className="flex items-center gap-2 w-full hover:bg-slate-50 rounded px-1 -mx-1 py-1 transition-colors cursor-pointer"
+                >
                   <div className="w-7 h-7 rounded-full bg-gradient-to-br from-violet-400 to-indigo-500 flex items-center justify-center text-white text-[10px] font-bold shrink-0">
                     {String(inf.display_name || inf.handle).charAt(0).toUpperCase()}
                   </div>
@@ -251,7 +331,7 @@ const SocialNarrativePanel = ({ constituency, dense = false, sectionNumber }) =>
                     </div>
                   </div>
                   <span className="text-[10px] font-semibold text-slate-500 shrink-0">{fmtShort(inf.followers)}</span>
-                </div>
+                </Link>
               ))}
             </div>
           )}
@@ -282,7 +362,7 @@ const SocialNarrativePanel = ({ constituency, dense = false, sectionNumber }) =>
                 </div>
               ))
             )}
-            <Link to={`/grievances?location=${encodeURIComponent(constituency)}`} className="inline-flex items-center gap-1 text-[11px] font-medium text-white/90 hover:text-white pt-1">
+            <Link to={`/grievances?location=${encodeURIComponent(constituency)}&from=${encodeURIComponent(thirtyDaysAgo)}`} className="inline-flex items-center gap-1 text-[11px] font-medium text-white/90 hover:text-white pt-1">
               View detailed grievances <ArrowRight className="h-3 w-3" />
             </Link>
           </div>
