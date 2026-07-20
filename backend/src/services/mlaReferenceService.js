@@ -137,4 +137,5 @@ module.exports = {
   getAllMlas,
   parseRupees,
   classifyIssues,
+  ISSUE_LEXICON,
 };

@@ -158,6 +158,12 @@ const RobustVideoPlayer = ({ selectedMedia, selectedGrievance, getProxiedMediaUr
     );
 };
 
+const parseDateParam = (dateStr) => {
+    if (!dateStr) return null;
+    const d = new Date(dateStr);
+    return isNaN(d.getTime()) ? null : d;
+};
+
 /* ═══════════════════════════════════════════════════════════════ */
 /*                       MAIN COMPONENT                          */
 /* ═══════════════════════════════════════════════════════════════ */
@@ -582,13 +588,20 @@ const Grievances = () => {
 
     // Filters //
     const [searchQuery, setSearchQuery] = useState(() => searchParams.get('search') || '');
-    const [platformFilter, setPlatformFilter] = useState('all');
-    const [dateRange, setDateRange] = useState({ from: null, to: null });
+    const [platformFilter, setPlatformFilter] = useState(() => searchParams.get('platform') || 'all');
+    const [dateRange, setDateRange] = useState(() => {
+        const fromStr = searchParams.get('from');
+        const toStr = searchParams.get('to');
+        return {
+            from: parseDateParam(fromStr),
+            to: parseDateParam(toStr)
+        };
+    });
     const [locationFilter, setLocationFilter] = useState(() => searchParams.get('location') || null);
 
     // Top Navbar Filters //
     
-    const [navbarPlatform, setNavbarPlatform] = useState('all');
+    const [navbarPlatform, setNavbarPlatform] = useState(() => searchParams.get('platform') || 'all');
     const [navbarStatus, setNavbarStatus] = useState('total');
 
     // ── RSS News state ────────────────────────────────────────────
@@ -713,6 +726,9 @@ const Grievances = () => {
         const urlTopic = normalizeTopicFilterLabel(searchParams.get('grievance_type'));
         const urlAnalysisCategory = searchParams.get('analysis_category') || null;
         const urlTargetEntity = searchParams.get('target_entity') || null;
+        const urlPlatform = searchParams.get('platform') || 'all';
+        const urlFrom = searchParams.get('from');
+        const urlTo = searchParams.get('to');
 
         setSearchQuery(urlSearch);
         setLocationFilter(urlLocation);
@@ -721,6 +737,12 @@ const Grievances = () => {
         setTopicFilter(urlTopic);
         setAnalysisCategoryFilter(urlAnalysisCategory);
         setTargetEntityFilter(urlTargetEntity);
+        setNavbarPlatform(urlPlatform);
+        setPlatformFilter(urlPlatform);
+        setDateRange({
+            from: parseDateParam(urlFrom),
+            to: parseDateParam(urlTo)
+        });
     }, [searchParams, normalizeTopicFilterLabel]);
 
     useEffect(() => {
@@ -1678,6 +1700,51 @@ const Grievances = () => {
                         <Shield className="absolute left-1.5 top-1/2 -translate-y-1/2 h-3 w-3 text-slate-400 pointer-events-none" />
                         <ChevronDown className="absolute right-1.5 top-1/2 -translate-y-1/2 h-3 w-3 text-slate-400 pointer-events-none" />
                     </div>
+
+                    <Popover>
+                        <PopoverTrigger asChild>
+                            <Button
+                                variant="outline"
+                                className={cn(
+                                    "h-7 justify-start text-left font-normal text-xs px-3 bg-white border-slate-200 hover:bg-slate-50 text-slate-700",
+                                    !dateRange.from && "text-slate-500"
+                                )}
+                            >
+                                <Calendar className="mr-1.5 h-3.5 w-3.5 text-slate-400" />
+                                {dateRange.from ? (
+                                    dateRange.to ? (
+                                        <>
+                                            {format(dateRange.from, "LLL dd, y")} -{" "}
+                                            {format(dateRange.to, "LLL dd, y")}
+                                        </>
+                                    ) : (
+                                        format(dateRange.from, "LLL dd, y")
+                                    )
+                                ) : (
+                                    <span>Date range</span>
+                                )}
+                            </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="end">
+                            <CalendarComponent
+                                initialFocus
+                                mode="range"
+                                defaultMonth={dateRange.from || new Date()}
+                                selected={{
+                                    from: dateRange.from || undefined,
+                                    to: dateRange.to || undefined
+                                }}
+                                onSelect={(range) => {
+                                    setDateRange({
+                                        from: range?.from || null,
+                                        to: range?.to || null
+                                    });
+                                }}
+                                numberOfMonths={2}
+                            />
+                        </PopoverContent>
+                    </Popover>
+
                     <Button variant="outline" size="sm" onClick={() => { fetchGrievances(); fetchDashboardStats(); fetchLocationStats(); }} className="h-7 gap-1 text-xs px-2">
                         <RefreshCw className="h-3 w-3" /> Refresh
                     </Button>
@@ -1875,7 +1942,7 @@ const Grievances = () => {
             />
 
             {/* Dashboard Filter Banner */}
-            {(sentimentFilter || selectedHandle || topicFilter || analysisCategoryFilter || locationFilter || targetEntityFilter) && (
+            {(sentimentFilter || selectedHandle || topicFilter || analysisCategoryFilter || locationFilter || targetEntityFilter || dateRange.from) && (
                 <div className="mx-2 mt-2 flex items-center gap-2 px-3 py-2 bg-violet-50 border border-violet-200 rounded-lg text-xs">
                     <span className="text-violet-700 font-medium">Filtered by:</span>
                     {targetEntityFilter && (
@@ -1917,9 +1984,15 @@ const Grievances = () => {
                             <button type="button" onClick={() => setLocationFilter(null)} className="ml-0.5 hover:opacity-70">&times;</button>
                         </span>
                     )}
+                    {dateRange.from && (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-800 font-semibold text-[11px]">
+                            📅 {format(dateRange.from, 'yyyy-MM-dd')}{dateRange.to ? ` to ${format(dateRange.to, 'yyyy-MM-dd')}` : ''}
+                            <button type="button" onClick={() => setDateRange({ from: null, to: null })} className="ml-0.5 hover:opacity-70">&times;</button>
+                        </span>
+                    )}
                     <button
                         type="button"
-                        onClick={() => { setSentimentFilter(null); setSelectedHandle(null); setTopicFilter(null); setAnalysisCategoryFilter(null); setLocationFilter(null); setTargetEntityFilter(null); }}
+                        onClick={() => { setSentimentFilter(null); setSelectedHandle(null); setTopicFilter(null); setAnalysisCategoryFilter(null); setLocationFilter(null); setTargetEntityFilter(null); setDateRange({ from: null, to: null }); }}
                         className="ml-auto text-violet-600 hover:text-violet-800 font-medium"
                     >
                         Clear all
@@ -2085,7 +2158,7 @@ const Grievances = () => {
                             className="text-xs border border-slate-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-violet-400/30 focus:border-violet-400 bg-white"
                         >
                             <option value="all">All Sources</option>
-                            <option value="rss">RSS</option>
+                            <option value="rss">Web Articles</option>
                             <option value="keyword_search">Search</option>
                             <option value="domain">Web</option>
                         </select>

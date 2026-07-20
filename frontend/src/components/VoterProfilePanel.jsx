@@ -177,26 +177,31 @@ const ISSUE_ICON = {
   law_and_order: ShieldAlert,
 };
 
-const IssueBar = ({ rank, issue, count, max }) => {
+const IssueBar = ({ rank, issue, count, max, constituency }) => {
   const pct = max > 0 ? Math.round((count / max) * 100) : 0;
   const RANK_COLORS = ['#ef4444', '#f97316', '#eab308', '#3b82f6', '#8b5cf6'];
   const color = RANK_COLORS[rank - 1] || '#94a3b8';
   const Icon = ISSUE_ICON[issue] || Info;
   return (
-    <div className="flex items-center gap-2 h-8 shrink-0">
-      <div className="w-6 h-6 rounded-md flex items-center justify-center shrink-0" style={{ background: `${color}1a` }}>
-        <Icon className="h-3 w-3" style={{ color }} />
-      </div>
-      {/* Track + fill are a light tint so the label text stays legible at any
-          fill %, instead of white text that only works on wide, dark bars. */}
-      <div className="relative flex-1 h-6 rounded-md bg-slate-100 overflow-hidden min-w-0">
-        <div className="absolute inset-y-0 left-0 rounded-md" style={{ width: `${Math.max(pct, 4)}%`, background: `${color}33` }} />
-        <div className="absolute inset-0 flex items-center justify-between px-2">
-          <span className="text-[11px] font-medium text-slate-700 capitalize truncate">{issue.replace(/_/g, ' ')}</span>
-          <span className="text-[10px] font-bold text-slate-600 shrink-0 ml-2">{count}</span>
+    <Link
+      to={`/grievances?location=${encodeURIComponent(constituency)}&analysis_category=${encodeURIComponent(issue)}`}
+      className="block"
+    >
+      <div className="flex items-center gap-2 h-8 shrink-0 hover:bg-slate-100/70 transition-colors rounded-md px-1 -mx-1 cursor-pointer">
+        <div className="w-6 h-6 rounded-md flex items-center justify-center shrink-0" style={{ background: `${color}1a` }}>
+          <Icon className="h-3 w-3" style={{ color }} />
+        </div>
+        {/* Track + fill are a light tint so the label text stays legible at any
+            fill %, instead of white text that only works on wide, dark bars. */}
+        <div className="relative flex-1 h-6 rounded-md bg-slate-100 overflow-hidden min-w-0">
+          <div className="absolute inset-y-0 left-0 rounded-md" style={{ width: `${Math.max(pct, 4)}%`, background: `${color}33` }} />
+          <div className="absolute inset-0 flex items-center justify-between px-2">
+            <span className="text-[11px] font-medium text-slate-700 capitalize truncate">{issue.replace(/_/g, ' ')}</span>
+            <span className="text-[10px] font-bold text-slate-600 shrink-0 ml-2">{count}</span>
+          </div>
         </div>
       </div>
-    </div>
+    </Link>
   );
 };
 
@@ -311,7 +316,7 @@ const VoterProfilePanel = ({ profile, loading, topIssues = [], constituencyDispl
             // never grows; extra rows scroll vertically inside instead.
             <div className="max-h-[340px] overflow-y-auto space-y-1.5 pr-1">
               {topIssues.slice(0, 10).map((t, i) => (
-                <IssueBar key={t.issue} rank={i + 1} issue={t.issue} count={t.count} max={maxIssue} />
+                <IssueBar key={t.issue} rank={i + 1} issue={t.issue} count={t.count} max={maxIssue} constituency={acDisplay} />
               ))}
             </div>
           )}

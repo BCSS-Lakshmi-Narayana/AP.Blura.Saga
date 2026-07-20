@@ -96,6 +96,10 @@ const buildExtraFilters = (query) => {
 
 const cacheKey = (...parts) => parts.join(':');
 
+const filterSuffix = (query) => {
+  return `${query.district || ''}:${query.sentiment || ''}:${query.platform || ''}`;
+};
+
 // ─── 1. KPI Snapshot ─────────────────────────────────────────────────────────
 
 /**
@@ -109,7 +113,7 @@ const getAPKpis = async (req, res) => {
     const effectiveFrom = from || new Date(to.getTime() - 7 * 24 * 60 * 60 * 1000);
 
     const { prevFrom, prevTo } = previousPeriod(effectiveFrom, to);
-    const ck = cacheKey('ap:kpis:v2', effectiveFrom.toISOString(), to.toISOString(), JSON.stringify(req.query.district || ''));
+    const ck = cacheKey('ap:kpis:v3', effectiveFrom.toISOString(), to.toISOString(), filterSuffix(req.query));
     const cached = await cacheService.get(ck);
     if (cached) return res.json(cached);
 
@@ -235,7 +239,7 @@ const getAPSentimentTrend = async (req, res) => {
   try {
     const from = parseFrom(req.query.from) || new Date(Date.now() - 7 * 86400000);
     const to   = parseTo(req.query.to)   || endOfDay(new Date());
-    const ck = cacheKey('ap:sentiment-trend:v2', from.toISOString(), to.toISOString());
+    const ck = cacheKey('ap:sentiment-trend:v3', from.toISOString(), to.toISOString(), filterSuffix(req.query));
     const cached = await cacheService.get(ck);
     if (cached) return res.json(cached);
 
@@ -283,7 +287,7 @@ const getAPMentionTrend = async (req, res) => {
   try {
     const from = parseFrom(req.query.from) || new Date(Date.now() - 7 * 86400000);
     const to   = parseTo(req.query.to)   || endOfDay(new Date());
-    const ck = cacheKey('ap:mention-trend:v2', from.toISOString(), to.toISOString());
+    const ck = cacheKey('ap:mention-trend:v3', from.toISOString(), to.toISOString(), filterSuffix(req.query));
     const cached = await cacheService.get(ck);
     if (cached) return res.json(cached);
 
@@ -317,7 +321,7 @@ const getAPSourceDistribution = async (req, res) => {
   try {
     const from = parseFrom(req.query.from) || new Date(Date.now() - 7 * 86400000);
     const to   = parseTo(req.query.to)   || endOfDay(new Date());
-    const ck = cacheKey('ap:source-dist:v2', from.toISOString(), to.toISOString());
+    const ck = cacheKey('ap:source-dist:v3', from.toISOString(), to.toISOString(), filterSuffix(req.query));
     const cached = await cacheService.get(ck);
     if (cached) return res.json(cached);
 
@@ -330,7 +334,7 @@ const getAPSourceDistribution = async (req, res) => {
 
     const PLATFORM_LABELS = {
       x: 'X (Twitter)', facebook: 'Facebook', whatsapp: 'WhatsApp',
-      instagram: 'Instagram', youtube: 'YouTube'
+      instagram: 'Instagram', youtube: 'YouTube', rss: 'Web Articles'
     };
     const total = rows.reduce((s, r) => s + r.count, 0);
     const distribution = rows.map(r => ({
@@ -359,11 +363,12 @@ const getAPDistrictPerformance = async (req, res) => {
   try {
     const from = parseFrom(req.query.from) || new Date(Date.now() - 7 * 86400000);
     const to   = parseTo(req.query.to)   || endOfDay(new Date());
-    const ck = cacheKey('ap:district-perf:v2', from.toISOString(), to.toISOString());
+    const queryForCache = { ...req.query, sentiment: undefined };
+    const ck = cacheKey('ap:district-perf:v3', from.toISOString(), to.toISOString(), filterSuffix(queryForCache));
     const cached = await cacheService.get(ck);
     if (cached) return res.json(cached);
 
-    const extra = buildExtraFilters(req.query);
+    const extra = buildExtraFilters(queryForCache);
     const rows = await Grievance.aggregate([
       { $match: {
         ...extra,
@@ -420,7 +425,7 @@ const getAPTopTopics = async (req, res) => {
     const from  = parseFrom(req.query.from) || new Date(Date.now() - 7 * 86400000);
     const to    = parseTo(req.query.to)   || endOfDay(new Date());
     const limit = Math.min(parseInt(req.query.limit) || 10, 30);
-    const ck = cacheKey('ap:top-topics:v2', from.toISOString(), to.toISOString(), limit);
+    const ck = cacheKey('ap:top-topics:v3', from.toISOString(), to.toISOString(), limit, filterSuffix(req.query));
     const cached = await cacheService.get(ck);
     if (cached) return res.json(cached);
 
@@ -498,17 +503,54 @@ const getAPAlertsSummary = async (req, res) => {
   try {
     const from = parseFrom(req.query.from) || new Date(Date.now() - 7 * 86400000);
     const to   = parseTo(req.query.to)   || endOfDay(new Date());
-    const ck = cacheKey('ap:alerts:v2', from.toISOString(), to.toISOString());
+    const ck = cacheKey('ap:alerts:v3', from.toISOString(), to.toISOString(), filterSuffix(req.query));
     const cached = await cacheService.get(ck);
     if (cached) return res.json(cached);
 
+    // Build the query match stage for alerts
+    const matchObj = alertDateMatch(from, to);
+    if (req.query.platform && req.query.platform !== 'all') {
+      matchObj.platform = req.query.platform;
+    }
+    if (req.query.sentiment && req.query.sentiment !== 'all') {
+      const riskMapping = { positive: 'low', neutral: 'medium', negative: 'high' };
+      matchObj.risk_level = riskMapping[req.query.sentiment];
+    }
+    
+    const basePipeline = [{ $match: matchObj }];
+    
+    if (req.query.district) {
+      const dist = String(req.query.district).trim().toLowerCase();
+      basePipeline.push(
+        {
+          $lookup: {
+            from: 'grievances',
+            let: { alertId: '$id' },
+            pipeline: [
+              {
+                $match: {
+                  $expr: { $eq: ['$tweet_id', { $concat: ['alert:', '$$alertId'] }] },
+                  $or: [
+                    { 'detected_location.district': { $regex: dist, $options: 'i' } },
+                    { 'detected_location.city': { $regex: dist, $options: 'i' } }
+                  ]
+                }
+              }
+            ],
+            as: 'matched_grievance'
+          }
+        },
+        { $match: { 'matched_grievance.0': { $exists: true } } }
+      );
+    }
+
     const [byLevel, recent] = await Promise.all([
       Alert.aggregate([
-        { $match: alertDateMatch(from, to) },
+        ...basePipeline,
         { $group: { _id: '$risk_level', count: { $sum: 1 } } }
       ]),
       Alert.aggregate([
-        { $match: alertDateMatch(from, to) },
+        ...basePipeline,
         { $sort: { created_at: -1 } },
         { $limit: 5 },
         {
@@ -562,12 +604,19 @@ const getAPAlertsSummary = async (req, res) => {
  */
 const getAPRecentActivity = async (req, res) => {
   try {
+    const from = parseFrom(req.query.from);
+    const to   = parseTo(req.query.to)   || endOfDay(new Date());
     const limit = Math.min(parseInt(req.query.limit) || 10, 30);
-    const ck = cacheKey('ap:recent:v2', limit);
+    
+    const ck = cacheKey('ap:recent:v3', from ? from.toISOString() : '', to ? to.toISOString() : '', limit, filterSuffix(req.query));
     const cached = await cacheService.get(ck);
     if (cached) return res.json(cached);
 
-    const items = await Grievance.find({ is_active: true })
+    const extra = buildExtraFilters(req.query);
+    const dateMatchQuery = from ? { post_date: { $gte: from, $lte: to } } : {};
+    const queryMatch = { ...extra, ...dateMatchQuery };
+
+    const items = await Grievance.find(queryMatch)
       .sort({ post_date: -1 })
       .limit(limit)
       .select('posted_by content.text post_date platform analysis.sentiment analysis.grievance_type detected_location engagement tweet_url')
@@ -608,15 +657,59 @@ const getAPMapData = async (req, res) => {
   try {
     const from = parseFrom(req.query.from) || new Date(Date.now() - 30 * 86400000);
     const to   = parseTo(req.query.to)   || endOfDay(new Date());
-    const ck = cacheKey('ap:map-data:v2', from.toISOString(), to.toISOString());
+    const ck = cacheKey('ap:map-data:v3', from.toISOString(), to.toISOString(), filterSuffix(req.query));
     const cached = await cacheService.get(ck);
     if (cached) return res.json(cached);
 
-    // Constituency-level
+    const extra = buildExtraFilters(req.query);
+
+    // Build the query match pipeline for Alerts
+    const alertMatchObj = alertDateMatch(from, to);
+    if (req.query.platform && req.query.platform !== 'all') {
+      alertMatchObj.platform = req.query.platform;
+    }
+    if (req.query.sentiment && req.query.sentiment !== 'all') {
+      const riskMapping = { positive: 'low', neutral: 'medium', negative: 'high' };
+      alertMatchObj.risk_level = riskMapping[req.query.sentiment];
+    }
+    const alertPipeline = [{ $match: alertMatchObj }];
+    if (req.query.district) {
+      const dist = String(req.query.district).trim().toLowerCase();
+      alertPipeline.push(
+        {
+          $lookup: {
+            from: 'grievances',
+            let: { alertId: '$id' },
+            pipeline: [
+              {
+                $match: {
+                  $expr: { $eq: ['$tweet_id', { $concat: ['alert:', '$$alertId'] }] },
+                  $or: [
+                    { 'detected_location.district': { $regex: dist, $options: 'i' } },
+                    { 'detected_location.city': { $regex: dist, $options: 'i' } }
+                  ]
+                }
+              }
+            ],
+            as: 'matched_grievance'
+          }
+        },
+        { $match: { 'matched_grievance.0': { $exists: true } } }
+      );
+    }
+    alertPipeline.push({
+      $group: {
+        _id: '$risk_level',
+        count: { $sum: 1 }
+      }
+    });
+
+    // Constituency-level and District-level along with Alerts
     const [constituencyRows, districtRows, alertRows] = await Promise.all([
       Grievance.aggregate([
         { $match: {
           is_active: true,
+          ...extra,
           ...dateMatch(from, to),
           'detected_location.constituency': { $exists: true, $ne: null, $ne: '' }
         }},
@@ -638,6 +731,7 @@ const getAPMapData = async (req, res) => {
       Grievance.aggregate([
         { $match: {
           is_active: true,
+          ...extra,
           ...dateMatch(from, to),
           'detected_location.district': { $exists: true, $ne: null, $ne: '' }
         }},
@@ -655,13 +749,7 @@ const getAPMapData = async (req, res) => {
           ]}}
         }}
       ]),
-      Alert.aggregate([
-        { $match: alertDateMatch(from, to) },
-        { $group: {
-          _id: '$risk_level',
-          count: { $sum: 1 }
-        }}
-      ])
+      Alert.aggregate(alertPipeline)
     ]);
 
     const toMap = (rows, apFilter) => {

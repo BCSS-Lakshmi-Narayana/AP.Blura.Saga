@@ -61,7 +61,18 @@ const Alerts = () => {
   const [keywordFilter, setKeywordFilter] = useState('all');
   const [availableKeywords, setAvailableKeywords] = useState([]);
   const [sourceCategoryFilter, setSourceCategoryFilter] = useState('all');
-  const [dateRange, setDateRange] = useState({ start: '', end: '' });
+  const [dateRange, setDateRange] = useState(() => {
+    const fromParam = searchParams.get('from');
+    const toParam = searchParams.get('to');
+    try {
+      return {
+        start: fromParam ? new Date(fromParam).toISOString() : '',
+        end: toParam ? new Date(toParam).toISOString() : ''
+      };
+    } catch {
+      return { start: '', end: '' };
+    }
+  });
   const [topicClassificationFilter, setTopicClassificationFilter] = useState('all');
   const [topicCounts, setTopicCounts] = useState([]);
   const [instagramContentFilter, setInstagramContentFilter] = useState('all_posts_reels');
@@ -152,6 +163,8 @@ const Alerts = () => {
     const platformParam = searchParams.get('platform');
     const categoryParam = searchParams.get('category');
     const alertIdParam = searchParams.get('alertId');
+    const fromParam = searchParams.get('from');
+    const toParam = searchParams.get('to');
 
     if (platformParam) {
       setPlatformFilter(platformParam);
@@ -171,6 +184,17 @@ const Alerts = () => {
       setTargetAlertId(alertIdParam);
     } else {
       setTargetAlertId(null);
+    }
+
+    if (fromParam || toParam) {
+      try {
+        setDateRange({
+          start: fromParam ? new Date(fromParam).toISOString() : '',
+          end: toParam ? new Date(toParam).toISOString() : ''
+        });
+      } catch (err) {
+        console.error('Failed to parse date range params:', err);
+      }
     }
   }, [searchParams]);
 

@@ -429,7 +429,7 @@ const getConstituencyNarrative = async (req, res) => {
     const trendingHashtags = topList(hashtagCounts, 6);
     const topCatOf = (sent) => topList(bySentimentCat[sent], 1)[0] || null;
 
-    const PLATFORM_LABELS = { x: 'X (Twitter)', twitter: 'X (Twitter)', facebook: 'Facebook', youtube: 'YouTube', instagram: 'Instagram', whatsapp: 'WhatsApp' };
+    const PLATFORM_LABELS = { x: 'X (Twitter)', twitter: 'X (Twitter)', facebook: 'Facebook', youtube: 'YouTube', instagram: 'Instagram', whatsapp: 'WhatsApp', rss: 'Web Articles' };
     const platformMix = platforms.map((p) => ({
       platform: p._id || 'unknown',
       label: PLATFORM_LABELS[p._id] || (p._id || 'Unknown'),

@@ -17,6 +17,7 @@ const {
 const { createAuditLog } = require('../services/auditService');
 const cacheService = require('../services/cacheService');
 const crypto = require('crypto');
+const { ISSUE_LEXICON } = require('../services/mlaReferenceService');
 
 const MAX_SOURCES_PER_PLATFORM = 5;
 const TWILIO_ACK_XML = '<?xml version="1.0" encoding="UTF-8"?><Response></Response>';
@@ -64,7 +65,7 @@ const toIsoStart = (value) => {
     if (!value) return null;
     const date = new Date(value);
     if (isNaN(date.getTime())) return null;
-    date.setHours(0, 0, 0, 0);
+    date.setUTCHours(0, 0, 0, 0);
     return date;
 };
 
@@ -72,7 +73,7 @@ const toIsoEnd = (value) => {
     if (!value) return null;
     const date = new Date(value);
     if (isNaN(date.getTime())) return null;
-    date.setHours(23, 59, 59, 999);
+    date.setUTCHours(23, 59, 59, 999);
     return date;
 };
 
@@ -219,7 +220,14 @@ const buildListQuery = (params = {}, options = {}) => {
     }
 
     if (analysis_category && analysis_category !== 'all') {
-        query['analysis.category'] = analysis_category;
+        const lexicon = ISSUE_LEXICON && ISSUE_LEXICON[analysis_category];
+        if (lexicon) {
+            const escapedTokens = lexicon.map(t => escapeRegex(t));
+            const regexPattern = escapedTokens.join('|');
+            query['content.text'] = { $regex: new RegExp(`(${regexPattern})`, 'i') };
+        } else {
+            query['analysis.category'] = analysis_category;
+        }
     }
 
     if (risk_level && ['low', 'medium', 'high', 'critical'].includes(risk_level.toLowerCase())) {
@@ -741,6 +749,25 @@ const getGrievances = async (req, res) => {
         const query = buildListQuery(queryParams);
         if (isAdminView) {
             delete query.is_active;
+        }
+
+        // Limit search space to 400 most recent grievances for location + civic issue categories
+        const hasLocation = queryParams.location_city || queryParams.location_district || queryParams.location_constituency;
+        const isCivicCategory = queryParams.analysis_category && ISSUE_LEXICON[queryParams.analysis_category];
+        if (hasLocation && isCivicCategory) {
+            const baseQueryParams = { ...queryParams };
+            delete baseQueryParams.analysis_category;
+            const baseQuery = buildListQuery(baseQueryParams);
+            if (isAdminView) {
+                delete baseQuery.is_active;
+            }
+            const recentDocs = await Grievance.find(baseQuery)
+                .select('_id')
+                .sort({ post_date: -1 })
+                .limit(400)
+                .lean();
+            const recentIds = recentDocs.map(d => d._id);
+            query._id = { $in: recentIds };
         }
 
         const limitNum = Math.min(parseInt(limit, 10) || 50, 200); // cap at 200

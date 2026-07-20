@@ -43,7 +43,13 @@ const AndhraPradeshMap = ({ embedded = false }) => {
   // Leadership quick navigation click
   const handlePortraitClick = (portraitId) => {
     const entity = LEADERSHIP_TARGET_ENTITY[portraitId] || '';
-    navigate(`/grievances?target_entity=${encodeURIComponent(entity)}`);
+    const params = [`target_entity=${encodeURIComponent(entity)}`];
+    if (filters.from) params.push(`from=${encodeURIComponent(filters.from)}`);
+    if (filters.to) params.push(`to=${encodeURIComponent(filters.to)}`);
+    if (filters.district) params.push(`location=${encodeURIComponent(filters.district)}`);
+    if (filters.platform && filters.platform !== 'all') params.push(`platform=${encodeURIComponent(filters.platform)}`);
+    if (filters.sentiment && filters.sentiment !== 'all') params.push(`sentiment=${encodeURIComponent(filters.sentiment)}`);
+    navigate(`/grievances?${params.join('&')}`);
   };
 
   const isGlobalLoading = Object.values(loading).some(Boolean);
@@ -110,8 +116,16 @@ const AndhraPradeshMap = ({ embedded = false }) => {
         </Card>
       </div>
 
-      {/* KPI Summary Strip */}
-      <APKpiRow data={data.kpis} loading={loading.kpis} compareLabel={getCompareLabel()} />
+      <APKpiRow
+        data={data.kpis}
+        loading={loading.kpis}
+        compareLabel={getCompareLabel()}
+        fromDate={filters.from}
+        toDate={filters.to}
+        district={filters.district}
+        sentiment={filters.sentiment}
+        platform={filters.platform}
+      />
 
       {/* Primary Command Center Row: Map + Alerts (Height 580px) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch">
@@ -146,8 +160,8 @@ const AndhraPradeshMap = ({ embedded = false }) => {
 
       {/* Analytics Charts Row (3 fill horizontally) */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <APSentimentChart data={data.sentimentTrend} loading={loading.sentimentTrend} />
-        <APMentionTrendChart data={data.mentionTrend} loading={loading.mentionTrend} />
+        <APSentimentChart data={data.sentimentTrend} loading={loading.sentimentTrend} filters={filters} />
+        <APMentionTrendChart data={data.mentionTrend} loading={loading.mentionTrend} filters={filters} />
         <APSourceDistributionChart data={data.sourceDistribution} loading={loading.sourceDistribution} />
       </div>
 

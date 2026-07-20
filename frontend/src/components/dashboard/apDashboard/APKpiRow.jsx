@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import APKpiCard from './APKpiCard';
 import {
   MessageSquare, ThumbsUp, ThumbsDown, Minus,
@@ -8,8 +9,40 @@ import {
 /**
  * APKpiRow — 8-card KPI summary strip with horizontal layout and custom styles
  */
-const APKpiRow = ({ data, loading, compareLabel }) => {
+const APKpiRow = ({ data, loading, compareLabel, fromDate, toDate, district, sentiment, platform }) => {
   const kpis = data?.kpis || {};
+  const navigate = useNavigate();
+
+  // Helper to build the query parameters string dynamically
+  const buildQueryParams = (cardSentiment) => {
+    const params = [];
+    
+    // Add date filters
+    if (fromDate) params.push(`from=${encodeURIComponent(fromDate)}`);
+    if (toDate) params.push(`to=${encodeURIComponent(toDate)}`);
+    
+    // Add district filter (grievances page uses location parameter)
+    if (district) params.push(`location=${encodeURIComponent(district)}`);
+    
+    // Add platform filter
+    if (platform && platform !== 'all') params.push(`platform=${encodeURIComponent(platform)}`);
+    
+    // Add sentiment filter (card sentiment overrides select filter)
+    const activeSentiment = cardSentiment || (sentiment !== 'all' ? sentiment : null);
+    if (activeSentiment) params.push(`sentiment=${encodeURIComponent(activeSentiment)}`);
+    
+    return params.length > 0 ? `?${params.join('&')}` : '';
+  };
+
+  const buildAlertQueryParams = () => {
+    const params = [];
+    if (fromDate) params.push(`from=${encodeURIComponent(fromDate)}`);
+    if (toDate) params.push(`to=${encodeURIComponent(toDate)}`);
+    if (district) params.push(`district=${encodeURIComponent(district)}`);
+    if (platform && platform !== 'all') params.push(`platform=${encodeURIComponent(platform)}`);
+    if (sentiment && sentiment !== 'all') params.push(`sentiment=${encodeURIComponent(sentiment)}`);
+    return params.length > 0 ? `?${params.join('&')}` : '';
+  };
 
   const cards = [
     {
@@ -19,7 +52,8 @@ const APKpiRow = ({ data, loading, compareLabel }) => {
       iconBg: 'bg-blue-600',
       iconColor: 'text-white',
       format: 'compact',
-      tooltip: 'Total monitored content mentioning AP constituencies/leaders in the selected period'
+      tooltip: 'Total monitored content mentioning AP constituencies/leaders in the selected period',
+      onClick: () => navigate(`/grievances${buildQueryParams()}`)
     },
     {
       key: 'positiveMentions',
@@ -28,7 +62,8 @@ const APKpiRow = ({ data, loading, compareLabel }) => {
       iconBg: 'bg-emerald-500',
       iconColor: 'text-white',
       format: 'compact',
-      tooltip: 'Total positive sentiment mentions'
+      tooltip: 'Total positive sentiment mentions',
+      onClick: () => navigate(`/grievances${buildQueryParams('positive')}`)
     },
     {
       key: 'neutralMentions',
@@ -37,7 +72,8 @@ const APKpiRow = ({ data, loading, compareLabel }) => {
       iconBg: 'bg-amber-500',
       iconColor: 'text-white',
       format: 'compact',
-      tooltip: 'Total neutral sentiment mentions'
+      tooltip: 'Total neutral sentiment mentions',
+      onClick: () => navigate(`/grievances${buildQueryParams('neutral')}`)
     },
     {
       key: 'negativeMentions',
@@ -46,7 +82,8 @@ const APKpiRow = ({ data, loading, compareLabel }) => {
       iconBg: 'bg-red-500',
       iconColor: 'text-white',
       format: 'compact',
-      tooltip: 'Total negative sentiment mentions'
+      tooltip: 'Total negative sentiment mentions',
+      onClick: () => navigate(`/grievances${buildQueryParams('negative')}`)
     },
     {
       key: 'potentialReach',
@@ -55,7 +92,8 @@ const APKpiRow = ({ data, loading, compareLabel }) => {
       iconBg: 'bg-purple-600',
       iconColor: 'text-white',
       format: 'compact',
-      tooltip: 'Total views/impressions across monitored content'
+      tooltip: 'Total views/impressions across monitored content',
+      onClick: () => navigate(`/grievances${buildQueryParams()}`)
     },
     {
       key: 'totalEngagement',
@@ -64,7 +102,8 @@ const APKpiRow = ({ data, loading, compareLabel }) => {
       iconBg: 'bg-teal-600',
       iconColor: 'text-white',
       format: 'compact',
-      tooltip: 'Total engagement (likes + retweets + replies) across all mentions'
+      tooltip: 'Total engagement (likes + retweets + replies) across all mentions',
+      onClick: () => navigate(`/grievances${buildQueryParams()}`)
     },
     {
       key: 'activeConstituencies',
@@ -74,7 +113,8 @@ const APKpiRow = ({ data, loading, compareLabel }) => {
       iconColor: 'text-white',
       format: 'number',
       hideCompare: true,
-      tooltip: 'Number of AP constituencies with monitored activity in the selected period'
+      tooltip: 'Number of AP constituencies with monitored activity in the selected period',
+      onClick: () => navigate('/andhra-pradesh-map')
     },
     {
       key: 'totalAlerts',
@@ -83,7 +123,8 @@ const APKpiRow = ({ data, loading, compareLabel }) => {
       iconBg: 'bg-rose-600',
       iconColor: 'text-white',
       format: 'number',
-      tooltip: 'Total alerts generated in the selected period'
+      tooltip: 'Total alerts generated in the selected period',
+      onClick: () => navigate(`/alerts${buildAlertQueryParams()}`)
     }
   ];
 
@@ -110,6 +151,7 @@ const APKpiRow = ({ data, loading, compareLabel }) => {
             loading={loading}
             compareLabel={compareLabel}
             hideCompare={card.hideCompare}
+            onClick={card.onClick}
           />
         );
       })}

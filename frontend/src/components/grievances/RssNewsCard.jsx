@@ -25,7 +25,7 @@ const LANG_CONFIG = {
 };
 
 const SOURCE_TYPE_CONFIG = {
-  rss: { label: 'RSS', color: 'bg-violet-50 text-violet-600 border-violet-100' },
+  rss: { label: 'Web Articles', color: 'bg-violet-50 text-violet-600 border-violet-100' },
   keyword_search: { label: 'Search', color: 'bg-amber-50  text-amber-600  border-amber-100' },
   domain: { label: 'Web', color: 'bg-cyan-50   text-cyan-600   border-cyan-100' },
 };
