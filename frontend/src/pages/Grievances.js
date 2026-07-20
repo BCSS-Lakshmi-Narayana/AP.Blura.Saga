@@ -709,6 +709,21 @@ const Grievances = () => {
     const [isResizingModal, setIsResizingModal] = useState(false);
     const modalRef = useRef(null);
 
+    // Keep filter state in sync when URL query params change (e.g. map redirection).
+    const updateURLParams = useCallback((updates) => {
+        setSearchParams((prev) => {
+            const next = new URLSearchParams(prev);
+            Object.entries(updates).forEach(([key, val]) => {
+                if (val === null || val === undefined || val === '') {
+                    next.delete(key);
+                } else {
+                    next.set(key, val);
+                }
+            });
+            return next;
+        }, { replace: true });
+    }, [setSearchParams]);
+
     useEffect(() => {
         if (searchTimerRef.current) clearTimeout(searchTimerRef.current);
         searchTimerRef.current = setTimeout(() => {
@@ -1735,9 +1750,9 @@ const Grievances = () => {
                                     to: dateRange.to || undefined
                                 }}
                                 onSelect={(range) => {
-                                    setDateRange({
-                                        from: range?.from || null,
-                                        to: range?.to || null
+                                    updateURLParams({
+                                        from: range?.from ? range.from.toISOString().split('T')[0] : null,
+                                        to: range?.to ? range.to.toISOString().split('T')[0] : null
                                     });
                                 }}
                                 numberOfMonths={2}
@@ -1948,7 +1963,7 @@ const Grievances = () => {
                     {targetEntityFilter && (
                         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-800 font-semibold text-[11px]">
                             {targetEntityFilter === 'bsk' ? 'N. Chandrababu Naidu' : targetEntityFilter === 'bsk_son' ? 'Nara Lokesh' : targetEntityFilter}
-                            <button type="button" onClick={() => setTargetEntityFilter(null)} className="ml-0.5 hover:opacity-70">&times;</button>
+                            <button type="button" onClick={() => updateURLParams({ target_entity: null })} className="ml-0.5 hover:opacity-70">&times;</button>
                         </span>
                     )}
                     {sentimentFilter && (
@@ -1957,42 +1972,54 @@ const Grievances = () => {
                             sentimentFilter === 'positive' ? 'bg-emerald-100 text-emerald-700' :
                             'bg-amber-100 text-amber-700'}`}>
                             {sentimentFilter === 'negative' ? 'Negative' : sentimentFilter === 'positive' ? 'Positive' : 'Moderate'}
-                            <button type="button" onClick={() => setSentimentFilter(null)} className="ml-0.5 hover:opacity-70">&times;</button>
+                            <button type="button" onClick={() => updateURLParams({ sentiment: null })} className="ml-0.5 hover:opacity-70">&times;</button>
                         </span>
                     )}
                     {analysisCategoryFilter && (
                         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-orange-100 text-orange-700 font-semibold text-[11px]">
-                            {analysisCategoryFilter.replace(/_/g, ' ')}
-                            <button type="button" onClick={() => setAnalysisCategoryFilter(null)} className="ml-0.5 hover:opacity-70">&times;</button>
+                            {analysisCategoryFilter.replace(/[_-]+/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                            <button type="button" onClick={() => updateURLParams({ analysis_category: null })} className="ml-0.5 hover:opacity-70">&times;</button>
                         </span>
                     )}
                     {topicFilter && (
                         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-teal-100 text-teal-700 font-semibold text-[11px]">
                             {topicFilter}
-                            <button type="button" onClick={() => setTopicFilter(null)} className="ml-0.5 hover:opacity-70">&times;</button>
+                            <button type="button" onClick={() => updateURLParams({ grievance_type: null })} className="ml-0.5 hover:opacity-70">&times;</button>
                         </span>
                     )}
                     {selectedHandle && (
                         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 font-semibold text-[11px]">
                             @{selectedHandle.replace('@', '')}
-                            <button type="button" onClick={() => setSelectedHandle(null)} className="ml-0.5 hover:opacity-70">&times;</button>
+                            <button type="button" onClick={() => updateURLParams({ posted_by: null, handle: null })} className="ml-0.5 hover:opacity-70">&times;</button>
                         </span>
                     )}
                     {locationFilter && (
                         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 font-semibold text-[11px]">
                             📍 {locationFilter}
-                            <button type="button" onClick={() => setLocationFilter(null)} className="ml-0.5 hover:opacity-70">&times;</button>
+                            <button type="button" onClick={() => updateURLParams({ location: null })} className="ml-0.5 hover:opacity-70">&times;</button>
                         </span>
                     )}
                     {dateRange.from && (
                         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-800 font-semibold text-[11px]">
                             📅 {format(dateRange.from, 'yyyy-MM-dd')}{dateRange.to ? ` to ${format(dateRange.to, 'yyyy-MM-dd')}` : ''}
-                            <button type="button" onClick={() => setDateRange({ from: null, to: null })} className="ml-0.5 hover:opacity-70">&times;</button>
+                            <button type="button" onClick={() => updateURLParams({ from: null, to: null })} className="ml-0.5 hover:opacity-70">&times;</button>
                         </span>
                     )}
                     <button
                         type="button"
-                        onClick={() => { setSentimentFilter(null); setSelectedHandle(null); setTopicFilter(null); setAnalysisCategoryFilter(null); setLocationFilter(null); setTargetEntityFilter(null); setDateRange({ from: null, to: null }); }}
+                        onClick={() => {
+                            updateURLParams({
+                                sentiment: null,
+                                posted_by: null,
+                                handle: null,
+                                grievance_type: null,
+                                analysis_category: null,
+                                location: null,
+                                target_entity: null,
+                                from: null,
+                                to: null
+                            });
+                        }}
                         className="ml-auto text-violet-600 hover:text-violet-800 font-medium"
                     >
                         Clear all

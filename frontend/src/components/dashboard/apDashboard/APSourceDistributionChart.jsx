@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
 
 const PLATFORM_COLORS = {
@@ -17,9 +18,22 @@ const PLATFORM_ICONS = {
 /**
  * APSourceDistributionChart — Platform donut chart
  */
-const APSourceDistributionChart = ({ data, loading }) => {
+const APSourceDistributionChart = ({ data, loading, filters }) => {
+  const navigate = useNavigate();
   const distribution = data?.distribution || [];
   const total = data?.total || 0;
+
+  const handlePlatformClick = (platform) => {
+    const params = [];
+    if (filters?.from) params.push(`from=${encodeURIComponent(filters.from)}`);
+    if (filters?.to) params.push(`to=${encodeURIComponent(filters.to)}`);
+    if (filters?.district) params.push(`location=${encodeURIComponent(filters.district)}`);
+    if (filters?.sentiment && filters?.sentiment !== 'all') params.push(`sentiment=${encodeURIComponent(filters.sentiment)}`);
+    if (filters?.target_entity) params.push(`target_entity=${encodeURIComponent(filters.target_entity)}`);
+    params.push(`platform=${encodeURIComponent(platform)}`);
+    
+    navigate(`/grievances?${params.join('&')}`);
+  };
 
   if (loading) {
     return (
@@ -63,6 +77,8 @@ const APSourceDistributionChart = ({ data, loading }) => {
                 <Cell
                   key={entry.platform}
                   fill={PLATFORM_COLORS[entry.platform] || PLATFORM_COLORS.other}
+                  onClick={() => handlePlatformClick(entry.platform)}
+                  className="cursor-pointer"
                 />
               ))}
             </Pie>
@@ -75,7 +91,11 @@ const APSourceDistributionChart = ({ data, loading }) => {
 
         <div className="flex-1 space-y-1.5">
           {distribution.map(d => (
-            <div key={d.platform} className="flex items-center gap-2">
+            <div
+              key={d.platform}
+              className="flex items-center gap-2 cursor-pointer hover:bg-slate-50 p-1 rounded transition-colors"
+              onClick={() => handlePlatformClick(d.platform)}
+            >
               <span
                 className="flex-shrink-0 w-2.5 h-2.5 rounded-full"
                 style={{ background: PLATFORM_COLORS[d.platform] || PLATFORM_COLORS.other }}

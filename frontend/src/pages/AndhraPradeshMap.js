@@ -162,7 +162,7 @@ const AndhraPradeshMap = ({ embedded = false }) => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <APSentimentChart data={data.sentimentTrend} loading={loading.sentimentTrend} filters={filters} />
         <APMentionTrendChart data={data.mentionTrend} loading={loading.mentionTrend} filters={filters} />
-        <APSourceDistributionChart data={data.sourceDistribution} loading={loading.sourceDistribution} />
+        <APSourceDistributionChart data={data.sourceDistribution} loading={loading.sourceDistribution} filters={filters} />
       </div>
 
       {/* AI Insights + Geographic Highlights + Recent Activity (3 fill horizontally) */}
