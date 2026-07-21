@@ -22,12 +22,12 @@ if __name__ == '__main__':
     if '--once' in sys.argv:
         run()
     else:
-        print("[SCHEDULER] Political engine started. Running every 15 minutes.")
+        print("[SCHEDULER] Political engine started. Running every 5 minutes.")
         print("[SCHEDULER] Press Ctrl+C to stop.\n")
 
         run()  # immediate first run
 
-        schedule.every(15).minutes.do(run)
+        schedule.every(5).minutes.do(run)
 
         while True:
             schedule.run_pending()

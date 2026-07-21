@@ -118,3 +118,97 @@ exports.getStats = async (req, res) => {
     res.status(500).json({ message: 'Failed to fetch news stats' });
   }
 };
+
+exports.getRssKeywords = async (req, res) => {
+  try {
+    const mongoose = require('mongoose');
+    const col = mongoose.connection.db.collection('rsskeywords');
+    let keywords = await col.find({}).toArray();
+
+    const defaultKeywordsList = [
+      'chandrababu naidu', 'chandrababu', 'naidu', 'cbn', 'nara lokesh', 'lokesh nara', 'lokesh',
+      'ys jagan', 'jagan mohan reddy', 'jagan reddy', 'jagan', 'ysr', 'ysrcp',
+      'pawan kalyan', 'pawan', 'kalyan', 'jana sena', 'janasena', 'jsp',
+      'purandeswari', 'bhuvaneshwari', 'ys sharmila', 'sharmila', 'balakrishna',
+      'చంద్రబాబు', 'నాయుడు', 'జగన్', 'పవన్ కళ్యాణ్', 'లోకేష్', 'వైఎస్ఆర్',
+      'tdp', 'telugu desam', 'telugu desam party', 'ysr congress', 'janasena party',
+      'andhra pradesh politics', 'ap politics', 'ap elections', 'andhra assembly', 'assembly elections',
+      'nda alliance', 'bjp ap', 'congress ap', 'super six', 'super 6',
+      'తెలుగుదేశం', 'వైసీపీ', 'జనసేన', 'ఆంధ్రప్రదేశ్ రాజకీయాలు', 'కూటమి',
+      'amaravati', 'polavaram', 'rayalaseema', 'vizag', 'visakhapatnam', 'vijayawada', 'guntur',
+      'kuppam', 'mangalagiri', 'pulivendula', 'pension', 'welfare scheme', 'land titling',
+      'అమరావతి', 'పోలవరం', 'రాయలసీమ', 'విశాఖపట్నం', 'విజయవాడ', 'గుంటూరు', 'కుప్పం', 'మంగళరి', 'పెన్షన్'
+    ];
+
+    const existingKeywords = new Set(keywords.map(k => k.keyword));
+    const missingDocs = [];
+    for (const kw of defaultKeywordsList) {
+      const cleanKw = kw.toLowerCase().trim();
+      if (!existingKeywords.has(cleanKw)) {
+        const isTelugu = /[\u0C00-\u0C7F]/.test(cleanKw);
+        missingDocs.push({
+          keyword: cleanKw,
+          language: isTelugu ? 'te' : 'en',
+          is_active: true,
+          created_at: new Date()
+        });
+      }
+    }
+
+    if (missingDocs.length > 0) {
+      await col.insertMany(missingDocs);
+      keywords = await col.find({}).toArray();
+    }
+
+    res.json(keywords);
+  } catch (err) {
+    console.error('[NewsController] getRssKeywords error:', err);
+    res.status(500).json({ message: 'Failed to fetch RSS keywords' });
+  }
+};
+
+exports.addRssKeyword = async (req, res) => {
+  try {
+    const mongoose = require('mongoose');
+    const { keyword, language } = req.body;
+    if (!keyword || !keyword.trim()) {
+      return res.status(400).json({ message: 'Keyword is required' });
+    }
+    const cleanKeyword = keyword.trim().toLowerCase();
+    const lang = language === 'te' ? 'te' : 'en';
+
+    const col = mongoose.connection.db.collection('rsskeywords');
+    const existing = await col.findOne({ keyword: cleanKeyword });
+    if (existing) {
+      return res.status(409).json({ message: 'Keyword already exists' });
+    }
+
+    const doc = {
+      keyword: cleanKeyword,
+      language: lang,
+      is_active: true,
+      created_at: new Date()
+    };
+    await col.insertOne(doc);
+    res.status(201).json(doc);
+  } catch (err) {
+    console.error('[NewsController] addRssKeyword error:', err);
+    res.status(500).json({ message: 'Failed to add RSS keyword' });
+  }
+};
+
+exports.deleteRssKeyword = async (req, res) => {
+  try {
+    const mongoose = require('mongoose');
+    const { keyword } = req.params;
+    if (!keyword) {
+      return res.status(400).json({ message: 'Keyword is required' });
+    }
+    const col = mongoose.connection.db.collection('rsskeywords');
+    await col.deleteOne({ keyword: keyword.toLowerCase().trim() });
+    res.json({ message: 'Keyword deleted successfully' });
+  } catch (err) {
+    console.error('[NewsController] deleteRssKeyword error:', err);
+    res.status(500).json({ message: 'Failed to delete RSS keyword' });
+  }
+};

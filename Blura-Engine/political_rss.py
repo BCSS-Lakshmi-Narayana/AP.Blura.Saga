@@ -26,24 +26,20 @@ from political_config import (
 )
 from DB.mongo_connect import get_db
 from DB.mongo_insert import upsert_article
-from DB.mongo_similarity import check_duplicate
 
 # ── Load user-managed keywords from MongoDB ───────────────────────────────────
 
 def load_relevance_keywords() -> List[str]:
-    """Merge config defaults with user-added keywords from DB. Respect disabled ones."""
-    base = list(POLITICAL_RELEVANCE_KEYWORDS)
+    """Load user-managed keywords from DB. Respect disabled ones. Fall back to config if empty or error."""
     try:
         col = get_db()['rsskeywords']
         docs = list(col.find({}, {'keyword': 1, 'is_active': 1, '_id': 0}))
-        user_active   = {d['keyword'] for d in docs if d.get('is_active', True)}
-        user_disabled = {d['keyword'] for d in docs if not d.get('is_active', True)}
-        merged = list(dict.fromkeys(base + list(user_active)))   # dedup, preserve order
-        merged = [k for k in merged if k not in user_disabled]
-        return merged
+        if docs:
+            user_active = {d['keyword'] for d in docs if d.get('is_active', True)}
+            return list(user_active)
     except Exception as e:
         print(f"[WARN] Could not load keywords from DB: {e}. Using config defaults.")
-        return base
+    return list(POLITICAL_RELEVANCE_KEYWORDS)
 
 # Optional Cohere — only used when COHERE_API_KEY is set in .env or .env.political
 _cohere_client = None
@@ -473,7 +469,8 @@ def process_feed(feed_cfg: dict) -> int:
             category = detect_category(full_text)
             location = detect_district(full_text)
 
-            if check_duplicate(title):
+            col_news = get_db()['newsarticles']
+            if col_news.find_one({'title': title}):
                 continue
 
             title_english   = title
