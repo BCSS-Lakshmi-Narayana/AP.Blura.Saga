@@ -200,6 +200,16 @@
   "electors_unclassified": 0
  },
  {
+  "part": 225,
+  "locality": "NUTHAKKI",
+  "polling_station": "Anapothana Z PHS, 3rd Room Western Side Nutakki",
+  "electors_male": 303,
+  "electors_female": 333,
+  "electors_third_gender": 0,
+  "electors_unclassified": 0,
+  "electors_total": 636
+ },
+ {
   "part": 231,
   "locality": "CHILUVURU",
   "polling_station": "Mandal Parishad Upper Primary School, (Urdu), New Building, Chiluvur",
@@ -210,6 +220,26 @@
   "electors_unclassified": 0
  },
  {
+  "part": 233,
+  "locality": "CHILUVURU",
+  "polling_station": "Dr.B.R. Ambedkar Mandal Parishad Elementary School (west), 2nd Room from Left side, Chiluvur",
+  "electors_male": 308,
+  "electors_female": 356,
+  "electors_third_gender": 0,
+  "electors_unclassified": 0,
+  "electors_total": 664
+ },
+ {
+  "part": 234,
+  "locality": "CHILUVURU",
+  "polling_station": "Dr.B.R. Ambedkar Mandal Parishad Elementary School (west), 3rd Room from Left side, Chiluvur",
+  "electors_male": 289,
+  "electors_female": 306,
+  "electors_third_gender": 0,
+  "electors_unclassified": 0,
+  "electors_total": 595
+ },
+ {
   "part": 236,
   "locality": "CHILUVURU",
   "polling_station": "RCM Elementary School, 3rd Room from Right side, Chiluvur",
@@ -218,6 +248,16 @@
   "electors_total": 608,
   "electors_third_gender": 0,
   "electors_unclassified": 0
+ },
+ {
+  "part": 240,
+  "locality": "KANTAMRAJU KONDURU",
+  "polling_station": "MPPS New Building, 2nd room from North Side",
+  "electors_male": 351,
+  "electors_female": 333,
+  "electors_third_gender": 0,
+  "electors_unclassified": 0,
+  "electors_total": 684
  },
  {
   "part": 244,
@@ -250,6 +290,16 @@
   "electors_unclassified": 0
  },
  {
+  "part": 261,
+  "locality": "PERUKALAPUDI",
+  "polling_station": "M.P.U.P.P.S, WESTERN BLOCK EASTERN SIDE PERAKALAPUDI",
+  "electors_male": 318,
+  "electors_female": 328,
+  "electors_third_gender": 0,
+  "electors_unclassified": 0,
+  "electors_total": 646
+ },
+ {
   "part": 264,
   "locality": "SRUNGARAPURAM",
   "polling_station": "MPPS Middle Room, Srungarapuram",
@@ -268,6 +318,16 @@
   "electors_total": 507,
   "electors_third_gender": 0,
   "electors_unclassified": 0
+ },
+ {
+  "part": 277,
+  "locality": "CHINA PALEM",
+  "polling_station": "M.P.P.S. SOUTHER SIDE ROOM, NEW BUILDING CHINAPALEM",
+  "electors_male": 304,
+  "electors_female": 314,
+  "electors_third_gender": 0,
+  "electors_unclassified": 0,
+  "electors_total": 618
  },
  {
   "part": 282,
