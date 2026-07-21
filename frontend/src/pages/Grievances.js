@@ -615,6 +615,16 @@ const Grievances = () => {
     const [rssSourceType, setRssSourceType] = useState('all');
     const rssSearchTimer = useRef(null);
 
+    // ── RSS Keyword Management state ──────────────────────────────
+    const [rssSubTab, setRssSubTab] = useState('articles'); // 'articles' or 'keywords'
+    const [rssKeywords, setRssKeywords] = useState([]);
+    const [rssKeywordsLoading, setRssKeywordsLoading] = useState(false);
+    const [newRssKeyword, setNewRssKeyword] = useState('');
+    const [newRssKeywordLang, setNewRssKeywordLang] = useState('en');
+    const [rssKeywordError, setRssKeywordError] = useState('');
+    const [rssKeywordSuccess, setRssKeywordSuccess] = useState('');
+    const [isAddRssKeywordOpen, setIsAddRssKeywordOpen] = useState(false);
+
     const grievanceStatusFeatureMap = useMemo(() => ({
         total: 'all',
         pending: 'pending',
@@ -971,6 +981,59 @@ const Grievances = () => {
         setRssArticles([]);
         fetchNewsArticles(1, false);
     }, [navbarPlatform, rssSearch, rssDistrict, rssCategory, rssSourceType, fetchNewsArticles]);
+
+    // ── RSS Keywords Fetch/Add/Delete ─────────────────────────────
+    const fetchRssKeywords = useCallback(async () => {
+        setRssKeywordsLoading(true);
+        setRssKeywordError('');
+        try {
+            const res = await api.get('/news/keywords');
+            setRssKeywords(res.data || []);
+        } catch (err) {
+            console.error('[RSS] fetchRssKeywords error:', err);
+            setRssKeywordError('Failed to fetch RSS keywords.');
+        } finally {
+            setRssKeywordsLoading(false);
+        }
+    }, []);
+
+    const handleAddRssKeyword = async (e) => {
+        e.preventDefault();
+        const kw = newRssKeyword.trim();
+        if (!kw) return;
+        setRssKeywordError('');
+        setRssKeywordSuccess('');
+        try {
+            await api.post('/news/keywords', { keyword: kw, language: newRssKeywordLang });
+            setNewRssKeyword('');
+            toast.success(`Successfully added keyword: "${kw}"`);
+            setIsAddRssKeywordOpen(false);
+            fetchRssKeywords();
+        } catch (err) {
+            console.error('[RSS] handleAddRssKeyword error:', err);
+            const errMsg = err?.response?.data?.message || 'Failed to add RSS keyword.';
+            setRssKeywordError(errMsg);
+            toast.error(errMsg);
+        }
+    };
+
+    const handleDeleteRssKeyword = async (kw) => {
+        if (!window.confirm(`Are you sure you want to delete the keyword "${kw}"?`)) return;
+        try {
+            await api.delete(`/news/keywords/${encodeURIComponent(kw)}`);
+            toast.success(`Successfully deleted keyword: "${kw}"`);
+            fetchRssKeywords();
+        } catch (err) {
+            console.error('[RSS] handleDeleteRssKeyword error:', err);
+            toast.error('Failed to delete RSS keyword.');
+        }
+    };
+
+    useEffect(() => {
+        if (navbarPlatform === 'rss' && rssSubTab === 'keywords') {
+            fetchRssKeywords();
+        }
+    }, [navbarPlatform, rssSubTab, fetchRssKeywords]);
 
     const fetchSources = async () => {
         setSourcesLoading(true);
@@ -2125,9 +2188,40 @@ const Grievances = () => {
             {/* ─── RSS News Feed ─── */}
             {navbarPlatform === 'rss' && (
                 <div className="mx-2 mt-3 space-y-3">
+                    <style>{`
+                        .mentions-masonry { column-gap: 1rem; column-count: 1; }
+                        @media (min-width: 768px)  { .mentions-masonry { column-count: 2; } }
+                        @media (min-width: 1280px) { .mentions-masonry { column-count: 3; } }
+                        .mentions-masonry > .mention-cell {
+                            break-inside: avoid;
+                            -webkit-column-break-inside: avoid;
+                            page-break-inside: avoid;
+                            display: block;
+                            margin-bottom: 1rem;
+                        }
+                    `}</style>
+                    {/* RSS Sub Tabs */}
+                    <div className="flex gap-4 border-b border-slate-200 pb-1 mb-2">
+                        <button
+                            type="button"
+                            onClick={() => setRssSubTab('articles')}
+                            className={`pb-2 text-xs font-semibold border-b-2 transition-all ${rssSubTab === 'articles' ? 'border-violet-600 text-violet-600' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
+                        >
+                            Articles Feed
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setRssSubTab('keywords')}
+                            className={`pb-2 text-xs font-semibold border-b-2 transition-all ${rssSubTab === 'keywords' ? 'border-violet-600 text-violet-600' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
+                        >
+                            Keywords
+                        </button>
+                    </div>
 
-                    {/* Filter bar */}
-                    <div className="flex items-center gap-2 flex-wrap bg-white border border-slate-200 rounded-xl px-4 py-3">
+                    {rssSubTab === 'articles' && (
+                        <>
+                            {/* Filter bar */}
+                            <div className="flex items-center gap-2 flex-wrap bg-white border border-slate-200 rounded-xl px-4 py-3">
                         {/* Search */}
                         <div className="relative flex-1 min-w-[180px]">
                             <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400 pointer-events-none" />
@@ -2248,7 +2342,7 @@ const Grievances = () => {
 
                     {/* Article list */}
                     {!rssLoading && rssArticles.length > 0 && (
-                        <div className="space-y-3">
+                        <div className="space-y-4 w-full">
                             {rssArticles.map((article) => (
                                 <RssNewsCard key={article._id || article.source_url} article={article} />
                             ))}
@@ -2273,6 +2367,87 @@ const Grievances = () => {
                                     </Button>
                                 </div>
                             )}
+                        </div>
+                    )}
+                    </>
+                    )}
+
+                    {rssSubTab === 'keywords' && (
+                        <div className="bg-white border border-slate-200 rounded-xl p-5 md:p-6 space-y-6">
+                            {/* Header Section */}
+                            <div className="flex justify-between items-center pb-4 border-b border-slate-100">
+                                <h3 className="text-base font-bold text-slate-800">Keywords</h3>
+                                <div className="flex gap-2">
+                                    <Button
+                                        type="button"
+                                        onClick={() => {
+                                            setRssKeywordError('');
+                                            setRssKeywordSuccess('');
+                                            setNewRssKeyword('');
+                                            setIsAddRssKeywordOpen(true);
+                                        }}
+                                        className="bg-[#0f172a] hover:bg-slate-800 text-white font-semibold text-xs flex items-center gap-1"
+                                    >
+                                        <span className="text-sm font-light">+</span> Add
+                                    </Button>
+                                </div>
+                            </div>
+
+                            {/* Keywords List Section */}
+                            <div className="space-y-6">
+                                {rssKeywordsLoading ? (
+                                    <div className="flex items-center gap-2 text-xs text-slate-500 py-4">
+                                        <Loader2 className="h-4 w-4 animate-spin text-violet-600" />
+                                        Loading keywords...
+                                    </div>
+                                ) : (
+                                    <div className="space-y-6">
+                                        {/* English Keywords */}
+                                        <div>
+                                            <h4 className="text-[11px] font-bold text-slate-400 mb-2 uppercase tracking-wider">English Keywords</h4>
+                                            <div className="flex flex-wrap gap-2">
+                                                {rssKeywords.filter(k => k.language === 'en').map((kw) => (
+                                                    <span key={kw.keyword} className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-full bg-violet-50 text-violet-700 border border-violet-100 font-medium">
+                                                        {kw.keyword}
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => handleDeleteRssKeyword(kw.keyword)}
+                                                            className="text-violet-400 hover:text-violet-600 ml-1 font-bold focus:outline-none"
+                                                        >
+                                                            &times;
+                                                        </button>
+                                                    </span>
+                                                ))}
+                                                {rssKeywords.filter(k => k.language === 'en').length === 0 && (
+                                                    <span className="text-xs text-slate-350 italic">No English keywords found</span>
+                                                )}
+                                            </div>
+                                        </div>
+
+                                        {/* Telugu Keywords */}
+                                        <div>
+                                            <h4 className="text-[11px] font-bold text-slate-400 mb-2 uppercase tracking-wider">Telugu Keywords</h4>
+                                            <div className="flex flex-wrap gap-2">
+                                                {rssKeywords.filter(k => k.language === 'te').map((kw) => (
+                                                    <span key={kw.keyword} className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-full bg-amber-50 text-amber-700 border border-amber-100 font-medium">
+                                                        {kw.keyword}
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => handleDeleteRssKeyword(kw.keyword)}
+                                                            className="text-amber-400 hover:text-amber-600 ml-1 font-bold focus:outline-none"
+                                                        >
+                                                            &times;
+                                                        </button>
+                                                    </span>
+                                                ))}
+                                                {rssKeywords.filter(k => k.language === 'te').length === 0 && (
+                                                    <span className="text-xs text-slate-350 italic">No Telugu keywords found</span>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     )}
                 </div>
@@ -2802,6 +2977,64 @@ const Grievances = () => {
                             Fetch by Date
                         </Button>
                     </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            {/* Add RSS Relevance Keyword Dialog */}
+            <Dialog open={isAddRssKeywordOpen} onOpenChange={setIsAddRssKeywordOpen}>
+                <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                        <DialogTitle>Add Relevance Keyword</DialogTitle>
+                        <DialogDescription>
+                            The scraper engine will monitor these keywords to match and save relevant articles.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <form onSubmit={handleAddRssKeyword} className="space-y-4">
+                        <div className="space-y-3">
+                            <div>
+                                <label className="text-xs font-semibold text-slate-600 block mb-1">Keyword Text</label>
+                                <input
+                                    type="text"
+                                    placeholder="Enter keyword (e.g. Amaravati)..."
+                                    value={newRssKeyword}
+                                    onChange={(e) => setNewRssKeyword(e.target.value)}
+                                    className="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-400/30 focus:border-violet-400"
+                                    required
+                                />
+                            </div>
+                            <div>
+                                <label className="text-xs font-semibold text-slate-600 block mb-1">Language</label>
+                                <select
+                                    value={newRssKeywordLang}
+                                    onChange={(e) => setNewRssKeywordLang(e.target.value)}
+                                    className="w-full text-xs border border-slate-200 rounded-lg px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-violet-400/30"
+                                >
+                                    <option value="en">English</option>
+                                    <option value="te">Telugu</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        {rssKeywordError && (
+                            <div className="p-3 text-xs bg-red-50 border border-red-150 text-red-700 rounded-lg">
+                                {rssKeywordError}
+                            </div>
+                        )}
+                        {rssKeywordSuccess && (
+                            <div className="p-3 text-xs bg-green-50 border border-green-150 text-green-700 rounded-lg">
+                                {rssKeywordSuccess}
+                            </div>
+                        )}
+
+                        <DialogFooter className="gap-2 sm:gap-0">
+                            <Button type="button" variant="outline" size="sm" onClick={() => setIsAddRssKeywordOpen(false)}>
+                                Cancel
+                            </Button>
+                            <Button type="submit" size="sm" className="bg-[#0f172a] hover:bg-slate-800 text-white font-semibold">
+                                Add Keyword
+                            </Button>
+                        </DialogFooter>
+                    </form>
                 </DialogContent>
             </Dialog>
 

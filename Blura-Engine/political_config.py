@@ -21,13 +21,25 @@ RSS_FEEDS = [
     # ── Andhra Pradesh English Feeds & Google News ─────────────────
     {"url": "https://www.thehindu.com/news/national/andhra-pradesh/feeder/default.rss", "source_name": "The Hindu Andhra Pradesh", "language": "en"},
     {"url": "https://timesofindia.indiatimes.com/rssfeeds/866693868.cms",   "source_name": "TOI Hyderabad & AP",        "language": "en"},
+    {"url": "https://www.deccanchronicle.com/rss/nation/current-affairs",   "source_name": "Deccan Chronicle",         "language": "en"},
     {"url": "https://news.google.com/rss/search?q=%22Andhra+Pradesh+politics%22+OR+TDP+OR+YSRCP+OR+%22Jana+Sena%22&hl=en-IN&gl=IN&ceid=IN:en", "source_name": "Google News – AP Politics EN", "language": "en", "follow_redirect": True},
     {"url": "https://news.google.com/rss/search?q=%22Chandrababu+Naidu%22+OR+%22YS+Jagan%22+OR+%22Pawan+Kalyan%22+OR+%22Lokesh+Nara%22&hl=en-IN&gl=IN&ceid=IN:en", "source_name": "Google News – AP Leaders EN", "language": "en", "follow_redirect": True},
     {"url": "https://news.google.com/rss/search?q=Amaravati+OR+Polavaram+OR+Rayalaseema+politics&hl=en-IN&gl=IN&ceid=IN:en", "source_name": "Google News – AP Capital & Dev", "language": "en", "follow_redirect": True},
+    {"url": "https://news.google.com/rss/search?q=%22Andhra+Pradesh%22+government+OR+welfare+OR+pension&hl=en-IN&gl=IN&ceid=IN:en", "source_name": "Google News – AP Welfare EN", "language": "en", "follow_redirect": True},
 
     # ── Telugu Portals & Feeds (Google News Telugu) ─────────────────
     {"url": "https://news.google.com/rss/search?q=%E0%B0%86%E0%B0%82%E0%B0%A7%E0%B1%8D%E0%B0%B0%E0%B0%AA%E0%B1%8D%E0%B0%B0%E0%B0%A6%E0%B1%87%E0%B0%B6%E0%B1%8D+%E0%B0%B0%E0%B0%BE%E0%B0%9Mechanical+%E0%B0%B0%E0%B0%BE%E0%B0%9C%E0%B0%95%E0%B1%80%E0%B0%AF%E0%B0%BE%E0%B0%B2%E0%B1%81&hl=te&gl=IN&ceid=IN:te", "source_name": "Google News Telugu – AP Politics", "language": "te", "follow_redirect": True},
     {"url": "https://news.google.com/rss/search?q=%E0%B0%9A%E0%B0%82%E0%B0%A6%E0%B1%8D%E0%B0%B0%E0%B0%AC%E0%B0%BE%E0%B0%AC%E0%B1%81+%E0%B0%A8%E0%B0%BE%E0%B0%AF%E0%B0%A1%E0%B1%81+OR+%E0%B0%9C%E0%B0%97%E0%B0%A8%E0%B1%8D+OR+%E0%B0%AA%E0%B0%B5%E0%B0%A8%E0%B1%8D+%E0%B0%95%E0%B0%B2%E0%B1%8D%E0%B0%AF%E0%B0%BE%E0%B0%A3%E0%B1%8D&hl=te&gl=IN&ceid=IN:te", "source_name": "Google News Telugu – AP Leaders", "language": "te", "follow_redirect": True},
+    {"url": "https://news.google.com/rss/search?q=Andhra+Pradesh+source:Eenadu&hl=te&gl=IN&ceid=IN:te", "source_name": "Google News – Eenadu AP", "language": "te", "follow_redirect": True},
+    {"url": "https://news.google.com/rss/search?q=Andhra+Pradesh+source:Sakshi&hl=te&gl=IN&ceid=IN:te", "source_name": "Google News – Sakshi AP", "language": "te", "follow_redirect": True},
+    {"url": "https://news.google.com/rss/search?q=Andhra+Pradesh+source:Andhrajyothy&hl=te&gl=IN&ceid=IN:te", "source_name": "Google News – Andhrajyothy AP", "language": "te", "follow_redirect": True},
+    {"url": "https://news.google.com/rss/search?q=Andhra+Pradesh+source:TV9+Telugu&hl=te&gl=IN&ceid=IN:te", "source_name": "Google News – TV9 Telugu AP", "language": "te", "follow_redirect": True},
+    {"url": "https://telugu.oneindia.com/rss/feeds/telugu-ap-news-fb.xml", "source_name": "OneIndia Telugu AP News", "language": "te"},
+    {"url": "https://telugu.samayam.com/andhra-pradesh/rssfeeds/48317772.cms", "source_name": "Samayam Telugu AP", "language": "te"},
+    {"url": "https://www.v6velugu.com/feed/", "source_name": "V6 Velugu News Portal", "language": "te"},
+    {"url": "https://telugu.greatandhra.com/rss.php", "source_name": "GreatAndhra Telugu", "language": "te"},
+    {"url": "https://news.google.com/rss/search?q=Anantapur+OR+Kurnool+OR+Kadapa+OR+Chittoor+OR+Nellore+news&hl=en-IN&gl=IN&ceid=IN:en", "source_name": "Google News – Rayalaseema & South AP", "language": "en", "follow_redirect": True},
+    {"url": "https://news.google.com/rss/search?q=%E0%B0%85%E0%B0%A8%E0%B0%82%E0%B0%A4%E0%B0%AA%E0%B1%81%E0%B0%B0%E0%B0%82&hl=te&gl=IN&ceid=IN:te", "source_name": "Google News Telugu – Anantapur", "language": "te", "follow_redirect": True},
 ]
 
 # ── Relevance filter keywords (any 1 match = relevant) ───────────────────────
@@ -35,17 +47,20 @@ POLITICAL_RELEVANCE_KEYWORDS = [
     # ── Key AP Leaders ──
     'chandrababu naidu', 'chandrababu', 'naidu', 'cbn', 'nara lokesh', 'lokesh nara', 'lokesh',
     'ys jagan', 'jagan mohan reddy', 'jagan reddy', 'jagan', 'ysr', 'ysrcp',
-    'pawan kalyan', 'pawan', 'kalyan', 'jana sena', 'janasena',
-    'చంద్రబాబు', 'నాయుడు', 'జగన్', 'పవన్ కళ్యాణ్', 'లోకేష్',
+    'pawan kalyan', 'pawan', 'kalyan', 'jana sena', 'janasena', 'jsp',
+    'purandeswari', 'bhuvaneshwari', 'ys sharmila', 'sharmila', 'balakrishna',
+    'చంద్రబాబు', 'నాయుడు', 'జగన్', 'పవన్ కళ్యాణ్', 'లోకేష్', 'వైఎస్ఆర్',
 
     # ── Key AP Parties & Topics ──
     'tdp', 'telugu desam', 'telugu desam party', 'ysr congress', 'ysrcp', 'janasena party',
-    'andhra pradesh politics', 'ap politics', 'ap elections', 'andhra assembly',
-    'తెలుగుదేశం', 'వైఎస్ఆర్', 'జనసేన', 'ఆంధ్రప్రదేశ్ రాజకీయాలు',
+    'andhra pradesh politics', 'ap politics', 'ap elections', 'andhra assembly', 'assembly elections',
+    'nda alliance', 'bjp ap', 'congress ap', 'super six', 'super 6',
+    'తెలుగుదేశం', 'వైసీపీ', 'జనసేన', 'ఆంధ్రప్రదేశ్ రాజకీయాలు', 'కూటమి',
 
     # ── Key AP Regions/Issues ──
     'amaravati', 'polavaram', 'rayalaseema', 'vizag', 'visakhapatnam', 'vijayawada', 'guntur',
-    'అమరావతి', 'పోలవరం', 'రాయలసీమ', 'విశాఖపట్నం', 'విజయవాడ', 'గుంటూరు'
+    'kuppam', 'mangalagiri', 'pulivendula', 'pension', 'welfare scheme', 'land titling',
+    'అమరావతి', 'పోలవరం', 'రాయలసీమ', 'విశాఖపట్నం', 'విజయవాడ', 'గుంటూరు', 'కుప్పం', 'మంగళరి', 'పెన్షన్'
 ]
 
 # ── Category classification keywords ─────────────────────────────────────────
