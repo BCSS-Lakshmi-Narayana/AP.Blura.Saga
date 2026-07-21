@@ -11,6 +11,7 @@ const {
   normalizeConstituencyKey,
   DATA_COVERAGE,
 } = require('../services/voterProfileService');
+const { getBoothsByConstituency } = require('../services/boothVoterService');
 
 const isInScope = (constituency, scope) => {
   if (!scope || scope.canSeeAll) return true;
@@ -77,4 +78,35 @@ const getVoterProfile = (req, res) => {
   }
 };
 
-module.exports = { listVoterProfiles, getVoterProfile };
+/* GET /api/voter-profiles/:constituency/booths — booth (polling-station)
+ * level voter demographics for one seat, where sourced. 404 if we don't
+ * have booth-level data collected for this constituency yet. */
+const getBoothLevelData = (req, res) => {
+  try {
+    const { constituency } = req.params;
+    const decoded = decodeURIComponent(constituency || '');
+
+    if (!isInScope(decoded, req.scope)) {
+      return res.status(403).json({
+        success: false,
+        code: 'CONSTITUENCY_FORBIDDEN',
+        message: 'You are not authorized to view this constituency',
+      });
+    }
+
+    const result = getBoothsByConstituency(decoded);
+    if (!result) {
+      return res.status(404).json({
+        success: false,
+        message: `No booth-level data collected for "${decoded}" yet`,
+      });
+    }
+
+    return res.json({ success: true, ...result });
+  } catch (err) {
+    console.error('[voterProfile] booth-level error:', err.message);
+    return res.status(500).json({ success: false, message: 'Failed to load booth-level data' });
+  }
+};
+
+module.exports = { listVoterProfiles, getVoterProfile, getBoothLevelData };

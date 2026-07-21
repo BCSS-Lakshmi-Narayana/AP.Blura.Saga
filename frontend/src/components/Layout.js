@@ -251,8 +251,12 @@ const Layout = () => {
         </nav>
       </aside>
 
+      {/* `--side-panel-width` is set by right-hand slide-in panels (e.g. the
+          booth-level data panel) so the main content shrinks to make room
+          instead of being covered by an overlay. Defaults to 0px. */}
       <div
-        className={`flex-1 flex flex-col min-h-0 pt-16 lg:pt-20 transition-all duration-300 print:pt-0 print:pl-0 print:h-auto print:overflow-visible ${sidebarOpen && !isMobile ? 'lg:pl-[82px]' : 'pl-0'}`}
+        className={`flex-1 flex flex-col min-h-0 pt-16 lg:pt-20 transition-all duration-300 print:pt-0 print:pl-0 print:pr-0 print:h-auto print:overflow-visible ${sidebarOpen && !isMobile ? 'lg:pl-[82px]' : 'pl-0'}`}
+        style={{ paddingRight: 'var(--side-panel-width, 0px)' }}
       >
         <main className={`flex-1 min-h-0 ${isFullWidthPage ? 'p-0' : 'p-4 lg:p-8'} overflow-auto scroll-smooth print:h-auto print:overflow-visible`}>
           {showAccessDenied ? <AccessDenied /> : <Outlet />}
