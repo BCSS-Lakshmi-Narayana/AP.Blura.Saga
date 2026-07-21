@@ -74,6 +74,16 @@ const contentSchema = new mongoose.Schema({
     type: Date,
     default: null
   },
+  // An admin deleted the Alert generated for this content. Distinct from
+  // `is_deleted` above (which tracks the ORIGINAL POST's availability, not
+  // our alert about it). Checked by every alert-creation path
+  // (velocityAlertService, monitorService.rescanContent/scanSourceOnce) so a
+  // deleted alert doesn't get silently recreated the next time this same
+  // content is re-evaluated.
+  alert_suppressed: {
+    type: Boolean,
+    default: false
+  },
   // Whether the content has expired (e.g. Instagram stories after 24h)
   is_expired: {
     type: Boolean,
