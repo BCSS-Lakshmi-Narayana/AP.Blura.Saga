@@ -1,0 +1,452 @@
+[
+ {
+  "part": 1,
+  "locality": "vadagandlapalle",
+  "polling_station": "vadagandlapalle",
+  "electors_male": 330,
+  "electors_female": 301,
+  "electors_total": 680,
+  "electors_third_gender": null,
+  "electors_unclassified": 49
+ },
+ {
+  "part": 2,
+  "locality": "bellakogila",
+  "polling_station": "bellakogila",
+  "electors_male": 258,
+  "electors_female": 235,
+  "electors_total": 528,
+  "electors_third_gender": null,
+  "electors_unclassified": 35
+ },
+ {
+  "part": 4,
+  "locality": "Regadadinnepalle",
+  "polling_station": "Regadadinnepalle",
+  "electors_male": 179,
+  "electors_female": 147,
+  "electors_total": 358,
+  "electors_third_gender": null,
+  "electors_unclassified": 32
+ },
+ {
+  "part": 6,
+  "locality": "Krishnapuram",
+  "polling_station": "Krishnapuram",
+  "electors_male": 281,
+  "electors_female": 227,
+  "electors_total": 542,
+  "electors_third_gender": null,
+  "electors_unclassified": 34
+ },
+ {
+  "part": 11,
+  "locality": "Kodithipalle Mitta",
+  "polling_station": "Kodithipalle Mitta",
+  "electors_male": 345,
+  "electors_female": 315,
+  "electors_total": 711,
+  "electors_third_gender": null,
+  "electors_unclassified": 51
+ },
+ {
+  "part": 14,
+  "locality": "Arimutthanapalle",
+  "polling_station": "Arimutthanapalle",
+  "electors_male": 261,
+  "electors_female": 243,
+  "electors_total": 552,
+  "electors_third_gender": null,
+  "electors_unclassified": 48
+ },
+ {
+  "part": 24,
+  "locality": "Ramapuram",
+  "polling_station": "Ramapuram",
+  "electors_male": 222,
+  "electors_female": 205,
+  "electors_total": 486,
+  "electors_third_gender": null,
+  "electors_unclassified": 59
+ },
+ {
+  "part": 44,
+  "locality": "Cheemanapalle",
+  "polling_station": "Cheemanapalle",
+  "electors_male": 290,
+  "electors_female": 283,
+  "electors_total": 628,
+  "electors_third_gender": null,
+  "electors_unclassified": 55
+ },
+ {
+  "part": 48,
+  "locality": "Kadapalle",
+  "polling_station": "Kadapalle",
+  "electors_male": 268,
+  "electors_female": 227,
+  "electors_total": 533,
+  "electors_third_gender": null,
+  "electors_unclassified": 38
+ },
+ {
+  "part": 54,
+  "locality": "Kollupalli",
+  "polling_station": "Kollupalli",
+  "electors_male": 302,
+  "electors_female": 294,
+  "electors_total": 672,
+  "electors_third_gender": null,
+  "electors_unclassified": 76
+ },
+ {
+  "part": 59,
+  "locality": "Desinayanapalli",
+  "polling_station": "Desinayanapalli",
+  "electors_male": 289,
+  "electors_female": 253,
+  "electors_total": 614,
+  "electors_third_gender": null,
+  "electors_unclassified": 72
+ },
+ {
+  "part": 67,
+  "locality": "Saginekuppam",
+  "polling_station": "Saginekuppam",
+  "electors_male": 203,
+  "electors_female": 179,
+  "electors_total": 421,
+  "electors_third_gender": null,
+  "electors_unclassified": 39
+ },
+ {
+  "part": 77,
+  "locality": "Avulakuppam",
+  "polling_station": "Avulakuppam",
+  "electors_male": 262,
+  "electors_female": 236,
+  "electors_total": 553,
+  "electors_third_gender": null,
+  "electors_unclassified": 55
+ },
+ {
+  "part": 78,
+  "locality": "Narayanapuram Thanda",
+  "polling_station": "Narayanapuram Thanda",
+  "electors_male": 191,
+  "electors_female": 164,
+  "electors_total": 400,
+  "electors_third_gender": null,
+  "electors_unclassified": 45
+ },
+ {
+  "part": 84,
+  "locality": "Singasamudram",
+  "polling_station": "Singasamudram",
+  "electors_male": 261,
+  "electors_female": 254,
+  "electors_total": 561,
+  "electors_third_gender": null,
+  "electors_unclassified": 46
+ },
+ {
+  "part": 88,
+  "locality": "Athikuppam",
+  "polling_station": "Athikuppam",
+  "electors_male": 283,
+  "electors_female": 284,
+  "electors_total": 626,
+  "electors_third_gender": null,
+  "electors_unclassified": 59
+ },
+ {
+  "part": 101,
+  "locality": "Chikkapalle Thanda",
+  "polling_station": "Chikkapalle Thanda",
+  "electors_male": 278,
+  "electors_female": 240,
+  "electors_total": 616,
+  "electors_third_gender": null,
+  "electors_unclassified": 98
+ },
+ {
+  "part": 102,
+  "locality": "Bisanatham",
+  "polling_station": "Bisanatham",
+  "electors_male": 268,
+  "electors_female": 234,
+  "electors_total": 546,
+  "electors_third_gender": null,
+  "electors_unclassified": 44
+ },
+ {
+  "part": 103,
+  "locality": "Athinatham",
+  "polling_station": "Athinatham",
+  "electors_male": 217,
+  "electors_female": 178,
+  "electors_total": 419,
+  "electors_third_gender": null,
+  "electors_unclassified": 24
+ },
+ {
+  "part": 105,
+  "locality": "Dasimanipalle",
+  "polling_station": "Dasimanipalle",
+  "electors_male": 398,
+  "electors_female": 348,
+  "electors_total": 787,
+  "electors_third_gender": null,
+  "electors_unclassified": 41
+ },
+ {
+  "part": 106,
+  "locality": "Kuppiganipalle",
+  "polling_station": "Kuppiganipalle",
+  "electors_male": 320,
+  "electors_female": 282,
+  "electors_total": 643,
+  "electors_third_gender": null,
+  "electors_unclassified": 41
+ },
+ {
+  "part": 109,
+  "locality": "Peddabadanavada",
+  "polling_station": "Peddabadanavada",
+  "electors_male": 266,
+  "electors_female": 245,
+  "electors_total": 557,
+  "electors_third_gender": null,
+  "electors_unclassified": 46
+ },
+ {
+  "part": 120,
+  "locality": "Gutharlapalle",
+  "polling_station": "Gutharlapalle",
+  "electors_male": 279,
+  "electors_female": 245,
+  "electors_total": 566,
+  "electors_third_gender": null,
+  "electors_unclassified": 42
+ },
+ {
+  "part": 126,
+  "locality": "Adavibajanawada",
+  "polling_station": "Adavibajanawada",
+  "electors_male": 233,
+  "electors_female": 198,
+  "electors_total": 482,
+  "electors_third_gender": null,
+  "electors_unclassified": 51
+ },
+ {
+  "part": 132,
+  "locality": "Cheekatipalle",
+  "polling_station": "Cheekatipalle",
+  "electors_male": 263,
+  "electors_female": 238,
+  "electors_total": 558,
+  "electors_third_gender": null,
+  "electors_unclassified": 57
+ },
+ {
+  "part": 133,
+  "locality": "Kakinayanicheegarlapalle",
+  "polling_station": "Kakinayanicheegarlapalle",
+  "electors_male": 311,
+  "electors_female": 311,
+  "electors_total": 672,
+  "electors_third_gender": null,
+  "electors_unclassified": 50
+ },
+ {
+  "part": 134,
+  "locality": "Maldepalle",
+  "polling_station": "Maldepalle",
+  "electors_male": 281,
+  "electors_female": 297,
+  "electors_total": 620,
+  "electors_third_gender": null,
+  "electors_unclassified": 42
+ },
+ {
+  "part": 138,
+  "locality": "Malavanikothuru",
+  "polling_station": "Malavanikothuru",
+  "electors_male": 253,
+  "electors_female": 247,
+  "electors_total": 531,
+  "electors_third_gender": null,
+  "electors_unclassified": 31
+ },
+ {
+  "part": 141,
+  "locality": "Peddaparthikunta",
+  "polling_station": "Peddaparthikunta",
+  "electors_male": 250,
+  "electors_female": 198,
+  "electors_total": 484,
+  "electors_third_gender": null,
+  "electors_unclassified": 36
+ },
+ {
+  "part": 142,
+  "locality": "Tali Agraharam",
+  "polling_station": "Tali Agraharam",
+  "electors_male": 311,
+  "electors_female": 283,
+  "electors_total": 635,
+  "electors_third_gender": null,
+  "electors_unclassified": 41
+ },
+ {
+  "part": 146,
+  "locality": "Kangundi",
+  "polling_station": "Kangundi",
+  "electors_male": 222,
+  "electors_female": 232,
+  "electors_total": 493,
+  "electors_third_gender": null,
+  "electors_unclassified": 39
+ },
+ {
+  "part": 148,
+  "locality": "Kangundi",
+  "polling_station": "Kangundi",
+  "electors_male": 271,
+  "electors_female": 232,
+  "electors_total": 543,
+  "electors_third_gender": null,
+  "electors_unclassified": 40
+ },
+ {
+  "part": 150,
+  "locality": "Peddavanka Ho Kangundi Rf",
+  "polling_station": "Peddavanka Ho Kangundi Rf",
+  "electors_male": 233,
+  "electors_female": 207,
+  "electors_total": 469,
+  "electors_third_gender": null,
+  "electors_unclassified": 29
+ },
+ {
+  "part": 151,
+  "locality": "Bramhadevarachenlu Ho Kangundi Rf",
+  "polling_station": "Bramhadevarachenlu Ho Kangundi Rf",
+  "electors_male": 315,
+  "electors_female": 303,
+  "electors_total": 664,
+  "electors_third_gender": null,
+  "electors_unclassified": 46
+ },
+ {
+  "part": 154,
+  "locality": "Balamandakotam",
+  "polling_station": "Balamandakotam",
+  "electors_male": 185,
+  "electors_female": 172,
+  "electors_total": 378,
+  "electors_third_gender": null,
+  "electors_unclassified": 21
+ },
+ {
+  "part": 171,
+  "locality": "Kuppam",
+  "polling_station": "Kuppam",
+  "electors_male": 327,
+  "electors_female": 291,
+  "electors_total": 689,
+  "electors_third_gender": null,
+  "electors_unclassified": 71
+ },
+ {
+  "part": 172,
+  "locality": "Kuppam",
+  "polling_station": "Kuppam",
+  "electors_male": 230,
+  "electors_female": 349,
+  "electors_total": 644,
+  "electors_third_gender": null,
+  "electors_unclassified": 65
+ },
+ {
+  "part": 175,
+  "locality": "Kuppam",
+  "polling_station": "Kuppam",
+  "electors_male": 171,
+  "electors_female": 213,
+  "electors_total": 413,
+  "electors_third_gender": null,
+  "electors_unclassified": 29
+ },
+ {
+  "part": 193,
+  "locality": "Cheelepalle Ho Bevanapalle",
+  "polling_station": "Cheelepalle Ho Bevanapalle",
+  "electors_male": 319,
+  "electors_female": 324,
+  "electors_total": 693,
+  "electors_third_gender": null,
+  "electors_unclassified": 50
+ },
+ {
+  "part": 198,
+  "locality": "Gullepalle Ho Ekarlapalle",
+  "polling_station": "Gullepalle Ho Ekarlapalle",
+  "electors_male": 239,
+  "electors_female": 208,
+  "electors_total": 477,
+  "electors_third_gender": null,
+  "electors_unclassified": 30
+ },
+ {
+  "part": 204,
+  "locality": "Sajjalapalle",
+  "polling_station": "Sajjalapalle",
+  "electors_male": 222,
+  "electors_female": 179,
+  "electors_total": 433,
+  "electors_third_gender": null,
+  "electors_unclassified": 32
+ },
+ {
+  "part": 226,
+  "locality": "Ragimanumitta",
+  "polling_station": "Ragimanumitta",
+  "electors_male": 279,
+  "electors_female": 248,
+  "electors_total": 568,
+  "electors_third_gender": null,
+  "electors_unclassified": 41
+ },
+ {
+  "part": 230,
+  "locality": "Valuru",
+  "polling_station": "Valuru",
+  "electors_male": 278,
+  "electors_female": 267,
+  "electors_total": 587,
+  "electors_third_gender": null,
+  "electors_unclassified": 42
+ },
+ {
+  "part": 240,
+  "locality": "Gundlamadugu Ho Adavibuduguru",
+  "polling_station": "Gundlamadugu Ho Adavibuduguru",
+  "electors_male": 342,
+  "electors_female": 332,
+  "electors_total": 722,
+  "electors_third_gender": null,
+  "electors_unclassified": 48
+ },
+ {
+  "part": 241,
+  "locality": "Gundlamadugu Ho Adavibuduguru",
+  "polling_station": "Gundlamadugu Ho Adavibuduguru",
+  "electors_male": 354,
+  "electors_female": 293,
+  "electors_total": 702,
+  "electors_third_gender": null,
+  "electors_unclassified": 55
+ }
+]

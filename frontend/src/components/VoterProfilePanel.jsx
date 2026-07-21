@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Users, MapPinned, TrendingUp,
-  Wallet, Info, Loader2,
+  Wallet, Info, Loader2, LayoutGrid, ArrowRight,
+  Mars, Venus, Transgender,
+  Building2, Factory, HardHat, TrendingDown, UserCheck, Landmark,
   FileText, CalendarDays,
   Route, Droplet, Zap, Waves, Trash2, HeartPulse, GraduationCap, Briefcase, Wheat, HandHeart, ShieldAlert,
 } from 'lucide-react';
@@ -11,6 +13,8 @@ import {
   Tooltip, TooltipContent, TooltipProvider, TooltipTrigger,
 } from './ui/tooltip';
 import ConstituencyHeatMap from './ConstituencyHeatMap';
+import BoothLevelModal from './BoothLevelModal';
+import api from '../lib/api';
 
 const fmtNum = (n) => (n || n === 0) ? Number(n).toLocaleString('en-IN') : '—';
 // Indian short format: 2,25,977 -> "2.26 L", 12,40,000 -> "12.4 L", 1,24,00,000 -> "1.24 Cr"
@@ -71,13 +75,15 @@ const PendingNote = ({ children }) => (
   </div>
 );
 
-/* Gender split donut — real 2024 registered-elector counts (ECI statistical report #11). */
+/* Gender split donut — real 2024 registered-elector counts (ECI statistical report #11).
+   Thick ring with the total seated in the middle, then an icon-led breakdown
+   where each row carries its own proportion bar. */
 const GenderDonut = ({ male, female, other }) => {
   const total = (male || 0) + (female || 0) + (other || 0);
   if (!total) {
     return (
       <div className="flex items-center gap-4">
-        <div className="w-24 h-24 rounded-full border-8 border-slate-100 shrink-0" />
+        <div className="w-32 h-32 rounded-full border-[14px] border-slate-100 shrink-0" />
         <PendingNote>Gender-wise elector roll not available for this seat.</PendingNote>
       </div>
     );
@@ -85,35 +91,87 @@ const GenderDonut = ({ male, female, other }) => {
   const pm = (male / total) * 100;
   const pf = (female / total) * 100;
   const po = (other / total) * 100;
-  const r1 = pm.toFixed(1), r2 = (pm + pf).toFixed(1);
-  const gradient = `conic-gradient(#3b82f6 0% ${r1}%, #ec4899 ${r1}% ${r2}%, #a3a3a3 ${r2}% 100%)`;
-  const Row = ({ color, label, pct, count }) => (
-    <div className="flex items-center gap-2 text-xs">
-      <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: color }} />
-      <span className="text-slate-600 flex-1">{label}</span>
-      <span className="font-bold text-slate-800 shrink-0">{pct.toFixed(1)}%</span>
-      <span className="text-slate-400 w-16 text-right shrink-0 tabular-nums">{fmtNum(count)}</span>
+
+  // SVG arc donut. Arcs are drawn at their exact proportion with no artificial
+  // gaps — a sliver like 18 third-gender electors in 2.26L (0.008%) should be
+  // visually negligible, not padded up to a notch that misreads as a real share.
+  const RADIUS = 42;
+  const STROKE = 17;
+  const CIRC = 2 * Math.PI * RADIUS;
+  const segments = [
+    { pct: pm, color: '#3b82f6' },
+    { pct: pf, color: '#ec4899' },
+    { pct: po, color: '#94a3b8' },
+  ].filter((s) => s.pct > 0);
+
+  let cursor = 0;
+  const arcs = segments.map((s, i) => {
+    const len = (s.pct / 100) * CIRC;
+    const arc = {
+      key: i,
+      color: s.color,
+      dash: `${len} ${CIRC - len}`,
+      offset: -cursor,
+    };
+    cursor += len;
+    return arc;
+  });
+
+  const Row = ({ icon: Icon, color, tint, label, pct, count }) => (
+    <div className="rounded-lg px-2.5 py-2" style={{ background: tint }}>
+      <div className="flex items-center gap-2 text-xs">
+        <Icon className="h-3.5 w-3.5 shrink-0" style={{ color }} />
+        <span className="text-slate-700 font-medium flex-1">{label}</span>
+        <span className="font-bold text-slate-800 shrink-0 tabular-nums">{pct.toFixed(1)}%</span>
+        <span className="text-slate-500 w-16 text-right shrink-0 tabular-nums">{fmtNum(count)}</span>
+      </div>
+      <div className="h-1.5 rounded-full bg-white/70 overflow-hidden mt-1.5">
+        <div
+          className="h-full rounded-full transition-[width] duration-700 ease-out"
+          style={{ width: `${Math.max(pct, 1.5)}%`, background: color }}
+        />
+      </div>
     </div>
   );
+
   return (
     <div className="flex flex-col items-center gap-3">
-      {/* Donut on top */}
-      <div className="relative w-24 h-24">
-        <div className="w-24 h-24 rounded-full" style={{ background: gradient }} />
-        <div className="absolute inset-3 rounded-full bg-white flex items-center justify-center">
-          <span className="w-2 h-2 rounded-full bg-slate-200" />
+      {/* Thick arc donut with the headline total in the middle */}
+      <div className="relative w-36 h-36">
+        <svg viewBox="0 0 100 100" className="w-36 h-36 -rotate-90">
+          <circle cx="50" cy="50" r={RADIUS} fill="none" stroke="#f1f5f9" strokeWidth={STROKE} />
+          {arcs.map((a) => (
+            <circle
+              key={a.key}
+              cx="50"
+              cy="50"
+              r={RADIUS}
+              fill="none"
+              stroke={a.color}
+              strokeWidth={STROKE}
+              strokeDasharray={a.dash}
+              strokeDashoffset={a.offset}
+              strokeLinecap="butt"
+            />
+          ))}
+        </svg>
+        <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+          <span className="text-lg font-bold text-slate-800 leading-none tabular-nums">{fmtShort(total)}</span>
+          <span className="text-[8px] text-slate-400 uppercase tracking-wide mt-1">Electors</span>
         </div>
       </div>
-      {/* Total below the donut */}
       <div className="text-center -mt-1">
-        <div className="text-base font-bold text-slate-800 leading-none">{fmtNum(total)}</div>
-        <div className="text-[9px] text-slate-400 uppercase tracking-wide">Total Electors</div>
+        <div className="text-sm font-bold text-slate-700 leading-none tabular-nums">{fmtNum(total)}</div>
+        <div className="text-[9px] text-slate-400 uppercase tracking-wide mt-0.5">Total Electors</div>
       </div>
-      {/* Male / Female / Third breakdown below, full width so counts always fit */}
-      <div className="w-full space-y-1.5 pt-1">
-        <Row color="#3b82f6" label="Male" pct={pm} count={male} />
-        <Row color="#ec4899" label="Female" pct={pf} count={female} />
-        {other > 0 && <Row color="#a3a3a3" label="Third gender" pct={po} count={other} />}
+
+      {/* Icon-led breakdown, each row with its own proportion bar */}
+      <div className="w-full space-y-1.5">
+        <Row icon={Mars} color="#3b82f6" tint="#eff6ff" label="Male" pct={pm} count={male} />
+        <Row icon={Venus} color="#ec4899" tint="#fdf2f8" label="Female" pct={pf} count={female} />
+        {other > 0 && (
+          <Row icon={Transgender} color="#64748b" tint="#f8fafc" label="Third gender" pct={po} count={other} />
+        )}
       </div>
     </div>
   );
@@ -128,35 +186,58 @@ const SocioEconomic = ({ data }) => {
   }
   const se = data.sector_employment || {};
   const bars = [
-    { label: 'Agriculture', value: se.agriculture, color: '#10b981', icon: '🌾' },
-    { label: 'Services', value: se.services, color: '#3b82f6', icon: '🏢' },
-    { label: 'Manufacturing & Industry', value: se.manufacturing_and_industry, color: '#a855f7', icon: '🏭' },
-    { label: 'Construction', value: se.construction, color: '#f59e0b', icon: '🧱' },
+    { label: 'Agriculture', value: se.agriculture, color: '#10b981', tint: '#ecfdf5', icon: Wheat },
+    { label: 'Services', value: se.services, color: '#3b82f6', tint: '#eff6ff', icon: Building2 },
+    { label: 'Manufacturing & Industry', value: se.manufacturing_and_industry, color: '#a855f7', tint: '#faf5ff', icon: Factory },
+    { label: 'Construction', value: se.construction, color: '#f59e0b', tint: '#fffbeb', icon: HardHat },
+  ];
+  const metrics = [
+    { label: 'LFPR', value: data.labour_force_participation_rate, icon: Briefcase, color: '#0f766e', tint: '#f0fdfa' },
+    { label: 'Unemployment', value: data.unemployment_rate, icon: TrendingDown, color: '#b91c1c', tint: '#fef2f2' },
+    { label: 'Female LFPR', value: data.lfpr_female, icon: UserCheck, color: '#be185d', tint: '#fdf2f8' },
+    { label: 'Informal (rural)', value: data.informal_sector_rural, icon: Landmark, color: '#c2410c', tint: '#fff7ed' },
   ];
   return (
-    <div>
-      <div className="space-y-2">
+    <div className="flex flex-col h-full">
+      {/* Sector employment split */}
+      <div className="space-y-2.5">
         {bars.map((b) => (
           <div key={b.label}>
-            <div className="flex items-center justify-between text-[11px] mb-0.5">
-              <span className="text-slate-700 flex items-center gap-1.5"><span>{b.icon}</span>{b.label}</span>
-              <span className="font-bold text-slate-800">{b.value}%</span>
+            <div className="flex items-center justify-between text-[11px] mb-1">
+              <span className="text-slate-700 font-medium flex items-center gap-1.5 min-w-0">
+                <span className="w-5 h-5 rounded-md flex items-center justify-center shrink-0" style={{ background: b.tint }}>
+                  <b.icon className="h-3 w-3" style={{ color: b.color }} />
+                </span>
+                <span className="truncate">{b.label}</span>
+              </span>
+              <span className="font-bold text-slate-800 shrink-0 tabular-nums">{b.value}%</span>
             </div>
-            <div className="h-1.5 rounded-full bg-slate-100 overflow-hidden">
-              <div className="h-full rounded-full" style={{ width: `${Math.min(100, b.value)}%`, background: b.color }} />
+            <div className="h-2 rounded-full bg-slate-100 overflow-hidden">
+              <div
+                className="h-full rounded-full transition-[width] duration-700 ease-out"
+                style={{ width: `${Math.min(100, b.value)}%`, background: b.color }}
+              />
             </div>
           </div>
         ))}
       </div>
-      <div className="mt-2.5 pt-2 border-t border-slate-100 grid grid-cols-2 gap-x-3 gap-y-1 text-[10px] text-slate-400">
-        <span>LFPR: <strong className="text-slate-600">{data.labour_force_participation_rate}%</strong></span>
-        <span>Unemployment: <strong className="text-slate-600">{data.unemployment_rate}%</strong></span>
-        <span>Female LFPR: <strong className="text-slate-600">{data.lfpr_female}%</strong></span>
-        <span>Informal (rural): <strong className="text-slate-600">{data.informal_sector_rural}%</strong></span>
+
+      {/* Labour-market metrics as tiles — fills the card instead of trailing
+          micro-text, and gives each figure equal visual weight. */}
+      <div className="grid grid-cols-2 gap-2 mt-3.5">
+        {metrics.map((m) => (
+          <div key={m.label} className="rounded-lg px-2.5 py-2" style={{ background: m.tint }}>
+            <div className="flex items-center gap-1.5">
+              <m.icon className="h-3 w-3 shrink-0" style={{ color: m.color }} />
+              <span className="text-[9px] text-slate-500 uppercase tracking-wide truncate">{m.label}</span>
+            </div>
+            <div className="text-sm font-bold text-slate-800 tabular-nums mt-0.5">
+              {m.value != null ? `${m.value}%` : '—'}
+            </div>
+          </div>
+        ))}
       </div>
-      <div className="mt-1.5 text-[9px] text-slate-400">
-        Statewide · PLFS 2023-24 (AP Socio Economic Survey 2024-25)
-      </div>
+
     </div>
   );
 };
@@ -236,6 +317,19 @@ const EngagementChannel = ({ channel, constituency }) => {
 };
 
 const VoterProfilePanel = ({ profile, loading, topIssues = [], constituencyDisplayName, dense = false, sectionNumber }) => {
+  const [boothAvailable, setBoothAvailable] = useState(false);
+  const [boothModalOpen, setBoothModalOpen] = useState(false);
+
+  useEffect(() => {
+    const constName = profile?.constituency;
+    if (!constName) { setBoothAvailable(false); return; }
+    let cancelled = false;
+    api.get(`/voter-profiles/${encodeURIComponent(constName)}/booths`)
+      .then((res) => { if (!cancelled) setBoothAvailable(Boolean(res.data?.success)); })
+      .catch(() => { if (!cancelled) setBoothAvailable(false); });
+    return () => { cancelled = true; };
+  }, [profile?.constituency]);
+
   if (loading) {
     return <div className="h-64 flex items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-slate-400" /></div>;
   }
@@ -275,10 +369,14 @@ const VoterProfilePanel = ({ profile, loading, topIssues = [], constituencyDispl
             <div className="text-[11px] text-slate-500">Know your voters. Understand their needs. Serve better.</div>
           </div>
         </div>
-        <div className="text-[10px] text-slate-400 flex items-center gap-1.5">
-          <Info className="h-3 w-3" /> ECI 2024 verified
-        </div>
       </div>
+
+      <BoothLevelModal
+        open={boothModalOpen}
+        onClose={() => setBoothModalOpen(false)}
+        constituency={constituency}
+        constituencyDisplayName={acDisplay}
+      />
 
       {/* Row 1 — top stat strip (all real) */}
       <div className={statGrid}>
@@ -294,17 +392,26 @@ const VoterProfilePanel = ({ profile, loading, topIssues = [], constituencyDispl
 
       {/* Row 2 — Demographics | Socio-Economic | Key Issues */}
       <div className={grid3}>
-        <PanelCard icon={Users} title="Demographic Overview" badge={<span className="text-[9px] text-slate-400">2024 roll</span>}>
-          <GenderDonut male={profile.electors_male} female={profile.electors_female} other={profile.electors_other} />
+        <PanelCard icon={Users} title="Demographic Overview">
+          <div className="flex flex-col h-full">
+            <GenderDonut male={profile.electors_male} female={profile.electors_female} other={profile.electors_other} />
+            {/* Booth-level drill-down sits here, directly under the seat-wide
+                split it breaks down. Only rendered where we have the data. */}
+            {boothAvailable && (
+              <button
+                type="button"
+                onClick={() => setBoothModalOpen(true)}
+                className="group mt-3 w-full inline-flex items-center justify-center gap-1.5 rounded-lg border border-violet-200 bg-gradient-to-r from-violet-50 to-indigo-50 text-violet-700 px-3 py-2.5 text-[11px] font-semibold hover:from-violet-100 hover:to-indigo-100 hover:border-violet-300 transition-all active:scale-[0.98]"
+              >
+                <LayoutGrid className="h-3.5 w-3.5" />
+                View booth-level data
+                <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+              </button>
+            )}
+          </div>
         </PanelCard>
 
-        <PanelCard
-          icon={Wallet}
-          title="Socio-Economic Profile"
-          badge={profile.socio_economic
-            ? <span className="text-[9px] text-slate-400">statewide · PLFS 2023-24</span>
-            : null}
-        >
+        <PanelCard icon={Wallet} title="Socio-Economic Profile">
           <SocioEconomic data={profile.socio_economic} />
         </PanelCard>
 

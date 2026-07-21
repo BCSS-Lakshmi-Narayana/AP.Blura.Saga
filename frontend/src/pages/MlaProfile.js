@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { ArrowLeft, MapPin, Loader2, Calendar, ExternalLink } from 'lucide-react';
+import { ArrowLeft, MapPin, Loader2, Calendar, ExternalLink, Swords } from 'lucide-react';
 import VoterProfilePanel from '../components/VoterProfilePanel';
 import SocialNarrativePanel from '../components/SocialNarrativePanel';
+import CompareModal from '../components/compare/CompareModal';
 import api from '../lib/api';
 import { Card } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
@@ -173,6 +174,7 @@ const MlaProfile = () => {
 
   const [analysisGrievance, setAnalysisGrievance] = useState(null);
   const [isAnalysisOpen, setIsAnalysisOpen] = useState(false);
+  const [compareOpen, setCompareOpen] = useState(false);
 
   const handleAction = useCallback(async (action, payload) => {
     const g = payload?.grievance;
@@ -274,17 +276,24 @@ const MlaProfile = () => {
             <div className="flex items-center gap-2">
               <Badge className={`border ${partyStyle}`}>{mla.party}</Badge>
               <Badge variant="outline" className="border-slate-300 text-slate-600">{mla.alliance}</Badge>
+              {/* <button
+                type="button"
+                onClick={() => setCompareOpen(true)}
+                className="inline-flex items-center gap-1.5 rounded-lg bg-gradient-to-br from-indigo-600 to-violet-600 text-white px-3 py-1.5 text-sm font-semibold shadow-sm hover:from-indigo-500 hover:to-violet-500 transition-all active:scale-95"
+              >
+                <Swords className="h-4 w-4" /> Draw Comparison
+              </button> */}
             </div>
           )}
         </div>
       </Card>
 
-      {/* Voter Profiling (left) + Social Media Narrative (right).
-          Side-by-side on wide screens (xl+), stacks on smaller. */}
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-5 items-start">
+      {/* Voter Profiling first, then Social Media Narrative — each full width,
+          stacked top-to-bottom. Non-dense mode (lg: breakpoints, wider gaps) is
+          the right fit now that each panel owns the whole row. */}
+      <div className="space-y-6">
         <div className="min-w-0">
           <VoterProfilePanel
-            dense
             sectionNumber={1}
             profile={voterProfile}
             loading={voterProfileLoading}
@@ -294,7 +303,6 @@ const MlaProfile = () => {
         </div>
         <div className="min-w-0">
           <SocialNarrativePanel
-            dense
             sectionNumber={2}
             constituency={mla?.constituency || decoded}
           />
@@ -412,6 +420,14 @@ const MlaProfile = () => {
         onRiskLevelChange={canManageSpecialGrievanceUi ? handleRiskLevelChange : undefined}
         onSentimentChange={canManageSpecialGrievanceUi ? handleSentimentChange : undefined}
       />
+
+      {mla && (
+        <CompareModal
+          open={compareOpen}
+          onClose={() => setCompareOpen(false)}
+          me={mla}
+        />
+      )}
     </div>
   );
 };

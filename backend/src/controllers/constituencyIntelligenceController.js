@@ -23,6 +23,7 @@ const {
   classifyIssues,
   ISSUE_CATEGORIES,
 } = require('../services/mlaReferenceService');
+const { getVoterProfileByConstituency } = require('../services/voterProfileService');
 
 /* RBAC helper: clamp a constituency list to the caller's allowed scope. */
 const scopeMlaList = (mlas, scope) => {
@@ -488,9 +489,248 @@ const getConstituencyNarrative = async (req, res) => {
   }
 };
 
+/* ─── internal: full analytics bundle for ONE seat ────────────────────
+ * Reuses the exact same aggregations that power the detail + narrative
+ * endpoints, packaged into a single object so the head-to-head compare
+ * endpoint can fetch two seats in one request. Every figure is derived
+ * live from the Grievance collection — nothing illustrative.
+ */
+const analyzeSeat = async (rawConstituency, days) => {
+  const decoded = decodeURIComponent(rawConstituency || '');
+  const mla = getMlaByConstituency(decoded);
+  const constName = mla ? mla.constituency : decoded;
+
+  const windowDays = Number(days) > 0 ? Number(days) : 90;
+  const since = new Date(Date.now() - windowDays * 86400000);
+  const prevSince = new Date(Date.now() - 2 * windowDays * 86400000);
+  const constFilter = mla ? new RegExp(`^${mla.constituency}$`, 'i') : decoded;
+
+  const baseMatch = { is_active: true, 'detected_location.constituency': constFilter, post_date: { $gte: since } };
+  const prevMatch = { is_active: true, 'detected_location.constituency': constFilter, post_date: { $gte: prevSince, $lt: since } };
+
+  const countsGroup = {
+    _id: null,
+    total: { $sum: 1 },
+    positive: { $sum: { $cond: [{ $eq: ['$analysis.sentiment', 'positive'] }, 1, 0] } },
+    negative: { $sum: { $cond: [{ $eq: ['$analysis.sentiment', 'negative'] }, 1, 0] } },
+    neutral: { $sum: { $cond: [{ $in: ['$analysis.sentiment', ['neutral', 'moderate']] }, 1, 0] } },
+    high_priority: { $sum: { $cond: [{ $in: ['$complaint.priority', ['high', 'critical']] }, 1, 0] } },
+    reach: { $sum: '$engagement.views' },
+  };
+
+  const [curAgg, prevAgg, volume, platforms, influencers, recent] = await Promise.all([
+    Grievance.aggregate([{ $match: baseMatch }, { $group: countsGroup }]),
+    Grievance.aggregate([{ $match: prevMatch }, { $group: countsGroup }]),
+    Grievance.aggregate([
+      { $match: baseMatch },
+      { $group: { _id: { $dateToString: { format: '%Y-%m-%d', date: '$post_date' } }, count: { $sum: 1 } } },
+      { $sort: { _id: 1 } },
+    ]),
+    Grievance.aggregate([
+      { $match: baseMatch },
+      { $group: { _id: '$platform', count: { $sum: 1 } } },
+      { $sort: { count: -1 } },
+    ]),
+    Grievance.aggregate([
+      { $match: { ...baseMatch, 'posted_by.handle': { $nin: [null, ''] } } },
+      {
+        $group: {
+          _id: '$posted_by.handle',
+          display_name: { $first: '$posted_by.display_name' },
+          followers: { $max: '$posted_by.follower_count' },
+          verified: { $max: { $cond: ['$posted_by.is_verified', 1, 0] } },
+          posts: { $sum: 1 },
+          reach: { $sum: '$engagement.views' },
+        },
+      },
+      { $sort: { followers: -1, reach: -1 } },
+      { $limit: 6 },
+    ]),
+    Grievance.find(baseMatch)
+      .select('content.text analysis.category analysis.grievance_type analysis.sentiment')
+      .sort({ post_date: -1 })
+      .limit(600)
+      .lean(),
+  ]);
+
+  const cur = curAgg[0] || { total: 0, positive: 0, negative: 0, neutral: 0, high_priority: 0, reach: 0 };
+  const prev = prevAgg[0] || { total: 0, positive: 0, negative: 0, neutral: 0 };
+  const pct = (n, t) => (t > 0 ? Math.round((n / t) * 100) : 0);
+  const idx = sentimentIndex(cur.positive, cur.negative, cur.total);
+  // Social sentiment score 0-100 (positive weight 1, neutral 0.5).
+  const scoreOf = (s) => (s.total > 0 ? Math.round(((s.positive + 0.5 * s.neutral) / s.total) * 100) : 0);
+  const curScore = scoreOf(cur);
+  const prevScore = scoreOf(prev);
+
+  // Top civic issues from this seat's grievance text.
+  const issueCounts = Object.fromEntries(ISSUE_CATEGORIES.map((c) => [c, 0]));
+  const topicCounts = {};
+  const hashtagCounts = {};
+  const HASHTAG_RE = /#[\wऀ-ॿఀ-౿]+/g;
+  for (const g of recent) {
+    for (const cat of classifyIssues(g?.content?.text)) issueCounts[cat] += 1;
+    const cat = g?.analysis?.grievance_type || g?.analysis?.category;
+    if (cat) topicCounts[cat] = (topicCounts[cat] || 0) + 1;
+    const tags = (g?.content?.text || '').match(HASHTAG_RE) || [];
+    for (const t of tags) {
+      const k = t.toLowerCase();
+      hashtagCounts[k] = (hashtagCounts[k] || 0) + 1;
+    }
+  }
+  const topList = (obj, n) => Object.entries(obj)
+    .map(([k, v]) => ({ name: k, count: v }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, n);
+  const topIssues = Object.entries(issueCounts)
+    .filter(([, n]) => n > 0)
+    .map(([issue, count]) => ({ issue, count }))
+    .sort((a, b) => b.count - a.count);
+
+  const PLATFORM_LABELS = { x: 'X (Twitter)', twitter: 'X (Twitter)', facebook: 'Facebook', youtube: 'YouTube', instagram: 'Instagram', whatsapp: 'WhatsApp' };
+  const platformMix = platforms.map((p) => ({
+    platform: p._id || 'unknown',
+    label: PLATFORM_LABELS[p._id] || (p._id || 'Unknown'),
+    count: p.count,
+    pct: pct(p.count, cur.total),
+  }));
+
+  // Voter profile (static ECI data) — demographics + 2024 election result.
+  const voter = getVoterProfileByConstituency(decoded);
+  const e2024 = voter?.election_2024 || {};
+
+  return {
+    constituency: constName,
+    key: normalizeConstituencyKey(constName),
+    mla: mla ? {
+      name: mla.mla,
+      party: mla.party,
+      alliance: mla.alliance,
+      criminalCases: mla.criminalCases ?? null,
+      education: mla.education ?? null,
+      assets: mla.assets ?? null,
+    } : { name: null, party: null, alliance: null },
+    window_days: windowDays,
+    sentiment: {
+      total: cur.total,
+      positive: cur.positive,
+      negative: cur.negative,
+      neutral: cur.neutral,
+      high_priority: cur.high_priority,
+      reach: cur.reach || 0,
+      positive_pct: pct(cur.positive, cur.total),
+      negative_pct: pct(cur.negative, cur.total),
+      neutral_pct: pct(cur.neutral, cur.total),
+      sentiment_index: idx,
+      bucket: SENTIMENT_BUCKET(idx, cur.total),
+      score: curScore,
+      score_change: curScore - prevScore,
+    },
+    top_issues: topIssues,
+    top_topics: topList(topicCounts, 6),
+    trending_hashtags: topList(hashtagCounts, 6),
+    volume_trend: volume.map((v) => ({ date: v._id, count: v.count })),
+    platforms: platformMix,
+    top_influencers: influencers.map((i) => ({
+      handle: i._id,
+      display_name: i.display_name || i._id,
+      followers: i.followers || 0,
+      verified: !!i.verified,
+      posts: i.posts,
+      reach: i.reach || 0,
+    })),
+    voter: voter ? {
+      electors_total: voter.electors_total ?? null,
+      electors_male: voter.electors_male ?? null,
+      electors_female: voter.electors_female ?? null,
+      vote_share_2024: e2024.winner ? e2024.winner.vote_pct : null,
+      margin_2024: e2024.margin ?? null,
+    } : null,
+  };
+};
+
+/* ─── GET /api/constituency-intel/compare ─────────────────────────────
+ * Head-to-head comparison of two constituencies/candidates.
+ * Query: ?a=Mangalagiri&b=Kuppam&days=90
+ * Returns each seat's full analytics bundle plus a computed, per-metric
+ * "who's ahead" head-to-head and an overall verdict.
+ */
+const getComparison = async (req, res) => {
+  try {
+    const { a, b, days } = req.query;
+    if (!a || !b) {
+      return res.status(400).json({ success: false, message: 'Both ?a and ?b constituencies are required' });
+    }
+    const decodedA = decodeURIComponent(a);
+    const decodedB = decodeURIComponent(b);
+    if (normalizeConstituencyKey(decodedA) === normalizeConstituencyKey(decodedB)) {
+      return res.status(400).json({ success: false, message: 'Pick two different constituencies to compare' });
+    }
+
+    // NOTE: Intentional product decision — the head-to-head compare is open to
+    // every authenticated user, including seat-scoped ones (e.g. an MLA
+    // comparing their own seat against a rival). It exposes only AGGREGATE
+    // sentiment/issues/narrative for the two seats (the same class of figures
+    // shown on the profile), never row-level grievances or restricted data,
+    // so it does not widen access to sensitive per-record content.
+    const [seatA, seatB] = await Promise.all([
+      analyzeSeat(decodedA, days),
+      analyzeSeat(decodedB, days),
+    ]);
+
+    // Per-metric head-to-head. dir = 'higher' means a bigger value wins.
+    const metricDefs = [
+      { key: 'sentiment_index', label: 'Sentiment Index', dir: 'higher', a: seatA.sentiment.sentiment_index, b: seatB.sentiment.sentiment_index, unit: '' },
+      { key: 'positive_pct', label: 'Positive Share', dir: 'higher', a: seatA.sentiment.positive_pct, b: seatB.sentiment.positive_pct, unit: '%' },
+      { key: 'negative_pct', label: 'Negative Share', dir: 'lower', a: seatA.sentiment.negative_pct, b: seatB.sentiment.negative_pct, unit: '%' },
+      { key: 'score', label: 'Social Sentiment Score', dir: 'higher', a: seatA.sentiment.score, b: seatB.sentiment.score, unit: '/100' },
+      { key: 'total', label: 'Conversation Volume', dir: 'higher', a: seatA.sentiment.total, b: seatB.sentiment.total, unit: '' },
+      { key: 'reach', label: 'Total Reach', dir: 'higher', a: seatA.sentiment.reach, b: seatB.sentiment.reach, unit: '' },
+      { key: 'high_priority', label: 'High-Priority Grievances', dir: 'lower', a: seatA.sentiment.high_priority, b: seatB.sentiment.high_priority, unit: '' },
+      { key: 'criminalCases', label: 'Clean Record (fewer cases)', dir: 'lower', a: seatA.mla.criminalCases, b: seatB.mla.criminalCases, unit: '' },
+    ];
+
+    let aWins = 0;
+    let bWins = 0;
+    const head_to_head = metricDefs.map((m) => {
+      const av = Number.isFinite(Number(m.a)) ? Number(m.a) : null;
+      const bv = Number.isFinite(Number(m.b)) ? Number(m.b) : null;
+      let winner = 'tie';
+      if (av != null && bv != null && av !== bv) {
+        const aBetter = m.dir === 'higher' ? av > bv : av < bv;
+        winner = aBetter ? 'a' : 'b';
+      } else if (av != null && bv == null) {
+        winner = 'a';
+      } else if (bv != null && av == null) {
+        winner = 'b';
+      }
+      // Only sentiment/reputation metrics count toward the overall verdict;
+      // raw volume is buzz, not necessarily "better", so it's shown but neutral.
+      const countsToward = m.key !== 'total' && m.key !== 'reach';
+      if (countsToward && winner === 'a') aWins += 1;
+      if (countsToward && winner === 'b') bWins += 1;
+      return { ...m, a: av, b: bv, winner, counts_toward_verdict: countsToward };
+    });
+
+    const overall = aWins === bWins ? 'tie' : (aWins > bWins ? 'a' : 'b');
+
+    return res.json({
+      success: true,
+      window_days: seatA.window_days,
+      a: seatA,
+      b: seatB,
+      head_to_head,
+      verdict: { overall, a_wins: aWins, b_wins: bWins },
+    });
+  } catch (err) {
+    console.error('[constituencyIntel] compare error:', err.message);
+    return res.status(500).json({ success: false, message: 'Failed to build comparison' });
+  }
+};
+
 module.exports = {
   getLeaderboard,
   getSummary,
   getConstituencyDetail,
   getConstituencyNarrative,
+  getComparison,
 };

@@ -1,0 +1,302 @@
+[
+ {
+  "part": 5,
+  "locality": "PENUMAKA",
+  "polling_station": "Mandal Parishad Primary School(H.E), Old Building, Room No.5, Penumaka.",
+  "electors_male": 345,
+  "electors_female": 426,
+  "electors_total": 771,
+  "electors_third_gender": 0,
+  "electors_unclassified": 0
+ },
+ {
+  "part": 13,
+  "locality": "UNDAVALLI",
+  "polling_station": "Gade Ramaiah-Seetharavamma Mandal Parishad Upper Primary School, South Block, 4th Room from East, Undavalli.",
+  "electors_male": 369,
+  "electors_female": 377,
+  "electors_total": 746,
+  "electors_third_gender": 0,
+  "electors_unclassified": 0
+ },
+ {
+  "part": 17,
+  "locality": "UNDAVALLI",
+  "polling_station": "Mandal Parishad Primary School (L.E), Southern side Building, Room No.1 from West, Undavalli, Undavalli",
+  "electors_male": 379,
+  "electors_female": 416,
+  "electors_total": 795,
+  "electors_third_gender": 0,
+  "electors_unclassified": 0
+ },
+ {
+  "part": 18,
+  "locality": "UNDAVALLI",
+  "polling_station": "Mandal Parishad Primary School (L.E), Northern Side Building, S.C.Colony, Undavalli.",
+  "electors_male": 315,
+  "electors_female": 342,
+  "electors_total": 657,
+  "electors_third_gender": 0,
+  "electors_unclassified": 0
+ },
+ {
+  "part": 44,
+  "locality": "TADEPALLI",
+  "polling_station": "Mandal Parishad Adarsa Primary School, North Facing, South side Room (Main), Tadepalli",
+  "electors_male": 268,
+  "electors_female": 309,
+  "electors_total": 577,
+  "electors_third_gender": 0,
+  "electors_unclassified": 0
+ },
+ {
+  "part": 47,
+  "locality": "ANGALAKUDURU",
+  "polling_station": "VSR & JDM, Zilla Parishad High School, Room No.19, Angalakuduru",
+  "electors_male": 350,
+  "electors_female": 400,
+  "electors_total": 750,
+  "electors_third_gender": 0,
+  "electors_unclassified": 0
+ },
+ {
+  "part": 52,
+  "locality": "TADEPALLI",
+  "polling_station": "Mandal Parishad Primary School, North Facing East Side 1st room, Adi Andhra Polakampadu, Tadepalli TADEPALLI",
+  "electors_male": 250,
+  "electors_female": 282,
+  "electors_total": 532,
+  "electors_third_gender": 0,
+  "electors_unclassified": 0
+ },
+ {
+  "part": 54,
+  "locality": "TADEPALLI",
+  "polling_station": "Mandal Parishad Primary School, Easternside Building, 2nd Room from Eastern side, Nulakapet.",
+  "electors_male": 336,
+  "electors_female": 381,
+  "electors_total": 717,
+  "electors_third_gender": 0,
+  "electors_unclassified": 0
+ },
+ {
+  "part": 66,
+  "locality": "TADEPALLI",
+  "polling_station": "KC Works Employees Education Society High School, 3rd Room from Eastern side, Brahmananda Puram, Tadepalli.",
+  "electors_male": 315,
+  "electors_female": 332,
+  "electors_total": 647,
+  "electors_third_gender": 0,
+  "electors_unclassified": 0
+ },
+ {
+  "part": 80,
+  "locality": "IPPATAM",
+  "polling_station": "Mandal Parishad Primary School, Northern Room, Ippatam.",
+  "electors_male": 355,
+  "electors_female": 392,
+  "electors_total": 747,
+  "electors_third_gender": 0,
+  "electors_unclassified": 0
+ },
+ {
+  "part": 117,
+  "locality": "KURAGALLU",
+  "polling_station": "Mandal Parishad Adarsha Primary School, Western Block, 2nd room from North side, Kuragallu",
+  "electors_male": 270,
+  "electors_female": 302,
+  "electors_total": 572,
+  "electors_third_gender": 0,
+  "electors_unclassified": 0
+ },
+ {
+  "part": 121,
+  "locality": "NIDAMARRU",
+  "polling_station": "Zilla Parishad High School, Western Block, 2nd Room from Southern side, Nidamarru.",
+  "electors_male": 219,
+  "electors_female": 265,
+  "electors_total": 484,
+  "electors_third_gender": 0,
+  "electors_unclassified": 0
+ },
+ {
+  "part": 123,
+  "locality": "NIDAMARRU",
+  "polling_station": "Zilla Parishad High School, Eastern Block, 1st Room from Southern side, Nidamarru.",
+  "electors_male": 309,
+  "electors_female": 326,
+  "electors_total": 635,
+  "electors_third_gender": 0,
+  "electors_unclassified": 0
+ },
+ {
+  "part": 124,
+  "locality": "NIDAMARRU",
+  "polling_station": "Zilla Parishad High School, Eastern Block, 2nd Room from Southern Side, Nidamaru.",
+  "electors_male": 366,
+  "electors_female": 386,
+  "electors_total": 752,
+  "electors_third_gender": 0,
+  "electors_unclassified": 0
+ },
+ {
+  "part": 125,
+  "locality": "NIDAMARRU",
+  "polling_station": "Mandal Parishad Primary School (LE), Sothern Block, 1st room from Eastern Side, Nidamarru",
+  "electors_male": 409,
+  "electors_female": 429,
+  "electors_total": 838,
+  "electors_third_gender": 0,
+  "electors_unclassified": 0
+ },
+ {
+  "part": 131,
+  "locality": "KAZA",
+  "polling_station": "Paika Bhavan, Grama Panchayat, Kaza Village, Mangalagiri Mandal Kaza",
+  "electors_male": 377,
+  "electors_female": 384,
+  "electors_total": 761,
+  "electors_third_gender": 0,
+  "electors_unclassified": 0
+ },
+ {
+  "part": 145,
+  "locality": "MANGALAGIRI (U)",
+  "polling_station": "M.P.S.7th WARD,2nd ROOM from EAST in eastern BLOCK MANGALAGIRI",
+  "electors_male": 367,
+  "electors_female": 349,
+  "electors_total": 716,
+  "electors_third_gender": 0,
+  "electors_unclassified": 0
+ },
+ {
+  "part": 180,
+  "locality": "MANGALAGIRI (U)",
+  "polling_station": "C.K.Junior College, Western Block, Ground floor, 4th room North, Mangalagiri, MANGALAGIRI MUNICIPALITY",
+  "electors_male": 174,
+  "electors_female": 202,
+  "electors_total": 376,
+  "electors_third_gender": 0,
+  "electors_unclassified": 0
+ },
+ {
+  "part": 187,
+  "locality": "MANGALAGIRI (U)",
+  "polling_station": "V.T.J.M .Degree College, Southern block 1st room from Eastern side (Seminar hall) Mangalagiri. MANGALAGIRI MUNICIPALITY",
+  "electors_male": 358,
+  "electors_female": 311,
+  "electors_total": 669,
+  "electors_third_gender": 0,
+  "electors_unclassified": 0
+ },
+ {
+  "part": 219,
+  "locality": "PEDAVADLAPUDI",
+  "polling_station": "Community Centre , Chinavadalpudi",
+  "electors_male": 152,
+  "electors_female": 170,
+  "electors_total": 322,
+  "electors_third_gender": 0,
+  "electors_unclassified": 0
+ },
+ {
+  "part": 231,
+  "locality": "CHILUVURU",
+  "polling_station": "Mandal Parishad Upper Primary School, (Urdu), New Building, Chiluvur",
+  "electors_male": 354,
+  "electors_female": 367,
+  "electors_total": 721,
+  "electors_third_gender": 0,
+  "electors_unclassified": 0
+ },
+ {
+  "part": 236,
+  "locality": "CHILUVURU",
+  "polling_station": "RCM Elementary School, 3rd Room from Right side, Chiluvur",
+  "electors_male": 281,
+  "electors_female": 327,
+  "electors_total": 608,
+  "electors_third_gender": 0,
+  "electors_unclassified": 0
+ },
+ {
+  "part": 244,
+  "locality": "PENUMOLI",
+  "polling_station": "MPP School ( HW ), Southern Side Building, Penumuli",
+  "electors_male": 335,
+  "electors_female": 339,
+  "electors_total": 674,
+  "electors_third_gender": 0,
+  "electors_unclassified": 0
+ },
+ {
+  "part": 254,
+  "locality": "DUGGIRALA",
+  "polling_station": "VBMPP School West side building 2nd room from north side Duggirala DUGGIRALA",
+  "electors_male": 202,
+  "electors_female": 229,
+  "electors_total": 431,
+  "electors_third_gender": 0,
+  "electors_unclassified": 0
+ },
+ {
+  "part": 256,
+  "locality": "DEVARAPALLI AGRAHARAM",
+  "polling_station": "M.P.P. SCHOOL DEVARAPALLI AGRAHARAM",
+  "electors_male": 81,
+  "electors_female": 90,
+  "electors_total": 171,
+  "electors_third_gender": 0,
+  "electors_unclassified": 0
+ },
+ {
+  "part": 264,
+  "locality": "SRUNGARAPURAM",
+  "polling_station": "MPPS Middle Room, Srungarapuram",
+  "electors_male": 182,
+  "electors_female": 198,
+  "electors_total": 380,
+  "electors_third_gender": 0,
+  "electors_unclassified": 0
+ },
+ {
+  "part": 274,
+  "locality": "GODAVARRU",
+  "polling_station": "MPP School, New Building, West side room, Godavarru",
+  "electors_male": 243,
+  "electors_female": 264,
+  "electors_total": 507,
+  "electors_third_gender": 0,
+  "electors_unclassified": 0
+ },
+ {
+  "part": 282,
+  "locality": "EMANI",
+  "polling_station": "Zilla Parishad High school Plus, New Building, Northern side Room, Emani.",
+  "electors_male": 285,
+  "electors_female": 340,
+  "electors_total": 625,
+  "electors_third_gender": 0,
+  "electors_unclassified": 0
+ },
+ {
+  "part": 285,
+  "locality": "CHINTALA PUDI",
+  "polling_station": "MPP School, Middle Room, Chintalapudi",
+  "electors_male": 294,
+  "electors_female": 308,
+  "electors_total": 602,
+  "electors_third_gender": 0,
+  "electors_unclassified": 0
+ },
+ {
+  "part": 286,
+  "locality": "CHINTALA PUDI",
+  "polling_station": "Mandal Parishad Primary School, Western side room, Chinthalapudi, chintalapudi",
+  "electors_male": 332,
+  "electors_female": 348,
+  "electors_total": 680,
+  "electors_third_gender": 0,
+  "electors_unclassified": 0
+ }
+]
