@@ -1642,6 +1642,8 @@ const scanSourceOnce = async (source, options = {}) => {
       // Update if upgrading to Viral or Higher Risk
       /* Skipping update logic for simplicity as requested "new post fetched... analyzed... alert" flow usually implies fresh content */
       //console.log(`[Monitor] Alert already exists for ${content.id}, skipping duplicate creation.`);
+    } else if (content.alert_suppressed) {
+      // An admin deleted the alert for this exact post previously — don't recreate it.
     } else {
       const newAlert = new Alert(alertData);
       await newAlert.save();
@@ -2123,7 +2125,9 @@ const rescanContent = async () => {
       };
 
       let existingAlert = await Alert.findOne({ content_id: content.id });
-      if (!existingAlert && (finalRiskLevel !== 'low' || velocity)) {
+      // Skip recreation if an admin deleted the alert for this exact post —
+      // otherwise a keyword add/edit -> rescan resurrects it every time.
+      if (!existingAlert && !content.alert_suppressed && (finalRiskLevel !== 'low' || velocity)) {
         await new Alert(alertData).save();
         alertCount++;
       }

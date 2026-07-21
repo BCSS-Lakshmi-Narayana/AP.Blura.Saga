@@ -748,6 +748,14 @@ const deleteAlert = async (req, res) => {
       return res.status(404).json({ message: 'Alert not found' });
     }
     await Alert.deleteOne({ id: req.params.id });
+    // Mark the underlying content as suppressed so the monitor loop,
+    // velocity/viral alerting, and manual rescans don't recreate a fresh
+    // alert for the same post next time they evaluate it — they all dedupe
+    // by checking whether an Alert already exists for the content_id, which
+    // is no longer true the instant we delete it above.
+    if (alert.content_id) {
+      await Content.updateOne({ content_id: alert.content_id }, { $set: { alert_suppressed: true } });
+    }
     await clearAlertCache();
     await createAuditLog(req.user, 'delete', 'alert', req.params.id, {});
     res.status(200).json({ message: 'Alert deleted successfully' });

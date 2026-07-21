@@ -740,16 +740,16 @@ const getGrievances = async (req, res) => {
         }
 
         // Superadmin / unscoped roles see every grievance in the collection,
-        // including legacy rows that lack BSK keywords or have is_active=false.
+        // including legacy rows that lack BSK keywords — but NOT soft-deleted
+        // (is_active=false) rows. That filter must always apply; dropping it
+        // for admin view meant a deleted grievance reappeared for the admin
+        // who deleted it on the very next list refresh.
         const isAdminView = !!(req.scope && req.scope.canSeeAll);
         const queryParams = isAdminView
             ? { ...req.query, bsk_only: 'false' }
             : req.query;
 
         const query = buildListQuery(queryParams);
-        if (isAdminView) {
-            delete query.is_active;
-        }
 
         // Limit search space to 400 most recent grievances for location + civic issue categories
         const hasLocation = queryParams.location_city || queryParams.location_district || queryParams.location_constituency;
@@ -758,9 +758,6 @@ const getGrievances = async (req, res) => {
             const baseQueryParams = { ...queryParams };
             delete baseQueryParams.analysis_category;
             const baseQuery = buildListQuery(baseQueryParams);
-            if (isAdminView) {
-                delete baseQuery.is_active;
-            }
             const recentDocs = await Grievance.find(baseQuery)
                 .select('_id')
                 .sort({ post_date: -1 })

@@ -68,6 +68,10 @@ const checkVelocity = async (content, settings) => {
 const checkAndCreateVelocityAlerts = async (content, settings) => {
     try {
         if (!settings.velocity_alerts_enabled) return;
+        // An admin deleted a previous alert for this exact post — don't
+        // silently recreate it just because it's still inside the velocity
+        // window.
+        if (content.alert_suppressed) return;
 
         // REMOVED CHECK: User requested viral alerts for ALL posts, not just risky ones.
         // const riskLevel = String(content.risk_level || '').toLowerCase();
@@ -238,6 +242,7 @@ const checkAndCreateVelocityAlerts = async (content, settings) => {
 const createNewPostAlert = async (content, settings) => {
     try {
         if (!settings.alert_for_every_post) return;
+        if (content.alert_suppressed) return; // admin deleted the alert for this post
 
         // Check for existing HIGH/AI risk alert (Deduplication)
         // If an AI risk or Keyword risk alert exists, we DON'T need a duplicate "New Post" notification
