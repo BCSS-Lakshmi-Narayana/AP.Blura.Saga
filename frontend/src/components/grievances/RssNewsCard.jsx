@@ -89,7 +89,7 @@ export const RssNewsCard = ({ article }) => {
           {/* Row 1 — Title + Category / Language badges */}
           <div className="flex items-start justify-between gap-3">
             <div className="flex-1 min-w-0">
-              <h3 className="text-sm font-bold text-slate-900 leading-snug group-hover:text-violet-700 transition-colors">
+              <h3 className="text-sm font-bold text-slate-900 leading-snug">
                 {displayTitle}
               </h3>
               {showOriginal && (
@@ -125,7 +125,6 @@ export const RssNewsCard = ({ article }) => {
               href={article.source_url}
               target="_blank"
               rel="noopener noreferrer"
-              onClick={(e) => e.stopPropagation()}
               className="ml-auto flex items-center gap-1 text-violet-600 hover:text-violet-800 font-semibold shrink-0 text-[11px] hover:underline"
             >
               Read Article <ExternalLink className="h-3 w-3" />

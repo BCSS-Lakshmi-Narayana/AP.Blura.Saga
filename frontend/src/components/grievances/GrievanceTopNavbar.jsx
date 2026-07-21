@@ -75,7 +75,7 @@ export const GrievanceTopNavbar = ({
         { id: 'facebook', label: 'Facebook', icon: FacebookLogo, color: 'text-[#1877F2]' },
         { id: 'instagram', label: 'Instagram', icon: InstagramLogo, color: 'text-[#E4405F]' },
         { id: 'youtube', label: 'YouTube', icon: YouTubeLogo, color: 'text-[#FF0000]' },
-        //{ id: 'rss',     label: 'RSS News', icon: Rss,        color: 'text-violet-600' },
+        { id: 'rss',     label: 'RSS News', icon: Rss,        color: 'text-violet-600' },
     ];
 
     const selectedHandleData = sources.find(h => h.handle === selectedHandle || h.id === selectedHandle);
