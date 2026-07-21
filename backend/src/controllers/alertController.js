@@ -16,6 +16,26 @@ const { v4: uuidv4 } = require('uuid');
 const escapeRegex = (string) => string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 const ALERT_STATUS_VALUES = ['active', 'false_positive', 'acknowledged', 'escalated'];
 
+// Raw `llm_analysis.grievance_type` values that get merged and displayed
+// under one canonical topic label (see normalizeTopicName in
+// getTopicClassificationCounts, which this must stay in sync with). The
+// stored value is NEVER literally "General Complaint" — it's always one of
+// these — so any query filtering by the canonical label must match all of
+// its aliases, not the label itself, or it returns zero rows.
+const TOPIC_ALIASES = {
+  'General Complaint': ['General Complaint', 'Government Praise', 'Govt Praise', 'General Praise'],
+};
+
+// Builds the `llm_analysis.grievance_type` query fragment for a topic filter,
+// expanding to every raw alias when the requested topic is a canonical label.
+const buildTopicClassificationQuery = (topicClassification) => {
+  const aliases = TOPIC_ALIASES[topicClassification];
+  if (aliases) {
+    return { $in: aliases.map((a) => new RegExp(`^${escapeRegex(a)}$`, 'i')) };
+  }
+  return { $regex: `^${escapeRegex(topicClassification)}$`, $options: 'i' };
+};
+
 // Negative/Moderate/Positive filtering must reflect stance RELATIVE TO TDP/CBN
 // (llm_analysis.bsk_sentiment) — NOT risk_level, which is shared with
 // non-political alert types (velocity/viral spikes) that never ran through
@@ -311,7 +331,7 @@ const getAlerts = async (req, res) => {
 
     // Topic Classification Filter (from llm_analysis.grievance_type)
     if (topic_classification && topic_classification !== 'all') {
-      query['llm_analysis.grievance_type'] = { $regex: `^${escapeRegex(topic_classification)}$`, $options: 'i' };
+      query['llm_analysis.grievance_type'] = buildTopicClassificationQuery(topic_classification);
     }
 
     // Date Range Filter — filter by content publish date (actual post date on platform)
@@ -779,7 +799,7 @@ const buildAlertStats = async (params = {}, { skipPendingCount = true } = {}) =>
   if (sentiment && sentiment !== 'all') applyBskSentimentFilter(query, sentiment);
   if (platform && platform !== 'all') query.platform = platform;
   if (topic_classification && topic_classification !== 'all') {
-    query['llm_analysis.grievance_type'] = { $regex: `^${escapeRegex(topic_classification)}$`, $options: 'i' };
+    query['llm_analysis.grievance_type'] = buildTopicClassificationQuery(topic_classification);
   }
   if (alert_type && alert_type !== 'all') {
     if (alert_type === 'risk') query.alert_type = { $in: ['keyword_risk', 'ai_risk', null] };
@@ -1772,13 +1792,17 @@ const getTopicClassificationCounts = async (req, res) => {
 
     const results = await Alert.aggregate(pipeline).option({ allowDiskUse: true });
 
-    // Normalize topic names (matching ReasonModal display logic)
+    // Normalize topic names (matching ReasonModal display logic). Driven by
+    // TOPIC_ALIASES so this can't drift out of sync with
+    // buildTopicClassificationQuery, which is what the click-through filter
+    // on these counts actually uses.
+    const aliasToCanonical = Object.entries(TOPIC_ALIASES).reduce((acc, [canonical, aliases]) => {
+      for (const alias of aliases) acc[alias.toLowerCase()] = canonical;
+      return acc;
+    }, {});
     const normalizeTopicName = (name) => {
       const normalized = String(name || '').trim().toLowerCase();
-      if (['government praise', 'govt praise', 'general praise'].includes(normalized)) {
-        return 'General Complaint';
-      }
-      return String(name || '').trim();
+      return aliasToCanonical[normalized] || String(name || '').trim();
     };
 
     // Merge counts for normalized duplicates
