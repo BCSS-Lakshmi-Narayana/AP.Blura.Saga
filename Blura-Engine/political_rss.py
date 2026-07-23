@@ -7,6 +7,7 @@ Fetches RSS feeds → filters for political/Andhra relevance → detects languag
 import os
 import re
 import time
+import socket
 import logging
 from datetime import datetime, timezone
 from urllib.parse import urlparse
@@ -56,6 +57,11 @@ logging.basicConfig(
     level=logging.WARNING,
     format='%(asctime)s %(levelname)s %(message)s',
 )
+
+# Safety net: without this, any blocking call that lacks its own explicit
+# timeout (e.g. a stalled connection during DNS/SSL) can hang the engine
+# forever, since it runs a single sequential loop with no per-feed watchdog.
+socket.setdefaulttimeout(20)
 
 HEADERS = {
     'User-Agent': (
@@ -390,7 +396,9 @@ def process_feed(feed_cfg: dict) -> int:
     print(f"\n[RSS] Fetching: {source_name} ({url})")
 
     try:
-        parsed = feedparser.parse(url, request_headers=HEADERS)
+        resp = requests.get(url, headers=HEADERS, timeout=15)
+        resp.raise_for_status()
+        parsed = feedparser.parse(resp.content)
     except Exception as e:
         print(f"[ERR] feedparser failed for {url}: {e}")
         return 0
