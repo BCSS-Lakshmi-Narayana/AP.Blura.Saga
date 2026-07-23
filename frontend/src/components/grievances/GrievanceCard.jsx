@@ -3,7 +3,7 @@ import { format, formatDistanceToNowStrict } from 'date-fns';
 import {
     Heart, MessageCircle, Repeat2, BarChart3, Bookmark, Network,
     BadgeCheck, Play, Download, Loader2, Eye, Shield, Tag, MapPin, AlertTriangle, Trash2, AtSign,
-    ImageOff, Video as VideoIcon
+    ImageOff, Video as VideoIcon, Globe
 } from 'lucide-react';
 import { Card, CardContent } from '../ui/card';
 import { Button } from '../ui/button';
@@ -12,6 +12,8 @@ import { normalizeMediaList, PostEngagersDialog } from '../AlertCards';
 import { cn } from '../../lib/utils';
 import { useAuth } from '../../contexts/AuthContext';
 import { canManageRestrictedGrievanceUi } from '../../lib/grievanceUiPermissions';
+import api from '../../lib/api';
+import { toast } from 'sonner';
 const GlobeIcon = ({ className }) => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className={className}>
         <path d="M8 0a8 8 0 1 0 0 16A8 8 0 0 0 8 0zM1.6 8a6.4 6.4 0 0 1 12.8 0 6.4 6.4 0 0 1-12.8 0z" />
@@ -175,11 +177,27 @@ const ActionButtons = ({ grievance, onAction, isDownloading = false }) => {
                 }}
             >
                 Q
-            </Button> 
+            </Button>
             */}
         </div>
     );
 };
+
+const TranslateButton = ({ isTranslated, isTranslating, onTranslate }) => (
+    <button
+        type="button"
+        onClick={(e) => { e.stopPropagation(); onTranslate?.(); }}
+        disabled={isTranslating}
+        className="text-[11px] font-medium text-blue-600 hover:text-blue-800 flex items-center gap-1 transition-all duration-150 active:scale-95 shrink-0"
+    >
+        {isTranslating ? (
+            <Loader2 className="h-3 w-3 animate-spin" />
+        ) : (
+            <Globe className="h-3 w-3" />
+        )}
+        <span>{isTranslated ? 'Show Original' : (isTranslating ? 'Translating...' : 'Translate')}</span>
+    </button>
+);
 
 const SentimentBadge = ({ analysis }) => {
     if (!analysis?.analyzed_at) return null;
@@ -871,10 +889,11 @@ const ParentFacebookPost = ({ context, getProxiedMediaUrl, onAction, grievance }
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 /*                  X (TWITTER) LAYOUT                     */
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-const XLayout = ({ grievance, getProxiedMediaUrl, onAction, downloadState = {}, isPostEngagersOpen, setIsPostEngagersOpen, postEngagersTab, setPostEngagersTab }) => {
+const XLayout = ({ grievance, getProxiedMediaUrl, onAction, downloadState = {}, isPostEngagersOpen, setIsPostEngagersOpen, postEngagersTab, setPostEngagersTab, isTranslated, translatedText, isTranslating, onTranslate }) => {
     const user = grievance.posted_by || {};
     const handle = (user.handle || '').replace('@', '');
-    const text = grievance.content?.full_text || grievance.content?.text || '';
+    const originalText = grievance.content?.full_text || grievance.content?.text || '';
+    const text = (isTranslated && translatedText) ? translatedText : originalText;
     const media = grievance.content?.media || [];
     const engagement = grievance.engagement || {};
     const ctx = grievance.context || {};
@@ -935,6 +954,11 @@ const XLayout = ({ grievance, getProxiedMediaUrl, onAction, downloadState = {}, 
                         </div>
                     )}
                     {text && <div className="text-[15px] text-[#0f1419] leading-5 mt-1 whitespace-pre-wrap break-words">{highlightMentions(text)}</div>}
+                    {originalText && (
+                        <div className="mt-1">
+                            <TranslateButton isTranslated={isTranslated} isTranslating={isTranslating} onTranslate={onTranslate} />
+                        </div>
+                    )}
                     {media.length > 0 && <MediaGrid media={media} getProxiedMediaUrl={getProxiedMediaUrl} onAction={onAction} grievance={grievance} />}
                     <QuotedTweet context={ctx.quoted} getProxiedMediaUrl={getProxiedMediaUrl} onAction={onAction} grievance={grievance} />
                     <div className="flex items-center justify-between mt-3 max-w-[425px] -ml-2">
@@ -1035,9 +1059,10 @@ const FacebookMediaGrid = ({ media, getProxiedMediaUrl, onAction, grievance }) =
     );
 };
 
-const FacebookLayout = ({ grievance, getProxiedMediaUrl, onAction, downloadState = {} }) => {
+const FacebookLayout = ({ grievance, getProxiedMediaUrl, onAction, downloadState = {}, isTranslated, translatedText, isTranslating, onTranslate }) => {
     const user = grievance.posted_by || {};
-    const text = grievance.content?.full_text || grievance.content?.text || '';
+    const originalText = grievance.content?.full_text || grievance.content?.text || '';
+    const text = (isTranslated && translatedText) ? translatedText : originalText;
     const media = grievance.content?.media || [];
     const engagement = grievance.engagement || {};
     const totalReactions = (engagement.likes || 0);
@@ -1080,6 +1105,11 @@ const FacebookLayout = ({ grievance, getProxiedMediaUrl, onAction, downloadState
                     <ActionButtons grievance={grievance} onAction={onAction} isDownloading={!!downloadState?.downloading} />
                 </div>
                 {text && <div className="mt-3 text-[15px] text-[#050505] leading-5 whitespace-pre-wrap break-words">{highlightMentions(text)}</div>}
+                {originalText && (
+                    <div className="mt-1">
+                        <TranslateButton isTranslated={isTranslated} isTranslating={isTranslating} onTranslate={onTranslate} />
+                    </div>
+                )}
                 {media.length > 0 && <div className="mt-3 -mx-4"><FacebookMediaGrid media={media} getProxiedMediaUrl={getProxiedMediaUrl} onAction={onAction} grievance={grievance} /></div>}
                 {totalReactions > 0 && (
                     <div className="flex items-center justify-between px-1 py-2.5 border-b border-[#ced0d4]">
@@ -1117,9 +1147,10 @@ const FacebookLayout = ({ grievance, getProxiedMediaUrl, onAction, downloadState
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 /*                   WHATSAPP LAYOUT                       */
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-const WhatsAppLayout = ({ grievance, getProxiedMediaUrl, onAction, downloadState = {} }) => {
+const WhatsAppLayout = ({ grievance, getProxiedMediaUrl, onAction, downloadState = {}, isTranslated, translatedText, isTranslating, onTranslate }) => {
     const user = grievance.posted_by || {};
-    const text = grievance.content?.full_text || grievance.content?.text || '';
+    const originalText = grievance.content?.full_text || grievance.content?.text || '';
+    const text = (isTranslated && translatedText) ? translatedText : originalText;
     const media = grievance.content?.media || [];
     const displayName = user.display_name || grievance.complainant_phone || 'Unknown';
     const phone = grievance.complainant_phone || user.handle || '';
@@ -1184,6 +1215,11 @@ const WhatsAppLayout = ({ grievance, getProxiedMediaUrl, onAction, downloadState
                         </div>
                     )}
                     {text && <p className="text-[14.2px] text-[#111b21] leading-[19px] whitespace-pre-wrap break-words">{text}</p>}
+                    {originalText && (
+                        <div className="mt-1">
+                            <TranslateButton isTranslated={isTranslated} isTranslating={isTranslating} onTranslate={onTranslate} />
+                        </div>
+                    )}
                     <div className="flex items-center justify-end gap-1 mt-1">
                         <span className="text-[11px] text-[#667781]">{grievance.post_date ? format(new Date(grievance.post_date), 'h:mm a') : ''}</span>
                     </div>
@@ -1199,6 +1235,34 @@ const WhatsAppLayout = ({ grievance, getProxiedMediaUrl, onAction, downloadState
 export const GrievanceCard = ({ grievance, onAction, getProxiedMediaUrl, downloadState = {}, isActioned = false, isSelected = false, compact = false }) => {
     const [isPostEngagersOpen, setIsPostEngagersOpen] = useState(false);
     const [postEngagersTab, setPostEngagersTab] = useState('all');
+    const [isTranslated, setIsTranslated] = useState(false);
+    const [translatedText, setTranslatedText] = useState('');
+    const [isTranslating, setIsTranslating] = useState(false);
+
+    const handleTranslate = async () => {
+        if (isTranslated) {
+            setIsTranslated(false);
+            return;
+        }
+        if (translatedText) {
+            setIsTranslated(true);
+            return;
+        }
+        const sourceText = grievance.content?.full_text || grievance.content?.text || '';
+        if (!sourceText) return;
+        setIsTranslating(true);
+        try {
+            const res = await api.post('/grievances/translate', { text: sourceText });
+            setTranslatedText(res.data.translatedText);
+            setIsTranslated(true);
+        } catch (error) {
+            console.error('Translation failed:', error);
+            toast.error('Translation failed. Please try again.');
+        } finally {
+            setIsTranslating(false);
+        }
+    };
+
     const platform = (grievance.platform || 'x').toLowerCase();
     const isX = platform === 'x' || platform === 'twitter';
     const isFB = platform === 'facebook';
@@ -1241,11 +1305,11 @@ export const GrievanceCard = ({ grievance, onAction, getProxiedMediaUrl, downloa
 
             {/* Platform-native Content */}
             <CardContent className={cn('p-3', isWA && 'p-2')}>
-                {isX && <XLayout grievance={grievance} getProxiedMediaUrl={getProxiedMediaUrl} onAction={onAction} downloadState={downloadState} isPostEngagersOpen={isPostEngagersOpen} setIsPostEngagersOpen={setIsPostEngagersOpen} postEngagersTab={postEngagersTab} setPostEngagersTab={setPostEngagersTab} />}
-                {isFB && <FacebookLayout grievance={grievance} getProxiedMediaUrl={getProxiedMediaUrl} onAction={onAction} downloadState={downloadState} />}
-                {isWA && <WhatsAppLayout grievance={grievance} getProxiedMediaUrl={getProxiedMediaUrl} onAction={onAction} downloadState={downloadState} />}
-                {isIG && <XLayout grievance={grievance} getProxiedMediaUrl={getProxiedMediaUrl} onAction={onAction} downloadState={downloadState} isPostEngagersOpen={isPostEngagersOpen} setIsPostEngagersOpen={setIsPostEngagersOpen} postEngagersTab={postEngagersTab} setPostEngagersTab={setPostEngagersTab} />}
-                {isYT && <XLayout grievance={grievance} getProxiedMediaUrl={getProxiedMediaUrl} onAction={onAction} downloadState={downloadState} isPostEngagersOpen={isPostEngagersOpen} setIsPostEngagersOpen={setIsPostEngagersOpen} postEngagersTab={postEngagersTab} setPostEngagersTab={setPostEngagersTab} />}
+                {isX && <XLayout grievance={grievance} getProxiedMediaUrl={getProxiedMediaUrl} onAction={onAction} downloadState={downloadState} isPostEngagersOpen={isPostEngagersOpen} setIsPostEngagersOpen={setIsPostEngagersOpen} postEngagersTab={postEngagersTab} setPostEngagersTab={setPostEngagersTab} isTranslated={isTranslated} translatedText={translatedText} isTranslating={isTranslating} onTranslate={handleTranslate} />}
+                {isFB && <FacebookLayout grievance={grievance} getProxiedMediaUrl={getProxiedMediaUrl} onAction={onAction} downloadState={downloadState} isTranslated={isTranslated} translatedText={translatedText} isTranslating={isTranslating} onTranslate={handleTranslate} />}
+                {isWA && <WhatsAppLayout grievance={grievance} getProxiedMediaUrl={getProxiedMediaUrl} onAction={onAction} downloadState={downloadState} isTranslated={isTranslated} translatedText={translatedText} isTranslating={isTranslating} onTranslate={handleTranslate} />}
+                {isIG && <XLayout grievance={grievance} getProxiedMediaUrl={getProxiedMediaUrl} onAction={onAction} downloadState={downloadState} isPostEngagersOpen={isPostEngagersOpen} setIsPostEngagersOpen={setIsPostEngagersOpen} postEngagersTab={postEngagersTab} setPostEngagersTab={setPostEngagersTab} isTranslated={isTranslated} translatedText={translatedText} isTranslating={isTranslating} onTranslate={handleTranslate} />}
+                {isYT && <XLayout grievance={grievance} getProxiedMediaUrl={getProxiedMediaUrl} onAction={onAction} downloadState={downloadState} isPostEngagersOpen={isPostEngagersOpen} setIsPostEngagersOpen={setIsPostEngagersOpen} postEngagersTab={postEngagersTab} setPostEngagersTab={setPostEngagersTab} isTranslated={isTranslated} translatedText={translatedText} isTranslating={isTranslating} onTranslate={handleTranslate} />}
             </CardContent>
 
             {/* Footer */}

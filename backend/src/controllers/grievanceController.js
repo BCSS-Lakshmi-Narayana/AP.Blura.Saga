@@ -16,6 +16,7 @@ const {
 } = require('../services/grievanceWorkflowService');
 const { createAuditLog } = require('../services/auditService');
 const cacheService = require('../services/cacheService');
+const translationService = require('../services/translationService');
 const crypto = require('crypto');
 const { ISSUE_LEXICON } = require('../services/mlaReferenceService');
 
@@ -28,6 +29,10 @@ const invalidateGrievanceCaches = async () => {
     await cacheService.invalidatePrefix('grievances:sentiment-leaders:');
     await cacheService.invalidatePrefix('grievances:location-stats:v1');
     await cacheService.invalidatePrefix('grievances:list:v1');
+    // Bump the list-cache version so a GET already in flight when this ran
+    // (e.g. concurrent with a delete) can't write stale pre-delete data back
+    // into the cache after invalidatePrefix already cleared it above.
+    await cacheService.bumpVersion('grievances:list');
 };
 
 const logAudit = async (req, action, resourceType, resourceId, details = null) => {
@@ -728,8 +733,9 @@ const getGrievances = async (req, res) => {
         // Cache only first-page loads (no cursor). Cursor loads only fire
         // when the user actively scrolls and are unique per session.
         const isFirstPage = !cursor;
+        const listCacheVersion = await cacheService.getVersion('grievances:list');
         const cacheKey = isFirstPage
-            ? `grievances:list:v1:${JSON.stringify(req.query || {})}`
+            ? `grievances:list:v1:${listCacheVersion}:${JSON.stringify(req.query || {})}`
             : null;
         if (cacheKey) {
             const cached = await cacheService.get(cacheKey);
@@ -2411,6 +2417,31 @@ const getLocationSummary = async (req, res) => {
 };
 
 /**
+ * @desc    Translate grievance content
+ * @route   POST /api/grievances/translate
+ * @access  Private
+ */
+const translateGrievanceContent = async (req, res) => {
+    try {
+        const { text, target = 'en' } = req.body;
+
+        if (!text) {
+            return res.status(400).json({ message: 'Text to translate is required' });
+        }
+
+        const translatedText = await translationService.translate(text, target);
+
+        res.status(200).json({
+            translatedText,
+            originalText: text
+        });
+    } catch (error) {
+        console.error('[GrievanceController] Translation Error:', error.message);
+        res.status(500).json({ message: error.message });
+    }
+};
+
+/**
  * @desc    Delete grievance (soft delete)
  * @route   DELETE /api/grievances/:id
  * @access  Private
@@ -2645,6 +2676,7 @@ module.exports = {
     fetchKeywordGrievances,
     getGrievances,
     getGrievance,
+    translateGrievanceContent,
     deleteGrievance,
     acknowledgeGrievance,
     markAsComplaint,
