@@ -123,7 +123,7 @@ exports.getRssKeywords = async (req, res) => {
   try {
     const mongoose = require('mongoose');
     const col = mongoose.connection.db.collection('rsskeywords');
-    let keywords = await col.find({}).toArray();
+    const metaCol = mongoose.connection.db.collection('rsskeywords_meta');
 
     const defaultKeywordsList = [
       'chandrababu naidu', 'chandrababu', 'naidu', 'cbn', 'nara lokesh', 'lokesh nara', 'lokesh',
@@ -140,26 +140,40 @@ exports.getRssKeywords = async (req, res) => {
       'అమరావతి', 'పోలవరం', 'రాయలసీమ', 'విశాఖపట్నం', 'విజయవాడ', 'గుంటూరు', 'కుప్పం', 'మంగళరి', 'పెన్షన్'
     ];
 
-    const existingKeywords = new Set(keywords.map(k => k.keyword));
-    const missingDocs = [];
-    for (const kw of defaultKeywordsList) {
-      const cleanKw = kw.toLowerCase().trim();
-      if (!existingKeywords.has(cleanKw)) {
-        const isTelugu = /[\u0C00-\u0C7F]/.test(cleanKw);
-        missingDocs.push({
-          keyword: cleanKw,
-          language: isTelugu ? 'te' : 'en',
-          is_active: true,
-          created_at: new Date()
+    // One-time bootstrap ONLY. Previously this default list was merged back in
+    // on every fetch, so deleting a default keyword had no effect \u2014 the very
+    // next load re-inserted it (which is why deleted chips kept reappearing at
+    // the end). Keywords are now fully DB-managed: we seed this starter set
+    // exactly once, and only into a brand-new (empty) collection. A persistent
+    // marker makes the seed idempotent, so even clearing every keyword will not
+    // resurrect the defaults.
+    const seedMarker = await metaCol.findOne({ _id: 'seed' });
+    if (!seedMarker) {
+      const existingCount = await col.countDocuments();
+      if (existingCount === 0) {
+        const seededAt = new Date();
+        const seedDocs = defaultKeywordsList.map((kw) => {
+          const cleanKw = kw.toLowerCase().trim();
+          const isTelugu = /[\u0C00-\u0C7F]/.test(cleanKw);
+          return {
+            keyword: cleanKw,
+            language: isTelugu ? 'te' : 'en',
+            is_active: true,
+            created_at: seededAt,
+          };
         });
+        if (seedDocs.length > 0) await col.insertMany(seedDocs);
       }
+      // Mark seeding as done regardless of whether the collection was empty, so
+      // a DB that already had keywords is never re-seeded on later requests.
+      await metaCol.updateOne(
+        { _id: 'seed' },
+        { $set: { seeded: true, seeded_at: new Date() } },
+        { upsert: true }
+      );
     }
 
-    if (missingDocs.length > 0) {
-      await col.insertMany(missingDocs);
-      keywords = await col.find({}).toArray();
-    }
-
+    const keywords = await col.find({}).sort({ created_at: 1 }).toArray();
     res.json(keywords);
   } catch (err) {
     console.error('[NewsController] getRssKeywords error:', err);
@@ -175,9 +189,23 @@ exports.addRssKeyword = async (req, res) => {
       return res.status(400).json({ message: 'Keyword is required' });
     }
     const cleanKeyword = keyword.trim().toLowerCase();
-    const lang = language === 'te' ? 'te' : 'en';
 
     const col = mongoose.connection.db.collection('rsskeywords');
+    const langCol = mongoose.connection.db.collection('rsslanguages');
+
+    // Accept any configured language code (not just en/te). Validate against the
+    // languages collection so a keyword can never be filed under a bucket that
+    // doesn't exist; fall back to the first available language otherwise.
+    let lang = (language || '').trim().toLowerCase().replace(/[^a-z0-9]/g, '');
+    if (lang) {
+      const known = await langCol.findOne({ code: lang });
+      if (!known) lang = '';
+    }
+    if (!lang) {
+      const [first] = await langCol.find({}).sort({ created_at: 1 }).limit(1).toArray();
+      lang = first?.code || 'en';
+    }
+
     const existing = await col.findOne({ keyword: cleanKeyword });
     if (existing) {
       return res.status(409).json({ message: 'Keyword already exists' });
@@ -210,5 +238,99 @@ exports.deleteRssKeyword = async (req, res) => {
   } catch (err) {
     console.error('[NewsController] deleteRssKeyword error:', err);
     res.status(500).json({ message: 'Failed to delete RSS keyword' });
+  }
+};
+
+// ── RSS keyword languages (fully DB-managed, like the keywords themselves) ──
+// Each keyword carries a `language` code; these docs define the set of language
+// buckets the UI offers and renders. Shape: { code, label, is_active, created_at }.
+
+exports.getRssLanguages = async (req, res) => {
+  try {
+    const mongoose = require('mongoose');
+    const col = mongoose.connection.db.collection('rsslanguages');
+    const metaCol = mongoose.connection.db.collection('rsslanguages_meta');
+
+    // One-time bootstrap of the two languages the system originally shipped
+    // with. Same idempotent-marker pattern as keywords: seed once into an empty
+    // collection, then never re-add — so deleting a language is permanent.
+    const seedMarker = await metaCol.findOne({ _id: 'seed' });
+    if (!seedMarker) {
+      const existingCount = await col.countDocuments();
+      if (existingCount === 0) {
+        const seededAt = new Date();
+        await col.insertMany([
+          { code: 'en', label: 'English', is_active: true, created_at: seededAt },
+          { code: 'te', label: 'Telugu', is_active: true, created_at: new Date(seededAt.getTime() + 1) },
+        ]);
+      }
+      await metaCol.updateOne(
+        { _id: 'seed' },
+        { $set: { seeded: true, seeded_at: new Date() } },
+        { upsert: true }
+      );
+    }
+
+    const languages = await col.find({}).sort({ created_at: 1 }).toArray();
+    res.json(languages);
+  } catch (err) {
+    console.error('[NewsController] getRssLanguages error:', err);
+    res.status(500).json({ message: 'Failed to fetch languages' });
+  }
+};
+
+exports.addRssLanguage = async (req, res) => {
+  try {
+    const mongoose = require('mongoose');
+    const name = (req.body.name || '').trim();
+    if (!name) {
+      return res.status(400).json({ message: 'Language name is required' });
+    }
+
+    // The code is the identifier stored on each keyword (k.language), so it must
+    // be stable, lowercase and space-free. Use an explicit code if given, else
+    // derive one from the name.
+    let cleanCode = (req.body.code || '').trim().toLowerCase().replace(/[^a-z0-9]/g, '');
+    if (!cleanCode) {
+      cleanCode = name.toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 12);
+    }
+    if (!cleanCode) {
+      return res.status(400).json({ message: 'Could not derive a language code — please provide one (e.g. "hi").' });
+    }
+
+    const col = mongoose.connection.db.collection('rsslanguages');
+    const existing = await col.findOne({ code: cleanCode });
+    if (existing) {
+      return res.status(409).json({ message: 'A language with this code already exists' });
+    }
+
+    const doc = { code: cleanCode, label: name, is_active: true, created_at: new Date() };
+    await col.insertOne(doc);
+    res.status(201).json(doc);
+  } catch (err) {
+    console.error('[NewsController] addRssLanguage error:', err);
+    res.status(500).json({ message: 'Failed to add language' });
+  }
+};
+
+exports.deleteRssLanguage = async (req, res) => {
+  try {
+    const mongoose = require('mongoose');
+    const code = (req.params.code || '').trim().toLowerCase();
+    if (!code) {
+      return res.status(400).json({ message: 'Language code is required' });
+    }
+
+    const langCol = mongoose.connection.db.collection('rsslanguages');
+    const kwCol = mongoose.connection.db.collection('rsskeywords');
+
+    await langCol.deleteOne({ code });
+    // Cascade: remove keywords filed under this language so none are left
+    // orphaned under a language bucket that no longer exists.
+    const kwResult = await kwCol.deleteMany({ language: code });
+    res.json({ message: 'Language deleted successfully', keywordsRemoved: kwResult.deletedCount || 0 });
+  } catch (err) {
+    console.error('[NewsController] deleteRssLanguage error:', err);
+    res.status(500).json({ message: 'Failed to delete language' });
   }
 };

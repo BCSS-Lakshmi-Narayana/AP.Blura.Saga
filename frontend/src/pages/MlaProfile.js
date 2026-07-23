@@ -276,13 +276,13 @@ const MlaProfile = () => {
             <div className="flex items-center gap-2">
               <Badge className={`border ${partyStyle}`}>{mla.party}</Badge>
               <Badge variant="outline" className="border-slate-300 text-slate-600">{mla.alliance}</Badge>
-              {/* <button
+              <button
                 type="button"
                 onClick={() => setCompareOpen(true)}
                 className="inline-flex items-center gap-1.5 rounded-lg bg-gradient-to-br from-indigo-600 to-violet-600 text-white px-3 py-1.5 text-sm font-semibold shadow-sm hover:from-indigo-500 hover:to-violet-500 transition-all active:scale-95"
               >
                 <Swords className="h-4 w-4" /> Draw Comparison
-              </button> */}
+              </button>
             </div>
           )}
         </div>
