@@ -624,6 +624,12 @@ const Grievances = () => {
     const [rssKeywordError, setRssKeywordError] = useState('');
     const [rssKeywordSuccess, setRssKeywordSuccess] = useState('');
     const [isAddRssKeywordOpen, setIsAddRssKeywordOpen] = useState(false);
+    // Languages are DB-managed too — the buckets keywords are grouped into.
+    const [rssLanguages, setRssLanguages] = useState([]);
+    const [isAddRssLanguageOpen, setIsAddRssLanguageOpen] = useState(false);
+    const [newRssLanguageName, setNewRssLanguageName] = useState('');
+    const [newRssLanguageCode, setNewRssLanguageCode] = useState('');
+    const [rssLanguageError, setRssLanguageError] = useState('');
 
     const grievanceStatusFeatureMap = useMemo(() => ({
         total: 'all',
@@ -1029,11 +1035,61 @@ const Grievances = () => {
         }
     };
 
+    // ── RSS Languages Fetch/Add/Delete ────────────────────────────
+    const fetchRssLanguages = useCallback(async () => {
+        try {
+            const res = await api.get('/news/languages');
+            setRssLanguages(Array.isArray(res.data) ? res.data : []);
+        } catch (err) {
+            console.error('[RSS] fetchRssLanguages error:', err);
+        }
+    }, []);
+
+    const handleAddRssLanguage = async (e) => {
+        e.preventDefault();
+        const name = newRssLanguageName.trim();
+        if (!name) return;
+        setRssLanguageError('');
+        try {
+            const res = await api.post('/news/languages', { name, code: newRssLanguageCode.trim() });
+            setNewRssLanguageName('');
+            setNewRssLanguageCode('');
+            toast.success(`Added language: "${name}"`);
+            setIsAddRssLanguageOpen(false);
+            await fetchRssLanguages();
+            // Select the freshly added language in the keyword form for convenience.
+            if (res.data?.code) setNewRssKeywordLang(res.data.code);
+        } catch (err) {
+            console.error('[RSS] handleAddRssLanguage error:', err);
+            const errMsg = err?.response?.data?.message || 'Failed to add language.';
+            setRssLanguageError(errMsg);
+            toast.error(errMsg);
+        }
+    };
+
+    const handleDeleteRssLanguage = async (lang) => {
+        const count = rssKeywords.filter((k) => k.language === lang.code).length;
+        const warn = count > 0
+            ? `Delete the language "${lang.label}"? This will also remove its ${count} keyword${count === 1 ? '' : 's'}.`
+            : `Delete the language "${lang.label}"?`;
+        if (!window.confirm(warn)) return;
+        try {
+            const res = await api.delete(`/news/languages/${encodeURIComponent(lang.code)}`);
+            const removed = res.data?.keywordsRemoved || 0;
+            toast.success(`Deleted "${lang.label}"${removed ? ` and ${removed} keyword${removed === 1 ? '' : 's'}` : ''}`);
+            await Promise.all([fetchRssLanguages(), fetchRssKeywords()]);
+        } catch (err) {
+            console.error('[RSS] handleDeleteRssLanguage error:', err);
+            toast.error('Failed to delete language.');
+        }
+    };
+
     useEffect(() => {
         if (navbarPlatform === 'rss' && rssSubTab === 'keywords') {
             fetchRssKeywords();
+            fetchRssLanguages();
         }
-    }, [navbarPlatform, rssSubTab, fetchRssKeywords]);
+    }, [navbarPlatform, rssSubTab, fetchRssKeywords, fetchRssLanguages]);
 
     const fetchSources = async () => {
         setSourcesLoading(true);
@@ -2380,10 +2436,26 @@ const Grievances = () => {
                                 <div className="flex gap-2">
                                     <Button
                                         type="button"
+                                        variant="outline"
+                                        onClick={() => {
+                                            setRssLanguageError('');
+                                            setNewRssLanguageName('');
+                                            setNewRssLanguageCode('');
+                                            setIsAddRssLanguageOpen(true);
+                                        }}
+                                        className="border-slate-200 text-slate-700 hover:bg-slate-50 font-semibold text-xs flex items-center gap-1"
+                                    >
+                                        <span className="text-sm font-light">+</span> Language
+                                    </Button>
+                                    <Button
+                                        type="button"
                                         onClick={() => {
                                             setRssKeywordError('');
                                             setRssKeywordSuccess('');
                                             setNewRssKeyword('');
+                                            // Default the form to the first available language so the
+                                            // dropdown is never stuck on a code that was deleted.
+                                            setNewRssKeywordLang(rssLanguages[0]?.code || 'en');
                                             setIsAddRssKeywordOpen(true);
                                         }}
                                         className="bg-[#0f172a] hover:bg-slate-800 text-white font-semibold text-xs flex items-center gap-1"
@@ -2400,51 +2472,59 @@ const Grievances = () => {
                                         <Loader2 className="h-4 w-4 animate-spin text-violet-600" />
                                         Loading keywords...
                                     </div>
+                                ) : rssLanguages.length === 0 ? (
+                                    <div className="text-xs text-slate-400 italic py-4">
+                                        No languages configured yet. Use “+ Language” to add one.
+                                    </div>
                                 ) : (
                                     <div className="space-y-6">
-                                        {/* English Keywords */}
-                                        <div>
-                                            <h4 className="text-[11px] font-bold text-slate-400 mb-2 uppercase tracking-wider">English Keywords</h4>
-                                            <div className="flex flex-wrap gap-2">
-                                                {rssKeywords.filter(k => k.language === 'en').map((kw) => (
-                                                    <span key={kw.keyword} className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-full bg-violet-50 text-violet-700 border border-violet-100 font-medium">
-                                                        {kw.keyword}
+                                        {/* One section per DB-managed language. Colours cycle so each
+                                            language reads as its own group regardless of how many exist. */}
+                                        {rssLanguages.map((lang, idx) => {
+                                            const palette = [
+                                                { chip: 'bg-violet-50 text-violet-700 border-violet-100', x: 'text-violet-400 hover:text-violet-600' },
+                                                { chip: 'bg-amber-50 text-amber-700 border-amber-100', x: 'text-amber-400 hover:text-amber-600' },
+                                                { chip: 'bg-emerald-50 text-emerald-700 border-emerald-100', x: 'text-emerald-400 hover:text-emerald-600' },
+                                                { chip: 'bg-sky-50 text-sky-700 border-sky-100', x: 'text-sky-400 hover:text-sky-600' },
+                                                { chip: 'bg-rose-50 text-rose-700 border-rose-100', x: 'text-rose-400 hover:text-rose-600' },
+                                                { chip: 'bg-indigo-50 text-indigo-700 border-indigo-100', x: 'text-indigo-400 hover:text-indigo-600' },
+                                            ];
+                                            const c = palette[idx % palette.length];
+                                            const langKeywords = rssKeywords.filter(k => k.language === lang.code);
+                                            return (
+                                                <div key={lang.code}>
+                                                    <div className="flex items-center gap-2 mb-2">
+                                                        <h4 className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">{lang.label} Keywords</h4>
+                                                        <span className="text-[10px] text-slate-300">({langKeywords.length})</span>
                                                         <button
                                                             type="button"
-                                                            onClick={() => handleDeleteRssKeyword(kw.keyword)}
-                                                            className="text-violet-400 hover:text-violet-600 ml-1 font-bold focus:outline-none"
+                                                            onClick={() => handleDeleteRssLanguage(lang)}
+                                                            title={`Delete language "${lang.label}"`}
+                                                            className="ml-auto text-[10px] font-semibold text-slate-400 hover:text-red-600 inline-flex items-center gap-1 focus:outline-none"
                                                         >
-                                                            &times;
+                                                            <span className="font-bold">&times;</span> Remove language
                                                         </button>
-                                                    </span>
-                                                ))}
-                                                {rssKeywords.filter(k => k.language === 'en').length === 0 && (
-                                                    <span className="text-xs text-slate-350 italic">No English keywords found</span>
-                                                )}
-                                            </div>
-                                        </div>
-
-                                        {/* Telugu Keywords */}
-                                        <div>
-                                            <h4 className="text-[11px] font-bold text-slate-400 mb-2 uppercase tracking-wider">Telugu Keywords</h4>
-                                            <div className="flex flex-wrap gap-2">
-                                                {rssKeywords.filter(k => k.language === 'te').map((kw) => (
-                                                    <span key={kw.keyword} className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-full bg-amber-50 text-amber-700 border border-amber-100 font-medium">
-                                                        {kw.keyword}
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => handleDeleteRssKeyword(kw.keyword)}
-                                                            className="text-amber-400 hover:text-amber-600 ml-1 font-bold focus:outline-none"
-                                                        >
-                                                            &times;
-                                                        </button>
-                                                    </span>
-                                                ))}
-                                                {rssKeywords.filter(k => k.language === 'te').length === 0 && (
-                                                    <span className="text-xs text-slate-350 italic">No Telugu keywords found</span>
-                                                )}
-                                            </div>
-                                        </div>
+                                                    </div>
+                                                    <div className="flex flex-wrap gap-2">
+                                                        {langKeywords.map((kw) => (
+                                                            <span key={kw.keyword} className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-full border font-medium ${c.chip}`}>
+                                                                {kw.keyword}
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() => handleDeleteRssKeyword(kw.keyword)}
+                                                                    className={`ml-1 font-bold focus:outline-none ${c.x}`}
+                                                                >
+                                                                    &times;
+                                                                </button>
+                                                            </span>
+                                                        ))}
+                                                        {langKeywords.length === 0 && (
+                                                            <span className="text-xs text-slate-350 italic">No {lang.label} keywords found</span>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
                                     </div>
                                 )}
                             </div>
@@ -3009,8 +3089,13 @@ const Grievances = () => {
                                     onChange={(e) => setNewRssKeywordLang(e.target.value)}
                                     className="w-full text-xs border border-slate-200 rounded-lg px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-violet-400/30"
                                 >
-                                    <option value="en">English</option>
-                                    <option value="te">Telugu</option>
+                                    {rssLanguages.length === 0 ? (
+                                        <option value="">No languages — add one first</option>
+                                    ) : (
+                                        rssLanguages.map((lang) => (
+                                            <option key={lang.code} value={lang.code}>{lang.label}</option>
+                                        ))
+                                    )}
                                 </select>
                             </div>
                         </div>
@@ -3032,6 +3117,61 @@ const Grievances = () => {
                             </Button>
                             <Button type="submit" size="sm" className="bg-[#0f172a] hover:bg-slate-800 text-white font-semibold">
                                 Add Keyword
+                            </Button>
+                        </DialogFooter>
+                    </form>
+                </DialogContent>
+            </Dialog>
+
+            {/* Add Language */}
+            <Dialog open={isAddRssLanguageOpen} onOpenChange={setIsAddRssLanguageOpen}>
+                <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                        <DialogTitle>Add Language</DialogTitle>
+                        <DialogDescription>
+                            Add a language bucket that keywords can be grouped under. It appears in the keyword form and as its own section.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <form onSubmit={handleAddRssLanguage} className="space-y-4">
+                        <div className="space-y-3">
+                            <div>
+                                <label className="text-xs font-semibold text-slate-600 block mb-1">Language Name</label>
+                                <input
+                                    type="text"
+                                    placeholder="e.g. Hindi"
+                                    value={newRssLanguageName}
+                                    onChange={(e) => setNewRssLanguageName(e.target.value)}
+                                    className="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-400/30 focus:border-violet-400"
+                                    required
+                                />
+                            </div>
+                            <div>
+                                <label className="text-xs font-semibold text-slate-600 block mb-1">
+                                    Code <span className="font-normal text-slate-400">(optional — auto-generated from the name)</span>
+                                </label>
+                                <input
+                                    type="text"
+                                    placeholder="e.g. hi"
+                                    value={newRssLanguageCode}
+                                    onChange={(e) => setNewRssLanguageCode(e.target.value)}
+                                    className="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-400/30 focus:border-violet-400"
+                                />
+                                <p className="text-[10px] text-slate-400 mt-1">Short identifier stored on each keyword. Lowercase letters/numbers only.</p>
+                            </div>
+                        </div>
+
+                        {rssLanguageError && (
+                            <div className="p-3 text-xs bg-red-50 border border-red-150 text-red-700 rounded-lg">
+                                {rssLanguageError}
+                            </div>
+                        )}
+
+                        <DialogFooter className="gap-2 sm:gap-0">
+                            <Button type="button" variant="outline" size="sm" onClick={() => setIsAddRssLanguageOpen(false)}>
+                                Cancel
+                            </Button>
+                            <Button type="submit" size="sm" className="bg-[#0f172a] hover:bg-slate-800 text-white font-semibold">
+                                Add Language
                             </Button>
                         </DialogFooter>
                     </form>

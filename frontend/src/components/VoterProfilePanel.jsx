@@ -180,62 +180,101 @@ const GenderDonut = ({ male, female, other }) => {
 /* Socio-economic sector employment — latest available (PLFS 2023-24 via AP
    Govt's own Socio Economic Survey 2024-25). Statewide figures — this source
    doesn't publish a district/AC breakdown, unlike the stale 2011 census did. */
-const SocioEconomic = ({ data }) => {
+const SocioEconomic = ({ data, constituency }) => {
   if (!data) {
     return <PendingNote>No socio-economic data available.</PendingNote>;
   }
   const se = data.sector_employment || {};
+  // Each figure maps onto the grievance-feed `analysis_category` it best
+  // corresponds to, so clicking drills into the related grievances the same
+  // way Key Public Issues does. Only the categories the feed actually filters
+  // on are valid — Agriculture maps 1:1; every other economic/labour figure
+  // rolls up to `employment` (the closest supported category).
   const bars = [
-    { label: 'Agriculture', value: se.agriculture, color: '#10b981', tint: '#ecfdf5', icon: Wheat },
-    { label: 'Services', value: se.services, color: '#3b82f6', tint: '#eff6ff', icon: Building2 },
-    { label: 'Manufacturing & Industry', value: se.manufacturing_and_industry, color: '#a855f7', tint: '#faf5ff', icon: Factory },
-    { label: 'Construction', value: se.construction, color: '#f59e0b', tint: '#fffbeb', icon: HardHat },
+    { label: 'Agriculture', value: se.agriculture, color: '#10b981', tint: '#ecfdf5', icon: Wheat, category: 'agriculture' },
+    { label: 'Services', value: se.services, color: '#3b82f6', tint: '#eff6ff', icon: Building2, category: 'employment' },
+    { label: 'Manufacturing & Industry', value: se.manufacturing_and_industry, color: '#a855f7', tint: '#faf5ff', icon: Factory, category: 'employment' },
+    { label: 'Construction', value: se.construction, color: '#f59e0b', tint: '#fffbeb', icon: HardHat, category: 'employment' },
   ];
   const metrics = [
-    { label: 'LFPR', value: data.labour_force_participation_rate, icon: Briefcase, color: '#0f766e', tint: '#f0fdfa' },
-    { label: 'Unemployment', value: data.unemployment_rate, icon: TrendingDown, color: '#b91c1c', tint: '#fef2f2' },
-    { label: 'Female LFPR', value: data.lfpr_female, icon: UserCheck, color: '#be185d', tint: '#fdf2f8' },
-    { label: 'Informal (rural)', value: data.informal_sector_rural, icon: Landmark, color: '#c2410c', tint: '#fff7ed' },
+    { label: 'LFPR', value: data.labour_force_participation_rate, icon: Briefcase, color: '#0f766e', tint: '#f0fdfa', category: 'employment' },
+    { label: 'Unemployment', value: data.unemployment_rate, icon: TrendingDown, color: '#b91c1c', tint: '#fef2f2', category: 'employment' },
+    { label: 'Female LFPR', value: data.lfpr_female, icon: UserCheck, color: '#be185d', tint: '#fdf2f8', category: 'employment' },
+    { label: 'Informal (rural)', value: data.informal_sector_rural, icon: Landmark, color: '#c2410c', tint: '#fff7ed', category: 'employment' },
   ];
+
+  const grievanceLink = (category) =>
+    `/grievances?location=${encodeURIComponent(constituency)}&analysis_category=${encodeURIComponent(category)}`;
+
   return (
     <div className="flex flex-col h-full">
-      {/* Sector employment split */}
+      {/* Sector employment split — each row drills into its related grievances */}
       <div className="space-y-2.5">
-        {bars.map((b) => (
-          <div key={b.label}>
-            <div className="flex items-center justify-between text-[11px] mb-1">
-              <span className="text-slate-700 font-medium flex items-center gap-1.5 min-w-0">
-                <span className="w-5 h-5 rounded-md flex items-center justify-center shrink-0" style={{ background: b.tint }}>
-                  <b.icon className="h-3 w-3" style={{ color: b.color }} />
+        {bars.map((b) => {
+          const body = (
+            <>
+              <div className="flex items-center justify-between text-[11px] mb-1">
+                <span className="text-slate-700 font-medium flex items-center gap-1.5 min-w-0">
+                  <span className="w-5 h-5 rounded-md flex items-center justify-center shrink-0" style={{ background: b.tint }}>
+                    <b.icon className="h-3 w-3" style={{ color: b.color }} />
+                  </span>
+                  <span className="truncate">{b.label}</span>
                 </span>
-                <span className="truncate">{b.label}</span>
-              </span>
-              <span className="font-bold text-slate-800 shrink-0 tabular-nums">{b.value}%</span>
-            </div>
-            <div className="h-2 rounded-full bg-slate-100 overflow-hidden">
-              <div
-                className="h-full rounded-full transition-[width] duration-700 ease-out"
-                style={{ width: `${Math.min(100, b.value)}%`, background: b.color }}
-              />
-            </div>
-          </div>
-        ))}
+                <span className="font-bold text-slate-800 shrink-0 tabular-nums">{b.value}%</span>
+              </div>
+              <div className="h-2 rounded-full bg-slate-100 overflow-hidden">
+                <div
+                  className="h-full rounded-full transition-[width] duration-700 ease-out"
+                  style={{ width: `${Math.min(100, b.value)}%`, background: b.color }}
+                />
+              </div>
+            </>
+          );
+          return constituency ? (
+            <Link
+              key={b.label}
+              to={grievanceLink(b.category)}
+              className="block rounded-md px-1.5 py-1 -mx-1.5 -my-0.5 hover:bg-slate-100/70 transition-colors cursor-pointer"
+            >
+              {body}
+            </Link>
+          ) : (
+            <div key={b.label}>{body}</div>
+          );
+        })}
       </div>
 
       {/* Labour-market metrics as tiles — fills the card instead of trailing
-          micro-text, and gives each figure equal visual weight. */}
+          micro-text, and gives each figure equal visual weight. Each tile drills
+          into the related grievances too. */}
       <div className="grid grid-cols-2 gap-2 mt-3.5">
-        {metrics.map((m) => (
-          <div key={m.label} className="rounded-lg px-2.5 py-2" style={{ background: m.tint }}>
-            <div className="flex items-center gap-1.5">
-              <m.icon className="h-3 w-3 shrink-0" style={{ color: m.color }} />
-              <span className="text-[9px] text-slate-500 uppercase tracking-wide truncate">{m.label}</span>
+        {metrics.map((m) => {
+          const body = (
+            <>
+              <div className="flex items-center gap-1.5">
+                <m.icon className="h-3 w-3 shrink-0" style={{ color: m.color }} />
+                <span className="text-[9px] text-slate-500 uppercase tracking-wide truncate">{m.label}</span>
+              </div>
+              <div className="text-sm font-bold text-slate-800 tabular-nums mt-0.5">
+                {m.value != null ? `${m.value}%` : '—'}
+              </div>
+            </>
+          );
+          return constituency ? (
+            <Link
+              key={m.label}
+              to={grievanceLink(m.category)}
+              className="rounded-lg px-2.5 py-2 block transition-shadow hover:shadow-md cursor-pointer"
+              style={{ background: m.tint }}
+            >
+              {body}
+            </Link>
+          ) : (
+            <div key={m.label} className="rounded-lg px-2.5 py-2" style={{ background: m.tint }}>
+              {body}
             </div>
-            <div className="text-sm font-bold text-slate-800 tabular-nums mt-0.5">
-              {m.value != null ? `${m.value}%` : '—'}
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
     </div>
@@ -412,7 +451,7 @@ const VoterProfilePanel = ({ profile, loading, topIssues = [], constituencyDispl
         </PanelCard>
 
         <PanelCard icon={Wallet} title="Socio-Economic Profile">
-          <SocioEconomic data={profile.socio_economic} />
+          <SocioEconomic data={profile.socio_economic} constituency={acDisplay} />
         </PanelCard>
 
         <PanelCard icon={TrendingUp} title="Key Public Issues" badge={<span className="text-[9px] text-slate-400">live · grievance feed</span>}>

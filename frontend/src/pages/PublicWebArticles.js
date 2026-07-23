@@ -17,15 +17,15 @@ const SUGGESTED_QUERIES = [
 ];
 
 const AP_DISTRICTS = [
-  'Amaravati', 'Anantapur', 'Chittoor', 'East Godavari', 'Eluru', 'Guntur', 
-  'Kadapa', 'Kakinada', 'Krishna', 'Kurnool', 'Nellore', 'Ongole', 
-  'Prakasam', 'Rajahmundry', 'Srikakulam', 'Tirupati', 'Visakhapatnam', 
+  'Amaravati', 'Anantapur', 'Chittoor', 'East Godavari', 'Eluru', 'Guntur',
+  'Kadapa', 'Kakinada', 'Krishna', 'Kurnool', 'Nellore', 'Ongole',
+  'Prakasam', 'Rajahmundry', 'Srikakulam', 'Tirupati', 'Visakhapatnam',
   'Vizianagaram', 'West Godavari', 'Kuppam', 'Mangalagiri', 'Pulivendula'
 ];
 
 const PublicWebArticles = () => {
   const [activeTab, setActiveTab] = useState('monitored'); // 'monitored' or 'live'
-  
+
   // Live News Scrape Tab States
   const [searchText, setSearchText] = useState('');
   const [liveArticles, setLiveArticles] = useState([]);
@@ -139,21 +139,19 @@ const PublicWebArticles = () => {
         <div className="flex gap-6">
           <button
             onClick={() => setActiveTab('monitored')}
-            className={`pb-3 text-sm font-semibold border-b-2 transition-all duration-200 ${
-              activeTab === 'monitored'
+            className={`pb-3 text-sm font-semibold border-b-2 transition-all duration-200 ${activeTab === 'monitored'
                 ? 'border-violet-600 text-violet-600'
                 : 'border-transparent text-slate-500 hover:text-slate-700'
-            }`}
+              }`}
           >
             Monitored RSS Feed
           </button>
           <button
             onClick={() => setActiveTab('live')}
-            className={`pb-3 text-sm font-semibold border-b-2 transition-all duration-200 ${
-              activeTab === 'live'
+            className={`pb-3 text-sm font-semibold border-b-2 transition-all duration-200 ${activeTab === 'live'
                 ? 'border-violet-600 text-violet-600'
                 : 'border-transparent text-slate-500 hover:text-slate-700'
-            }`}
+              }`}
           >
             Live News Search (Scraper)
           </button>
@@ -265,9 +263,7 @@ const PublicWebArticles = () => {
                 <CardContent className="p-12 text-center space-y-2">
                   <Newspaper className="h-8 w-8 text-slate-400 mx-auto" />
                   <div className="text-slate-700 font-medium">No monitored articles found</div>
-                  <div className="text-sm text-slate-500">
-                    Make sure the Blura News Engine is running or try clearing filters.
-                  </div>
+
                 </CardContent>
               </Card>
             ) : (
