@@ -10,6 +10,7 @@ const {
     fetchKeywordGrievances,
     getGrievances,
     getGrievance,
+    translateGrievanceContent,
     deleteGrievance,
     acknowledgeGrievance,
     markAsComplaint,
@@ -103,6 +104,9 @@ router.post('/import-tweet', importTweetByUrl);
 // Reads unprocessed Alert rows, runs each through the BSK relevance gate,
 // and promotes the relevant ones to Mentions / Grievance.
 router.post('/intake-from-alerts', intakeFromAlerts);
+
+// Translate route (must be before :id routes)
+router.post('/translate', translateGrievanceContent);
 
 // Grievance routes
 router.route('/')

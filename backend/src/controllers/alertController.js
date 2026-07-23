@@ -233,6 +233,11 @@ const clearAlertCache = async () => {
   await cacheService.invalidatePrefix('dashboard:v2');
   await cacheService.invalidatePrefix('alert_summary');
   await cacheService.invalidatePrefix('unread_count');
+  // Bump the list-cache version so a GET already in flight when this ran
+  // (e.g. the background checkForNewAlerts poll overlapping a delete) can't
+  // write stale pre-delete data back into the cache after invalidatePrefix
+  // already cleared it above.
+  await cacheService.bumpVersion('alerts:list');
 };
 
 // @desc    Get alerts
@@ -364,10 +369,12 @@ const getAlerts = async (req, res) => {
     // to avoid expensive $lookup pipelines that blow the 32 MB sort memory limit.
     const Source = require('../models/Source');
 
+    const listCacheVersion = await cacheService.getVersion('alerts:list');
     const cacheKey = getCacheKey('alerts:list:v2', {
       ...req.query,
       includeStats,
-      cursor: cursor || ''
+      cursor: cursor || '',
+      _v: listCacheVersion
     });
     const cachedResponse = await readCache(cacheKey);
     if (cachedResponse) return res.status(200).json(cachedResponse);
