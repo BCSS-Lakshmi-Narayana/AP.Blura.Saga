@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
 
 const SENTIMENT_COLORS = {
@@ -10,8 +11,20 @@ const SENTIMENT_COLORS = {
 /**
  * APTopTopics — Ranked trending issues table
  */
-const APTopTopics = ({ data, loading }) => {
+const APTopTopics = ({ data, loading, filters }) => {
+  const navigate = useNavigate();
   const topics = data?.topics || [];
+
+  const handleTopicClick = (topic) => {
+    const params = [];
+    if (filters?.from) params.push(`from=${encodeURIComponent(filters.from)}`);
+    if (filters?.to) params.push(`to=${encodeURIComponent(filters.to)}`);
+    if (filters?.district) params.push(`location=${encodeURIComponent(filters.district)}`);
+    if (filters?.platform && filters.platform !== 'all') params.push(`platform=${encodeURIComponent(filters.platform)}`);
+    if (filters?.sentiment && filters.sentiment !== 'all') params.push(`sentiment=${encodeURIComponent(filters.sentiment)}`);
+    params.push(`grievance_type=${encodeURIComponent(topic)}`);
+    navigate(`/grievances?${params.join('&')}`);
+  };
 
   if (loading) {
     return (
@@ -47,7 +60,12 @@ const APTopTopics = ({ data, loading }) => {
         {topics.map((topic, i) => (
           <div
             key={topic.topic}
-            className="flex items-center gap-3 px-2 py-2 rounded-lg hover:bg-slate-50 transition-colors group"
+            role="button"
+            tabIndex={0}
+            onClick={() => handleTopicClick(topic.topic)}
+            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleTopicClick(topic.topic); }}
+            title={`View "${topic.topic}" mentions in Mentions feed`}
+            className="flex items-center gap-3 px-2 py-2 rounded-lg hover:bg-slate-50 transition-colors group cursor-pointer"
           >
             {/* Rank */}
             <span className={`w-5 h-5 rounded flex items-center justify-center text-[10px] font-bold flex-shrink-0 ${
