@@ -1,4 +1,5 @@
 import React, { useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { formatDistanceToNow, parseISO } from 'date-fns';
 import { Twitter, Facebook, Instagram, Youtube, MessageSquare } from 'lucide-react';
 
@@ -18,9 +19,23 @@ const PLATFORM_COLORS = {
   whatsapp: 'text-emerald-600 bg-emerald-50 border-emerald-200',
 };
 
-const APRecentActivity = ({ data, loading }) => {
+const APRecentActivity = ({ data, loading, filters }) => {
   const activity = data?.activity || [];
   const scrollRef = useRef(null);
+  const navigate = useNavigate();
+
+  const handleBadgeClick = (e, overrides) => {
+    e.stopPropagation();
+    const params = [];
+    if (filters?.from) params.push(`from=${encodeURIComponent(filters.from)}`);
+    if (filters?.to) params.push(`to=${encodeURIComponent(filters.to)}`);
+    const location = overrides.location ?? filters?.district;
+    if (location) params.push(`location=${encodeURIComponent(location)}`);
+    if (filters?.platform && filters.platform !== 'all') params.push(`platform=${encodeURIComponent(filters.platform)}`);
+    if (filters?.sentiment && filters.sentiment !== 'all') params.push(`sentiment=${encodeURIComponent(filters.sentiment)}`);
+    if (overrides.topic) params.push(`grievance_type=${encodeURIComponent(overrides.topic)}`);
+    navigate(`/grievances?${params.join('&')}`);
+  };
 
   useEffect(() => {
     const container = scrollRef.current;
@@ -135,14 +150,24 @@ const APRecentActivity = ({ data, loading }) => {
                   <div className="flex items-center justify-between mt-2 pt-1.5 border-t border-slate-100 text-[9px] text-slate-400 font-medium">
                     <div className="flex items-center gap-3">
                       {act.location && (
-                        <span className="bg-yellow-50 text-yellow-700 px-1.5 py-0.5 rounded font-semibold uppercase">
+                        <button
+                          type="button"
+                          title={`View ${act.location} mentions in Mentions feed`}
+                          onClick={(e) => handleBadgeClick(e, { location: act.location })}
+                          className="bg-yellow-50 text-yellow-700 px-1.5 py-0.5 rounded font-semibold uppercase hover:bg-yellow-100 transition-colors cursor-pointer"
+                        >
                           {act.location}
-                        </span>
+                        </button>
                       )}
                       {act.topic && (
-                        <span className="bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded uppercase">
+                        <button
+                          type="button"
+                          title={`View "${act.topic}" mentions in Mentions feed`}
+                          onClick={(e) => handleBadgeClick(e, { topic: act.topic })}
+                          className="bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded uppercase hover:bg-slate-200 transition-colors cursor-pointer"
+                        >
                           {act.topic}
-                        </span>
+                        </button>
                       )}
                     </div>
                     {act.url && (

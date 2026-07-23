@@ -1,7 +1,9 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ThumbsUp, ThumbsDown, BarChart2, Zap } from 'lucide-react';
 
-const APGeographicHighlights = ({ data, loading }) => {
+const APGeographicHighlights = ({ data, loading, filters }) => {
+  const navigate = useNavigate();
   const highlights = data || {};
   const {
     highestNegativeDistrict,
@@ -16,14 +18,16 @@ const APGeographicHighlights = ({ data, loading }) => {
       data: highestNegativeDistrict,
       colorClass: 'text-red-600 bg-red-50 border-red-100',
       icon: ThumbsDown,
-      desc: (d) => `${d.pct}% of mentions are negative (${d.value} mentions)`
+      desc: (d) => `${d.pct}% of mentions are negative (${d.value} mentions)`,
+      sentimentOverride: 'negative'
     },
     {
       title: 'Highest Positive District',
       data: highestPositiveDistrict,
       colorClass: 'text-emerald-600 bg-emerald-50 border-emerald-100',
       icon: ThumbsUp,
-      desc: (d) => `${d.pct}% of mentions are positive (${d.value} mentions)`
+      desc: (d) => `${d.pct}% of mentions are positive (${d.value} mentions)`,
+      sentimentOverride: 'positive'
     },
     {
       title: 'Most Discussed District',
@@ -40,6 +44,17 @@ const APGeographicHighlights = ({ data, loading }) => {
       desc: (d) => `Generated ${d.engagement.toLocaleString()} reactions & comments`
     }
   ];
+
+  const handleCardClick = (district, sentimentOverride) => {
+    const params = [];
+    if (filters?.from) params.push(`from=${encodeURIComponent(filters.from)}`);
+    if (filters?.to) params.push(`to=${encodeURIComponent(filters.to)}`);
+    if (district) params.push(`location=${encodeURIComponent(district)}`);
+    if (filters?.platform && filters.platform !== 'all') params.push(`platform=${encodeURIComponent(filters.platform)}`);
+    const activeSentiment = sentimentOverride || (filters?.sentiment && filters.sentiment !== 'all' ? filters.sentiment : null);
+    if (activeSentiment) params.push(`sentiment=${encodeURIComponent(activeSentiment)}`);
+    navigate(`/grievances?${params.join('&')}`);
+  };
 
   if (loading) {
     return (
@@ -75,7 +90,12 @@ const APGeographicHighlights = ({ data, loading }) => {
           return (
             <div
               key={i}
-              className={`flex items-start gap-3 p-3 rounded-xl border border-slate-100 hover:border-yellow-300 transition-colors bg-gradient-to-br from-white to-slate-50/30`}
+              role="button"
+              tabIndex={0}
+              title={`View ${card.data.name} mentions in Mentions feed`}
+              onClick={() => handleCardClick(card.data.name, card.sentimentOverride)}
+              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleCardClick(card.data.name, card.sentimentOverride); }}
+              className={`flex items-start gap-3 p-3 rounded-xl border border-slate-100 hover:border-yellow-300 hover:shadow-sm transition-colors bg-gradient-to-br from-white to-slate-50/30 cursor-pointer`}
             >
               <div className={`p-2 rounded-lg ${card.colorClass.split(' ')[1]} ${card.colorClass.split(' ')[0]}`}>
                 <Icon className="h-4 w-4" />

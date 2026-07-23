@@ -168,14 +168,14 @@ const AndhraPradeshMap = ({ embedded = false }) => {
       {/* AI Insights + Geographic Highlights + Recent Activity (3 fill horizontally) */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-stretch">
         <APAIInsights data={data.aiInsights} loading={loading.aiInsights} />
-        <APGeographicHighlights data={data.geoHighlights} loading={loading.geoHighlights} />
-        <APRecentActivity data={data.recentActivity} loading={loading.recentActivity} />
+        <APGeographicHighlights data={data.geoHighlights} loading={loading.geoHighlights} filters={filters} />
+        <APRecentActivity data={data.recentActivity} loading={loading.recentActivity} filters={filters} />
       </div>
 
       {/* Topics & Leaders Leaderboard (2 fill horizontally, scrollable) */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <APDistrictPerformance data={data.districtPerformance} loading={loading.districtPerformance} />
-        <APTopTopics data={data.topTopics} loading={loading.topTopics} />
+        <APDistrictPerformance data={data.districtPerformance} loading={loading.districtPerformance} filters={filters} />
+        <APTopTopics data={data.topTopics} loading={loading.topTopics} filters={filters} />
       </div>
     </div>
   );

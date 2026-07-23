@@ -1,10 +1,22 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 /**
  * APDistrictPerformance — District leaderboard with sentiment bars
  */
-const APDistrictPerformance = ({ data, loading }) => {
+const APDistrictPerformance = ({ data, loading, filters }) => {
+  const navigate = useNavigate();
   const districts = data?.districts || [];
+
+  const handleDistrictClick = (district) => {
+    const params = [];
+    if (filters?.from) params.push(`from=${encodeURIComponent(filters.from)}`);
+    if (filters?.to) params.push(`to=${encodeURIComponent(filters.to)}`);
+    params.push(`location=${encodeURIComponent(district)}`);
+    if (filters?.platform && filters.platform !== 'all') params.push(`platform=${encodeURIComponent(filters.platform)}`);
+    if (filters?.sentiment && filters.sentiment !== 'all') params.push(`sentiment=${encodeURIComponent(filters.sentiment)}`);
+    navigate(`/grievances?${params.join('&')}`);
+  };
 
   if (loading) {
     return (
@@ -47,7 +59,15 @@ const APDistrictPerformance = ({ data, loading }) => {
 
       <div className="space-y-2.5 max-h-[215px] overflow-y-auto pr-1">
         {districts.map(d => (
-          <div key={d.district} className="group">
+          <div
+            key={d.district}
+            role="button"
+            tabIndex={0}
+            onClick={() => handleDistrictClick(d.district)}
+            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleDistrictClick(d.district); }}
+            className="group cursor-pointer hover:bg-slate-50 rounded-lg px-1.5 py-0.5 transition-colors"
+            title={`View ${d.district} mentions in Mentions feed`}
+          >
             <div className="flex items-center justify-between mb-1">
               <span className="text-xs font-medium text-slate-700 truncate" title={d.district}>
                 {d.district}
