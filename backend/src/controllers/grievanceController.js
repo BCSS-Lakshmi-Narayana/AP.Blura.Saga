@@ -29,6 +29,7 @@ const invalidateGrievanceCaches = async () => {
     await cacheService.invalidatePrefix('grievances:sentiment-leaders:');
     await cacheService.invalidatePrefix('grievances:location-stats:v1');
     await cacheService.invalidatePrefix('grievances:list:v1');
+    await cacheService.invalidatePrefix('geo:');
     // Bump the list-cache version so a GET already in flight when this ran
     // (e.g. concurrent with a delete) can't write stale pre-delete data back
     // into the cache after invalidatePrefix already cleared it above.

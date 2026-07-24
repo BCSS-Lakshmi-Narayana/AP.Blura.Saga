@@ -13,10 +13,16 @@ const ALL_PAGES = [
   { path: '/announcements', name: 'Announcements', icon: 'Megaphone' },
   { path: '/sources', name: 'Sources', icon: 'Rss' },
   { path: '/person-of-interest', name: 'Profile', icon: 'UserSearch' },
+  { path: '/geographic-intelligence', name: 'Geographic Intelligence', icon: 'Map' },
   { path: '/access-management', name: 'Access Management', icon: 'ShieldCheck' }
 ];
 
 const PAGE_FEATURES = {
+  '/geographic-intelligence': [
+    { id: 'district_view', label: 'District View' },
+    { id: 'city_view', label: 'City View' },
+    { id: 'risk_score', label: 'Risk Score' }
+  ],
   '/alerts': [
     { id: 'active', label: 'Active' },
     { id: 'false_positive', label: 'False Positive' },

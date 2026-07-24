@@ -42,5 +42,8 @@ newsArticleSchema.index({ category: 1 });
 newsArticleSchema.index({ language: 1 });
 newsArticleSchema.index({ source_type: 1 });
 newsArticleSchema.index({ 'detected_location.district': 1 });
+// Geographic Intelligence: district/city news counts within a date window
+newsArticleSchema.index({ 'detected_location.district': 1, published_date: -1 });
+newsArticleSchema.index({ 'detected_location.city': 1, published_date: -1 });
 
 module.exports = mongoose.model('NewsArticle', newsArticleSchema);

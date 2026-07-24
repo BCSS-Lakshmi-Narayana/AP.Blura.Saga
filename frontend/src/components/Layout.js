@@ -17,7 +17,8 @@ import {
   MessageSquare,
   UserSearch,
   TrendingUp,
-  Newspaper
+  Newspaper,
+  Map
 } from 'lucide-react';
 import { Button } from './ui/button';
 import { toast } from 'sonner';
@@ -71,6 +72,7 @@ const Layout = () => {
 
   const allNavigation = [
     { name: 'Andhra Pradesh', href: '/andhra-pradesh-map', icon: Globe },
+    { name: 'Geo Intel', href: '/geographic-intelligence', icon: Map },
     { name: 'Overview', href: '/dashboard', icon: LayoutDashboard },
     { name: 'Mentions', href: '/grievances', icon: MessageSquare },
     { name: 'Web Articles', href: '/public-web-articles', icon: Newspaper },
