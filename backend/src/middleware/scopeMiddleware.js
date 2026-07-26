@@ -21,6 +21,7 @@
 const { normalizeRole } = require('../utils/authIdentity');
 const { getMlaByConstituency } = require('../services/mlaReferenceService');
 const LS_TO_AC = require('../data/ls_to_ac.json');
+const ConstituencyMaster = require('../models/ConstituencyMaster');
 
 const normalizeKey = (value) =>
   String(value || '')
@@ -220,6 +221,79 @@ const mergeFilter = (target, fragment) => {
   return target;
 };
 
+/**
+ * Geographic scope (used by the Geographic Intelligence module).
+ *
+ * District-level access is DERIVED from the caller's existing constituency
+ * scope via ConstituencyMaster (ac_key → district_key) rather than adding a
+ * new `User.assigned_district` field — every scoped role already carries an
+ * `assigned_constituency` / `assigned_lok_sabha`, and ConstituencyMaster is
+ * the authoritative AC→district mapping, so this needs zero schema change.
+ *
+ * Shape:
+ *   {
+ *     canSeeAll:   boolean,               // state-wide visibility
+ *     level:       'state' | 'district',  // what the UI should land on
+ *     districtKeys: Set<string>,          // normKey()'d district keys allowed
+ *     districts:   [{ key, name }],       // display list for scoped users
+ *     role:        string,
+ *   }
+ */
+const buildGeoScope = async (user) => {
+  const scope = buildScope(user);
+
+  if (scope.canSeeAll) {
+    return {
+      canSeeAll: true,
+      level: 'state',
+      districtKeys: new Set(),
+      districts: [],
+      role: scope.role,
+    };
+  }
+
+  if (!scope.constituencies.length) {
+    // Scoped role with no constituency assigned yet — deny everything,
+    // consistent with constituencyFilter()'s "no seats → match nothing".
+    return {
+      canSeeAll: false,
+      level: 'district',
+      districtKeys: new Set(),
+      districts: [],
+      role: scope.role,
+    };
+  }
+
+  const acKeys = scope.constituencies.map(ConstituencyMaster.normKey);
+  const masters = await ConstituencyMaster
+    .find({ ac_key: { $in: acKeys } })
+    .select('district district_key')
+    .lean();
+
+  const districtMap = new Map();
+  masters.forEach((m) => {
+    if (m.district_key && m.district) districtMap.set(m.district_key, m.district);
+  });
+
+  return {
+    canSeeAll: false,
+    level: 'district',
+    districtKeys: new Set(districtMap.keys()),
+    districts: Array.from(districtMap.entries()).map(([key, name]) => ({ key, name })),
+    role: scope.role,
+  };
+};
+
+const loadGeoScope = async (req, res, next) => {
+  try {
+    req.geoScope = await buildGeoScope(req.user);
+    next();
+  } catch (error) {
+    console.error('[geoScope] failed to build scope:', error.message);
+    res.status(500).json({ message: 'Failed to resolve geographic scope' });
+  }
+};
+
 module.exports = {
   loadScope,
   buildScope,
@@ -228,4 +302,6 @@ module.exports = {
   mergeFilter,
   sourceScopeFilter,
   normalizeScopeKey: normalizeKey,
+  buildGeoScope,
+  loadGeoScope,
 };

@@ -90,6 +90,7 @@ app.use('/api/news',  require('./routes/newsRoutes'));
 app.use('/api/intelligence-reports', require('./routes/intelligenceReportRoutes'));
 app.use('/api/search-trends', require('./routes/searchTrends'));
 app.use('/api/constituency-intel', require('./routes/constituencyIntelligenceRoutes'));
+app.use('/api/geo-intel', require('./routes/geoIntelRoutes'));
 app.use('/api/dashboard', require('./routes/apDashboardRoutes'));
 app.use('/api/voter-profiles', require('./routes/voterProfileRoutes'));
 app.use('/api/web-articles', require('./routes/webArticleRoutes'));

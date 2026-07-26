@@ -434,6 +434,11 @@ grievanceSchema.index({ is_active: 1, 'detected_location.district': 1 }, { spars
 grievanceSchema.index({ is_active: 1, 'detected_location.constituency': 1 }, { sparse: true });
 // Sentiment $group during list fetch — speeds up the pill counts aggregation
 grievanceSchema.index({ is_active: 1, 'analysis.sentiment': 1 });
+// Geographic Intelligence: date-filtered + sentiment-filtered district/city rollups
+grievanceSchema.index({ is_active: 1, 'detected_location.district': 1, post_date: -1 });
+grievanceSchema.index({ is_active: 1, 'detected_location.city': 1, post_date: -1 });
+grievanceSchema.index({ is_active: 1, 'detected_location.district': 1, 'analysis.sentiment': 1, post_date: -1 });
+grievanceSchema.index({ is_active: 1, 'detected_location.city': 1, 'analysis.sentiment': 1, post_date: -1 });
 
 // Virtual for generating report number
 grievanceSchema.methods.generateReportNumber = async function () {
