@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Loader2, Search, Users, MapPin, Info, LayoutGrid, TrendingUp,
   ArrowUpDown, X, Vote, Sparkles, ArrowLeft, ChevronLeft, ChevronRight,
-  User, Home, IdCard,
+  User, Home, IdCard, ChevronDown, ChevronUp, BarChart3, Cake, Scale,
 } from 'lucide-react';
 import api from '../lib/api';
 
@@ -279,6 +279,100 @@ const VoterRow = ({ voter, index }) => (
   </motion.div>
 );
 
+/* Exact per-booth metrics (from the full voter roll) shown above the list. */
+const AGE_SEGMENTS = [
+  { key: '18-29', label: '18–29', color: '#22c55e' },
+  { key: '30-44', label: '30–44', color: '#3b82f6' },
+  { key: '45-59', label: '45–59', color: '#f59e0b' },
+  { key: '60+', label: '60+', color: '#8b5cf6' },
+];
+
+const MiniTile = ({ icon: Icon, label, value, sub, color, bg }) => (
+  <div className="rounded-lg border border-slate-200 bg-white px-2.5 py-2">
+    <div className="flex items-center gap-1.5">
+      <span className={`w-6 h-6 rounded-md flex items-center justify-center shrink-0 ${bg}`}>
+        <Icon className={`h-3 w-3 ${color}`} />
+      </span>
+      <span className="text-[9px] text-slate-400 uppercase tracking-wide leading-tight">{label}</span>
+    </div>
+    <div className="text-base font-bold text-slate-800 tabular-nums mt-1 leading-none">{value}</div>
+    {sub ? <div className="text-[9px] text-slate-400 mt-0.5">{sub}</div> : null}
+  </div>
+);
+
+const BoothMetricsPanel = ({ metrics }) => {
+  const [open, setOpen] = useState(true);
+  if (!metrics) return null;
+  const m = metrics;
+  const total = m.total || 0;
+  const ageKnown = total - (m.age?.unknown || 0);
+
+  return (
+    <div className="px-5 pt-3 bg-white border-b border-slate-100 shrink-0">
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        className="w-full flex items-center gap-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-wide mb-2"
+      >
+        <BarChart3 className="h-3 w-3" /> Booth Metrics
+        {open ? <ChevronUp className="h-3 w-3 ml-auto" /> : <ChevronDown className="h-3 w-3 ml-auto" />}
+      </button>
+
+      <AnimatePresence initial={false}>
+        {open && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="overflow-hidden"
+          >
+            <div className="space-y-3 pb-3">
+              <div className="grid grid-cols-4 gap-2">
+                <MiniTile icon={Cake} label="Avg age" value={m.avgAge ?? '—'} sub={m.medianAge != null ? `med ${m.medianAge}` : ''} color="text-emerald-600" bg="bg-emerald-50" />
+                <MiniTile icon={Users} label="Youth 18-29" value={`${m.youngPct}%`} sub={fmtNum(m.youngCount)} color="text-blue-600" bg="bg-blue-50" />
+                <MiniTile icon={Users} label="Seniors 60+" value={`${m.seniorPct}%`} sub={fmtNum(m.seniorCount)} color="text-violet-600" bg="bg-violet-50" />
+                <MiniTile icon={Home} label="Households" value={fmtNum(m.households)} sub={m.avgPerHousehold != null ? `${m.avgPerHousehold}/hh` : ''} color="text-amber-600" bg="bg-amber-50" />
+              </div>
+
+              {/* Age distribution */}
+              <div>
+                <div className="flex items-center justify-between text-[10px] text-slate-400 mb-1">
+                  <span className="uppercase tracking-wide font-semibold">Age distribution</span>
+                  {m.age?.unknown > 0 && <span>{fmtNum(m.age.unknown)} unknown</span>}
+                </div>
+                <div className="h-2.5 rounded-full overflow-hidden flex bg-slate-100">
+                  {AGE_SEGMENTS.map((s) => {
+                    const n = m.age?.[s.key] || 0;
+                    const pct = ageKnown ? (n / ageKnown) * 100 : 0;
+                    return pct > 0 ? (
+                      <div key={s.key} style={{ width: `${pct}%`, background: s.color }} title={`${s.label}: ${fmtNum(n)}`} />
+                    ) : null;
+                  })}
+                </div>
+                <div className="flex flex-wrap gap-x-3 gap-y-0.5 mt-1.5">
+                  {AGE_SEGMENTS.map((s) => (
+                    <span key={s.key} className="inline-flex items-center gap-1 text-[10px] text-slate-500">
+                      <span className="w-2 h-2 rounded-full" style={{ background: s.color }} />
+                      {s.label} <span className="font-semibold text-slate-700">{fmtNum(m.age?.[s.key] || 0)}</span>
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              {/* Sex ratio */}
+              <div className="flex items-center gap-2 text-[11px] text-slate-500 pt-1 border-t border-slate-100">
+                <Scale className="h-3.5 w-3.5 text-slate-400" />
+                <span>Sex ratio <span className="font-bold text-slate-700">{m.genderRatio ?? '—'}</span> <span className="text-slate-400">♀ per 1,000 ♂</span></span>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
+
 const VoterListView = ({ constituency, booth, onBack }) => {
   const [rows, setRows] = useState([]);
   const [meta, setMeta] = useState(null);
@@ -354,6 +448,9 @@ const VoterListView = ({ constituency, booth, onBack }) => {
           </div>
         </div>
       </div>
+
+      {/* Exact booth-level metrics from the voter roll */}
+      <BoothMetricsPanel metrics={meta?.metrics} />
 
       {/* Search + gender filter */}
       <div className="px-5 py-2.5 bg-white/90 backdrop-blur border-b border-slate-100 shrink-0 space-y-2">
