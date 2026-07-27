@@ -3,7 +3,8 @@ import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Loader2, Search, Users, MapPin, Info, LayoutGrid, TrendingUp,
-  ArrowUpDown, X, Vote, Sparkles,
+  ArrowUpDown, X, Vote, Sparkles, ArrowLeft, ChevronLeft, ChevronRight,
+  User, Home, IdCard,
 } from 'lucide-react';
 import api from '../lib/api';
 
@@ -164,7 +165,7 @@ const SORT_OPTIONS = [
   { key: 'locality', label: 'Locality A-Z' },
 ];
 
-const BoothCard = ({ booth, index }) => {
+const BoothCard = ({ booth, index, onOpen }) => {
   const total = booth.electors_total || 0;
   const tg = booth.electors_third_gender;
   const unc = booth.electors_unclassified || 0;
@@ -175,12 +176,17 @@ const BoothCard = ({ booth, index }) => {
   return (
     <motion.div
       layout
+      role="button"
+      tabIndex={0}
+      onClick={() => onOpen(booth)}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onOpen(booth); } }}
       initial={{ opacity: 0, y: 12, scale: 0.97 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, scale: 0.96 }}
       transition={{ duration: 0.25, delay: Math.min(index * 0.02, 0.3) }}
       whileHover={{ y: -2, boxShadow: '0 8px 20px -6px rgba(15,23,42,0.12)' }}
-      className="rounded-xl border border-slate-200 bg-white p-3.5 flex flex-col gap-2.5"
+      className="group rounded-xl border border-slate-200 bg-white p-3.5 flex flex-col gap-2.5 cursor-pointer hover:border-violet-300 focus:outline-none focus:ring-2 focus:ring-violet-200 transition-colors"
+      title="View full voter list"
     >
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
@@ -196,9 +202,12 @@ const BoothCard = ({ booth, index }) => {
             </span>
           </div>
         </div>
-        <div className="text-right shrink-0">
-          <div className="text-base font-bold text-slate-800 tabular-nums leading-none">{fmtNum(total)}</div>
-          <div className="text-[9px] text-slate-400 uppercase tracking-wide mt-0.5">Total</div>
+        <div className="text-right shrink-0 flex items-start gap-1">
+          <div>
+            <div className="text-base font-bold text-slate-800 tabular-nums leading-none">{fmtNum(total)}</div>
+            <div className="text-[9px] text-slate-400 uppercase tracking-wide mt-0.5">Total</div>
+          </div>
+          <ChevronRight className="h-4 w-4 text-slate-300 group-hover:text-violet-500 group-hover:translate-x-0.5 transition-all" />
         </div>
       </div>
 
@@ -232,6 +241,210 @@ const BoothCard = ({ booth, index }) => {
   );
 };
 
+/* ── Booth voter drill-down ─────────────────────────────────────────────
+   Full voter roll for a single booth: paginated, searchable by name / voter
+   id / relation / house, and filterable by gender. Rendered in place of the
+   booth grid when a card is opened. */
+const GENDER_BADGE = {
+  Male: 'bg-blue-50 text-blue-600 border-blue-100',
+  Female: 'bg-pink-50 text-pink-600 border-pink-100',
+};
+const genderBadgeClass = (g) => GENDER_BADGE[g] || 'bg-slate-100 text-slate-500 border-slate-200';
+
+const VoterRow = ({ voter, index }) => (
+  <motion.div
+    initial={{ opacity: 0, y: 6 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ duration: 0.2, delay: Math.min(index * 0.015, 0.25) }}
+    className="rounded-lg border border-slate-200 bg-white px-3 py-2"
+  >
+    <div className="flex items-center gap-2">
+      <span className="text-[10px] font-bold text-slate-400 tabular-nums shrink-0 w-8">#{voter.sl}</span>
+      <span className="text-sm font-semibold text-slate-800 flex-1 min-w-0 truncate" title={voter.name}>{voter.name || '—'}</span>
+      <span className={`text-[9px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded border shrink-0 ${genderBadgeClass(voter.gender)}`}>
+        {voter.gender || '—'}{voter.age != null ? ` · ${voter.age}` : ''}
+      </span>
+    </div>
+    <div className="flex items-center gap-x-3 gap-y-0.5 flex-wrap text-[11px] text-slate-500 mt-1 pl-10">
+      {voter.relation && (
+        <span className="inline-flex items-center gap-1 min-w-0"><User className="h-3 w-3 text-slate-300 shrink-0" /><span className="truncate max-w-[10rem]" title={voter.relation}>{voter.relation}</span></span>
+      )}
+      {voter.house_no && (
+        <span className="inline-flex items-center gap-1"><Home className="h-3 w-3 text-slate-300 shrink-0" />{voter.house_no}</span>
+      )}
+      {voter.voter_id && (
+        <span className="inline-flex items-center gap-1 font-mono text-[10px] text-slate-400"><IdCard className="h-3 w-3 text-slate-300 shrink-0" />{voter.voter_id}</span>
+      )}
+    </div>
+  </motion.div>
+);
+
+const VoterListView = ({ constituency, booth, onBack }) => {
+  const [rows, setRows] = useState([]);
+  const [meta, setMeta] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [page, setPage] = useState(1);
+  const [gender, setGender] = useState('all');
+  const [searchInput, setSearchInput] = useState('');
+  const [search, setSearch] = useState('');
+  const scrollRef = useRef(null);
+
+  // Debounce the search box so we don't refetch on every keystroke.
+  useEffect(() => {
+    const t = setTimeout(() => setSearch(searchInput.trim()), 350);
+    return () => clearTimeout(t);
+  }, [searchInput]);
+
+  // Any filter change resets to the first page.
+  useEffect(() => { setPage(1); }, [search, gender]);
+
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    setError(null);
+    const params = new URLSearchParams({ page: String(page), pageSize: '50' });
+    if (search) params.set('search', search);
+    if (gender && gender !== 'all') params.set('gender', gender);
+    api.get(`/voter-profiles/${encodeURIComponent(constituency)}/booths/${booth.part}/voters?${params.toString()}`)
+      .then((res) => {
+        if (cancelled) return;
+        setRows(res.data?.voters || []);
+        setMeta(res.data || null);
+        if (scrollRef.current) scrollRef.current.scrollTop = 0;
+      })
+      .catch((err) => {
+        if (cancelled) return;
+        setRows([]);
+        setError(err?.response?.status === 404
+          ? 'No voter roll on record for this booth.'
+          : 'Could not load the voter list.');
+      })
+      .finally(() => { if (!cancelled) setLoading(false); });
+    return () => { cancelled = true; };
+  }, [constituency, booth.part, page, search, gender]);
+
+  const counts = meta?.counts || {};
+  const genderTabs = [
+    { key: 'all', label: 'All', n: meta?.totalUnfiltered },
+    { key: 'male', label: 'Male', n: counts.male },
+    { key: 'female', label: 'Female', n: counts.female },
+    ...(counts.third ? [{ key: 'third', label: 'Third', n: counts.third }] : []),
+    ...(counts.other ? [{ key: 'other', label: 'Other', n: counts.other }] : []),
+  ];
+
+  return (
+    <div className="flex-1 min-h-0 flex flex-col bg-slate-50">
+      {/* Booth header */}
+      <div className="px-5 pt-3.5 pb-3 bg-white border-b border-slate-100 shrink-0">
+        <button
+          type="button"
+          onClick={onBack}
+          className="inline-flex items-center gap-1 text-[11px] font-semibold text-violet-600 hover:text-violet-700 mb-2"
+        >
+          <ArrowLeft className="h-3.5 w-3.5" /> All booths
+        </button>
+        <div className="flex items-start gap-2">
+          <span className="text-[10px] font-bold text-white bg-gradient-to-br from-violet-500 to-indigo-600 rounded-lg px-2 py-1 shrink-0">
+            Part {booth.part}
+          </span>
+          <div className="min-w-0">
+            <div className="text-sm font-bold text-slate-800 leading-tight">{booth.locality || 'Unknown locality'}</div>
+            <div className="text-[11px] text-slate-500 leading-snug line-clamp-2" title={booth.polling_station}>{booth.polling_station || ''}</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Search + gender filter */}
+      <div className="px-5 py-2.5 bg-white/90 backdrop-blur border-b border-slate-100 shrink-0 space-y-2">
+        <div className="relative">
+          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
+          <input
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+            placeholder="Search name, voter ID, relation, house…"
+            className="w-full rounded-md border border-slate-200 bg-slate-50 pl-8 pr-7 py-1.5 text-xs outline-none focus:border-violet-300 focus:bg-white focus:ring-2 focus:ring-violet-100 transition"
+          />
+          {searchInput && (
+            <button type="button" onClick={() => setSearchInput('')} className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-500">
+              <X className="h-3.5 w-3.5" />
+            </button>
+          )}
+        </div>
+        <div className="flex items-center gap-1.5 flex-wrap">
+          {genderTabs.map((t) => (
+            <button
+              key={t.key}
+              type="button"
+              onClick={() => setGender(t.key)}
+              className={`text-[11px] font-medium rounded-full px-2.5 py-1 border transition-colors ${
+                gender === t.key
+                  ? 'bg-violet-600 border-violet-600 text-white'
+                  : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'
+              }`}
+            >
+              {t.label}{t.n != null ? ` · ${fmtNum(t.n)}` : ''}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Voter rows */}
+      <div ref={scrollRef} className="flex-1 overflow-y-auto px-5 py-3">
+        {loading ? (
+          <div className="flex items-center justify-center py-16">
+            <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 0.8, ease: 'linear' }}>
+              <Loader2 className="h-6 w-6 text-violet-400" />
+            </motion.div>
+          </div>
+        ) : error ? (
+          <div className="flex flex-col items-center gap-2 text-sm text-slate-500 py-16 text-center">
+            <Info className="h-6 w-6 text-slate-300" />
+            <span>{error}</span>
+          </div>
+        ) : rows.length === 0 ? (
+          <div className="text-sm text-slate-400 text-center py-16">No voters match your search.</div>
+        ) : (
+          <div className="space-y-2">
+            {rows.map((v, i) => <VoterRow key={`${v.voter_id}-${v.sl}`} voter={v} index={i} />)}
+          </div>
+        )}
+      </div>
+
+      {/* Pagination footer */}
+      {meta && !error && (
+        <div className="px-5 py-2.5 bg-white border-t border-slate-200 shrink-0 flex items-center justify-between gap-2">
+          <span className="text-[11px] text-slate-500">
+            {fmtNum(meta.total)} voter{meta.total !== 1 ? 's' : ''}
+            {search || gender !== 'all' ? ` · filtered` : ''}
+          </span>
+          <div className="flex items-center gap-1.5">
+            <button
+              type="button"
+              disabled={page <= 1 || loading}
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              className="inline-flex items-center justify-center w-7 h-7 rounded-md border border-slate-200 text-slate-500 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </button>
+            <span className="text-[11px] font-medium text-slate-600 tabular-nums min-w-[4.5rem] text-center">
+              Page {meta.page} / {meta.pages}
+            </span>
+            <button
+              type="button"
+              disabled={page >= (meta.pages || 1) || loading}
+              onClick={() => setPage((p) => Math.min(meta.pages || 1, p + 1))}
+              className="inline-flex items-center justify-center w-7 h-7 rounded-md border border-slate-200 text-slate-500 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
 const BoothLevelModal = ({ open, onClose, constituency, constituencyDisplayName }) => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -239,6 +452,7 @@ const BoothLevelModal = ({ open, onClose, constituency, constituencyDisplayName 
   const [query, setQuery] = useState('');
   const [sort, setSort] = useState('part');
   const [sortMenuOpen, setSortMenuOpen] = useState(false);
+  const [selectedBooth, setSelectedBooth] = useState(null); // drilled-into booth voter roll
   const [panelWidth, setPanelWidth] = useState(() =>
     (typeof window !== 'undefined' ? panelWidthFor(window.innerWidth) : 560));
 
@@ -268,6 +482,10 @@ const BoothLevelModal = ({ open, onClose, constituency, constituencyDisplayName 
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [open, onClose]);
+
+  // Reset the drill-down whenever the panel closes or the seat changes so it
+  // always reopens on the booth grid, never a stale voter list.
+  useEffect(() => { setSelectedBooth(null); }, [open, constituency]);
 
   useEffect(() => {
     if (!open || !constituency) return;
@@ -395,7 +613,13 @@ const BoothLevelModal = ({ open, onClose, constituency, constituencyDisplayName 
         </div>
 
         <div className="flex-1 min-h-0 overflow-hidden bg-slate-50 flex flex-col">
-          {loading ? (
+          {selectedBooth ? (
+            <VoterListView
+              constituency={constituency}
+              booth={selectedBooth}
+              onBack={() => setSelectedBooth(null)}
+            />
+          ) : loading ? (
             <div className="flex-1 flex items-center justify-center">
               <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 0.8, ease: 'linear' }}>
                 <Loader2 className="h-6 w-6 text-violet-400" />
@@ -545,7 +769,7 @@ const BoothLevelModal = ({ open, onClose, constituency, constituencyDisplayName 
                   <div className={`grid gap-3 ${(panelWidth || 0) >= 420 || !panelWidth ? 'grid-cols-2' : 'grid-cols-1'}`}>
                     <AnimatePresence mode="popLayout">
                       {filtered.map((b, i) => (
-                        <BoothCard key={b.part} booth={b} index={i} />
+                        <BoothCard key={b.part} booth={b} index={i} onOpen={setSelectedBooth} />
                       ))}
                     </AnimatePresence>
                   </div>
