@@ -1,10 +1,12 @@
 import React, { useEffect, useMemo, useState, useRef } from 'react';
 import { createPortal } from 'react-dom';
+import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Loader2, Search, Users, MapPin, Info, LayoutGrid, TrendingUp,
   ArrowUpDown, X, Vote, Sparkles, ArrowLeft, ChevronLeft, ChevronRight,
   User, Home, IdCard, ChevronDown, ChevronUp, BarChart3, Cake, Scale,
+  MessageSquare, ExternalLink,
 } from 'lucide-react';
 import api from '../lib/api';
 
@@ -328,11 +330,11 @@ const BoothMetricsPanel = ({ metrics }) => {
             className="overflow-hidden"
           >
             <div className="space-y-3 pb-3">
-              <div className="grid grid-cols-4 gap-2">
-                <MiniTile icon={Cake} label="Avg age" value={m.avgAge ?? '—'} sub={m.medianAge != null ? `med ${m.medianAge}` : ''} color="text-emerald-600" bg="bg-emerald-50" />
-                <MiniTile icon={Users} label="Youth 18-29" value={`${m.youngPct}%`} sub={fmtNum(m.youngCount)} color="text-blue-600" bg="bg-blue-50" />
-                <MiniTile icon={Users} label="Seniors 60+" value={`${m.seniorPct}%`} sub={fmtNum(m.seniorCount)} color="text-violet-600" bg="bg-violet-50" />
-                <MiniTile icon={Home} label="Households" value={fmtNum(m.households)} sub={m.avgPerHousehold != null ? `${m.avgPerHousehold}/hh` : ''} color="text-amber-600" bg="bg-amber-50" />
+              <div className="grid grid-cols-2 gap-2">
+                <MiniTile icon={Cake} label="Avg age" value={m.avgAge ?? '—'} sub={m.medianAge != null ? `median ${m.medianAge}` : ''} color="text-emerald-600" bg="bg-emerald-50" />
+                <MiniTile icon={Users} label="Youth 18-29" value={`${m.youngPct}%`} sub={`${fmtNum(m.youngCount)} voters`} color="text-blue-600" bg="bg-blue-50" />
+                <MiniTile icon={Users} label="Seniors 60+" value={`${m.seniorPct}%`} sub={`${fmtNum(m.seniorCount)} voters`} color="text-violet-600" bg="bg-violet-50" />
+                <MiniTile icon={Home} label="Households" value={fmtNum(m.households)} sub={m.avgPerHousehold != null ? `${m.avgPerHousehold} per home` : ''} color="text-amber-600" bg="bg-amber-50" />
               </div>
 
               {/* Age distribution */}
@@ -350,11 +352,12 @@ const BoothMetricsPanel = ({ metrics }) => {
                     ) : null;
                   })}
                 </div>
-                <div className="flex flex-wrap gap-x-3 gap-y-0.5 mt-1.5">
+                <div className="grid grid-cols-2 gap-x-4 gap-y-1 mt-2">
                   {AGE_SEGMENTS.map((s) => (
-                    <span key={s.key} className="inline-flex items-center gap-1 text-[10px] text-slate-500">
-                      <span className="w-2 h-2 rounded-full" style={{ background: s.color }} />
-                      {s.label} <span className="font-semibold text-slate-700">{fmtNum(m.age?.[s.key] || 0)}</span>
+                    <span key={s.key} className="inline-flex items-center gap-1.5 text-[11px] text-slate-500">
+                      <span className="w-2 h-2 rounded-full shrink-0" style={{ background: s.color }} />
+                      <span className="flex-1">{s.label}</span>
+                      <span className="font-semibold text-slate-700 tabular-nums">{fmtNum(m.age?.[s.key] || 0)}</span>
                     </span>
                   ))}
                 </div>
@@ -373,6 +376,183 @@ const BoothMetricsPanel = ({ metrics }) => {
   );
 };
 
+/* Public sentiment + trending topics for the booth's area. Every figure is
+   clickable and deep-links into the grievance feed with the matching filters. */
+const SENTIMENT_META = {
+  positive: { label: 'Positive', color: '#22c55e', bg: 'bg-emerald-50', text: 'text-emerald-700' },
+  moderate: { label: 'Moderate', color: '#f59e0b', bg: 'bg-amber-50', text: 'text-amber-700' },
+  negative: { label: 'Negative', color: '#ef4444', bg: 'bg-red-50', text: 'text-red-700' },
+};
+
+const WINDOW_OPTIONS = [{ d: 30, l: '30d' }, { d: 90, l: '90d' }, { d: 0, l: 'All' }];
+
+const BoothSentimentCard = ({ sentiment, loading, onOpen, days, onDaysChange }) => {
+  const [open, setOpen] = useState(true);
+
+  // Initial load (no data yet) shows a slim placeholder; a window refetch keeps
+  // the existing card and shows a small inline spinner instead of collapsing.
+  if (loading && !sentiment) {
+    return (
+      <div className="px-5 py-3 bg-white border-b border-slate-100 shrink-0 flex items-center gap-2 text-[11px] text-slate-400">
+        <Loader2 className="h-3.5 w-3.5 animate-spin text-violet-400" /> Loading area sentiment…
+      </div>
+    );
+  }
+  if (!sentiment) return null;
+
+  const s = sentiment;
+  const isLocality = s.scope === 'locality';
+  // Title reflects what the numbers actually represent: a booth-specific area
+  // reading (rare — needs geo-tagged mentions) vs the constituency total.
+  const title = isLocality ? 'Area Sentiment' : 'Constituency Sentiment';
+  const segs = [
+    { k: 'positive', n: s.positive, pct: s.positive_pct },
+    { k: 'moderate', n: s.moderate, pct: s.moderate_pct },
+    { k: 'negative', n: s.negative, pct: s.negative_pct },
+  ];
+
+  const WindowSelector = () => (
+    <div className="flex items-center gap-0.5 bg-slate-100 rounded-md p-0.5">
+      {WINDOW_OPTIONS.map((o) => (
+        <button
+          key={o.d}
+          type="button"
+          onClick={(e) => { e.stopPropagation(); onDaysChange(o.d); }}
+          className={`text-[10px] font-semibold px-1.5 py-0.5 rounded transition-colors ${
+            days === o.d ? 'bg-white text-violet-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'
+          }`}
+        >
+          {o.l}
+        </button>
+      ))}
+    </div>
+  );
+
+  return (
+    <div className="px-5 pt-3 bg-white border-b border-slate-100 shrink-0">
+      <div className="flex items-center gap-2 mb-2">
+        <button
+          type="button"
+          onClick={() => setOpen((o) => !o)}
+          className="flex items-center gap-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-wide min-w-0"
+        >
+          <MessageSquare className="h-3 w-3 shrink-0" /> {title}
+          {s.total > 0 && <span className="text-slate-300 normal-case font-medium truncate">· {fmtNum(s.total)} mentions</span>}
+        </button>
+        <div className="ml-auto flex items-center gap-1.5 shrink-0">
+          {loading && <Loader2 className="h-3 w-3 animate-spin text-violet-400" />}
+          <WindowSelector />
+          <button type="button" onClick={() => setOpen((o) => !o)} className="text-slate-400 hover:text-slate-600">
+            {open ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+          </button>
+        </div>
+      </div>
+
+      <AnimatePresence initial={false}>
+        {open && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="overflow-hidden"
+          >
+            {s.total === 0 ? (
+              <div className="text-[11px] text-slate-400 pb-3 flex items-start gap-1.5">
+                <Info className="h-3.5 w-3.5 mt-0.5 shrink-0 text-slate-300" />
+                No public mentions are mapped to this area yet.
+              </div>
+            ) : (
+              <div className="space-y-2.5 pb-3">
+                {isLocality ? (
+                  <div className="text-[10px] text-emerald-600 flex items-center gap-1 font-medium">
+                    <MapPin className="h-3 w-3" /> Area · {s.locality}
+                  </div>
+                ) : (
+                  <div className="flex items-start gap-1.5 text-[10px] leading-snug text-amber-700 bg-amber-50 border border-amber-100 rounded-md px-2 py-1.5">
+                    <Info className="h-3.5 w-3.5 shrink-0 mt-px" />
+                    <span>
+                      {s.constituency} constituency total — <strong>same for every booth</strong>. Mentions aren’t geo-tagged to booth level, so this is area context, not this booth. Booth differences show in the metrics above.
+                    </span>
+                  </div>
+                )}
+
+                {/* Clickable stacked sentiment bar */}
+                <div className="h-2.5 rounded-full overflow-hidden flex bg-slate-100">
+                  {segs.map((seg) => (seg.pct > 0 ? (
+                    <button
+                      key={seg.k}
+                      type="button"
+                      onClick={() => onOpen({ sentiment: seg.k })}
+                      title={`${SENTIMENT_META[seg.k].label} · ${seg.pct}% — open in feed`}
+                      className="h-full hover:brightness-110 transition-all"
+                      style={{ width: `${seg.pct}%`, background: SENTIMENT_META[seg.k].color }}
+                    />
+                  ) : null))}
+                </div>
+
+                {/* Clickable sentiment tiles */}
+                <div className="grid grid-cols-3 gap-1.5">
+                  {segs.map((seg) => {
+                    const meta = SENTIMENT_META[seg.k];
+                    return (
+                      <button
+                        key={seg.k}
+                        type="button"
+                        onClick={() => onOpen({ sentiment: seg.k })}
+                        title={`Open ${meta.label.toLowerCase()} mentions in the grievance feed`}
+                        className={`rounded-lg px-2 py-1.5 text-left hover:shadow-sm hover:-translate-y-px transition-all ${meta.bg}`}
+                      >
+                        <div className="flex items-center gap-1">
+                          <span className="w-2 h-2 rounded-full shrink-0" style={{ background: meta.color }} />
+                          <span className={`text-[10px] font-semibold ${meta.text}`}>{meta.label}</span>
+                        </div>
+                        <div className="text-sm font-bold text-slate-800 tabular-nums leading-none mt-0.5">{seg.pct}%</div>
+                        <div className="text-[9px] text-slate-400 mt-0.5">{fmtNum(seg.n)}</div>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Trending topics */}
+                {s.topics && s.topics.length > 0 && (
+                  <div>
+                    <div className="text-[10px] uppercase tracking-wide font-semibold text-slate-400 mb-1.5 flex items-center gap-1">
+                      <TrendingUp className="h-3 w-3" /> Trending topics
+                    </div>
+                    <div className="flex flex-wrap gap-1.5">
+                      {s.topics.map((t) => (
+                        <button
+                          key={t.name}
+                          type="button"
+                          onClick={() => onOpen({ grievance_type: t.name })}
+                          title={`Open “${t.name}” mentions in the grievance feed`}
+                          className="inline-flex items-center gap-1 text-[11px] rounded-full bg-slate-100 hover:bg-violet-100 text-slate-600 hover:text-violet-700 px-2 py-1 transition-colors"
+                        >
+                          {t.name} <span className="font-bold">{fmtNum(t.count)}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <div className="text-[10px] text-slate-400 flex items-center gap-1 pt-0.5">
+                  <ExternalLink className="h-3 w-3" /> Tap any figure to open it in the grievance feed
+                </div>
+              </div>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
+
+// Constituency-level sentiment is hidden for now (the source mentions aren't
+// geo-tagged below the constituency, so it reads the same on every booth).
+// Flip to true to bring the card + its fetch back.
+const SHOW_CONSTITUENCY_SENTIMENT = false;
+
 const VoterListView = ({ constituency, booth, onBack }) => {
   const [rows, setRows] = useState([]);
   const [meta, setMeta] = useState(null);
@@ -382,7 +562,36 @@ const VoterListView = ({ constituency, booth, onBack }) => {
   const [gender, setGender] = useState('all');
   const [searchInput, setSearchInput] = useState('');
   const [search, setSearch] = useState('');
+  const [sentiment, setSentiment] = useState(null);
+  const [sentimentLoading, setSentimentLoading] = useState(true);
+  const [sentimentDays, setSentimentDays] = useState(90); // 0 = all-time
   const scrollRef = useRef(null);
+  const navigate = useNavigate();
+
+  // Clear the old booth's sentiment immediately on booth change so a stale card
+  // never flashes; a window change keeps the current card visible while it reloads.
+  useEffect(() => { setSentiment(null); }, [booth.part]);
+
+  // Area sentiment loads per booth + selected time window (independent of paging).
+  useEffect(() => {
+    if (!SHOW_CONSTITUENCY_SENTIMENT) return undefined;
+    let cancelled = false;
+    setSentimentLoading(true);
+    api.get(`/voter-profiles/${encodeURIComponent(constituency)}/booths/${booth.part}/sentiment?days=${sentimentDays}`)
+      .then((res) => { if (!cancelled) setSentiment(res.data || null); })
+      .catch(() => { if (!cancelled) setSentiment(null); })
+      .finally(() => { if (!cancelled) setSentimentLoading(false); });
+    return () => { cancelled = true; };
+  }, [constituency, booth.part, sentimentDays]);
+
+  // Deep-link into the grievance feed with the booth's location + chosen filter.
+  const openInFeed = (extra) => {
+    const params = new URLSearchParams({
+      location: sentiment?.location || booth.locality || constituency,
+      ...extra,
+    });
+    navigate(`/grievances?${params.toString()}`);
+  };
 
   // Debounce the search box so we don't refetch on every keystroke.
   useEffect(() => {
@@ -449,63 +658,79 @@ const VoterListView = ({ constituency, booth, onBack }) => {
         </div>
       </div>
 
-      {/* Exact booth-level metrics from the voter roll */}
-      <BoothMetricsPanel metrics={meta?.metrics} />
+      {/* One scroll region so the voter list always keeps full height: the
+          metrics scroll away and the search bar sticks to the top. This fixes
+          the cramped layout where stacked fixed panels left no room to scroll. */}
+      <div ref={scrollRef} className="flex-1 min-h-0 overflow-y-auto">
+        {/* Exact booth-level metrics from the voter roll */}
+        <BoothMetricsPanel metrics={meta?.metrics} />
 
-      {/* Search + gender filter */}
-      <div className="px-5 py-2.5 bg-white/90 backdrop-blur border-b border-slate-100 shrink-0 space-y-2">
-        <div className="relative">
-          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
-          <input
-            value={searchInput}
-            onChange={(e) => setSearchInput(e.target.value)}
-            placeholder="Search name, voter ID, relation, house…"
-            className="w-full rounded-md border border-slate-200 bg-slate-50 pl-8 pr-7 py-1.5 text-xs outline-none focus:border-violet-300 focus:bg-white focus:ring-2 focus:ring-violet-100 transition"
+        {/* Constituency sentiment — hidden for now; re-enable via the flag above. */}
+        {SHOW_CONSTITUENCY_SENTIMENT && (
+          <BoothSentimentCard
+            sentiment={sentiment}
+            loading={sentimentLoading}
+            onOpen={openInFeed}
+            days={sentimentDays}
+            onDaysChange={setSentimentDays}
           />
-          {searchInput && (
-            <button type="button" onClick={() => setSearchInput('')} className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-500">
-              <X className="h-3.5 w-3.5" />
-            </button>
+        )}
+
+        {/* Search + gender filter — sticks to the top while scrolling voters */}
+        <div className="px-5 py-2.5 bg-white/95 backdrop-blur border-y border-slate-100 sticky top-0 z-10 space-y-2">
+          <div className="relative">
+            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
+            <input
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              placeholder="Search name, voter ID, relation, house…"
+              className="w-full rounded-md border border-slate-200 bg-slate-50 pl-8 pr-7 py-1.5 text-xs outline-none focus:border-violet-300 focus:bg-white focus:ring-2 focus:ring-violet-100 transition"
+            />
+            {searchInput && (
+              <button type="button" onClick={() => setSearchInput('')} className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-500">
+                <X className="h-3.5 w-3.5" />
+              </button>
+            )}
+          </div>
+          <div className="flex items-center gap-1.5 flex-wrap">
+            {genderTabs.map((t) => (
+              <button
+                key={t.key}
+                type="button"
+                onClick={() => setGender(t.key)}
+                className={`text-[11px] font-medium rounded-full px-2.5 py-1 border transition-colors ${
+                  gender === t.key
+                    ? 'bg-violet-600 border-violet-600 text-white'
+                    : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'
+                }`}
+              >
+                {t.label}{t.n != null ? ` · ${fmtNum(t.n)}` : ''}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Voter rows */}
+        <div className="px-5 py-3">
+          {loading ? (
+            <div className="flex items-center justify-center py-16">
+              <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 0.8, ease: 'linear' }}>
+                <Loader2 className="h-6 w-6 text-violet-400" />
+              </motion.div>
+            </div>
+          ) : error ? (
+            <div className="flex flex-col items-center gap-2 text-sm text-slate-500 py-16 text-center">
+              <Info className="h-6 w-6 text-slate-300" />
+              <span>{error}</span>
+            </div>
+          ) : rows.length === 0 ? (
+            <div className="text-sm text-slate-400 text-center py-16">No voters match your search.</div>
+          ) : (
+            <div className="space-y-2">
+              {rows.map((v, i) => <VoterRow key={`${v.voter_id}-${v.sl}`} voter={v} index={i} />)}
+            </div>
           )}
         </div>
-        <div className="flex items-center gap-1.5 flex-wrap">
-          {genderTabs.map((t) => (
-            <button
-              key={t.key}
-              type="button"
-              onClick={() => setGender(t.key)}
-              className={`text-[11px] font-medium rounded-full px-2.5 py-1 border transition-colors ${
-                gender === t.key
-                  ? 'bg-violet-600 border-violet-600 text-white'
-                  : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'
-              }`}
-            >
-              {t.label}{t.n != null ? ` · ${fmtNum(t.n)}` : ''}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Voter rows */}
-      <div ref={scrollRef} className="flex-1 overflow-y-auto px-5 py-3">
-        {loading ? (
-          <div className="flex items-center justify-center py-16">
-            <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 0.8, ease: 'linear' }}>
-              <Loader2 className="h-6 w-6 text-violet-400" />
-            </motion.div>
-          </div>
-        ) : error ? (
-          <div className="flex flex-col items-center gap-2 text-sm text-slate-500 py-16 text-center">
-            <Info className="h-6 w-6 text-slate-300" />
-            <span>{error}</span>
-          </div>
-        ) : rows.length === 0 ? (
-          <div className="text-sm text-slate-400 text-center py-16">No voters match your search.</div>
-        ) : (
-          <div className="space-y-2">
-            {rows.map((v, i) => <VoterRow key={`${v.voter_id}-${v.sl}`} voter={v} index={i} />)}
-          </div>
-        )}
       </div>
 
       {/* Pagination footer */}
@@ -682,7 +907,15 @@ const BoothLevelModal = ({ open, onClose, constituency, constituencyDisplayName 
             </motion.div>
             <div className="min-w-0">
               <div className="text-sm font-bold text-slate-800">Booth-Level Voter Data</div>
-              <div className="text-[11px] text-slate-500 truncate">{constituencyDisplayName || constituency}</div>
+              <div className="flex items-center gap-1.5 min-w-0">
+                <span className="text-[11px] text-slate-500 truncate">{constituencyDisplayName || constituency}</span>
+                <span
+                  className="text-[9px] font-semibold text-amber-700 bg-amber-50 border border-amber-100 rounded px-1.5 py-0.5 shrink-0 cursor-help"
+                  title="Counts are derived from the 2025 ECI Final Roll booth exports. They may differ slightly from the constituency's 2024 official summary in Demographic Overview (a different roll year)."
+                >
+                  2025 Final Roll
+                </span>
+              </div>
             </div>
             {data?.coverage && (
               <motion.div

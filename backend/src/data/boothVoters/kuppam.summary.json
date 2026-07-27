@@ -1,2422 +1,2422 @@
 [
-    {
-        "part": 1,
-        "locality": "NALLAPPAREDDIYURU",
-        "polling_station": "MPP School Vadagandlapalli",
-        "electors_male": 369,
-        "electors_female": 355,
-        "electors_total": 724,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 2,
-        "locality": "NALLAPPAREDDIYURU",
-        "polling_station": "M P P SCHOOL,BELLAKOILA",
-        "electors_male": 290,
-        "electors_female": 271,
-        "electors_total": 561,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 3,
-        "locality": "NALLAPPAREDDIYURU",
-        "polling_station": "M.P.P SCHOOL ,NALLAPPAREDDIYURU",
-        "electors_male": 513,
-        "electors_female": 489,
-        "electors_total": 1002,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 4,
-        "locality": "REGADADINNEPALLE",
-        "polling_station": "MPP School Regadadinnepalle",
-        "electors_male": 193,
-        "electors_female": 180,
-        "electors_total": 373,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 5,
-        "locality": "MULLURU",
-        "polling_station": "MPP School Mulluru H/o Krishnapuram",
-        "electors_male": 643,
-        "electors_female": 630,
-        "electors_total": 1273,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 6,
-        "locality": "MPP",
-        "polling_station": "MPP School (Urdu) Krishnapuram",
-        "electors_male": 312,
-        "electors_female": 276,
-        "electors_total": 588,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 7,
-        "locality": "GUNDISETTIPALLI",
-        "polling_station": "MPP School Gundisettipalle",
-        "electors_male": 489,
-        "electors_female": 488,
-        "electors_total": 977,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 8,
-        "locality": "MPP",
-        "polling_station": "MPP School Mattam H/o Gudisettipalle",
-        "electors_male": 548,
-        "electors_female": 499,
-        "electors_total": 1047,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 9,
-        "locality": "KUTHEGANIPALLE",
-        "polling_station": "MPP School Kutheganipalle H/o Sonneganipalle",
-        "electors_male": 402,
-        "electors_female": 420,
-        "electors_total": 822,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 10,
-        "locality": "SANTHUR",
-        "polling_station": "MPP School Santuru H/o Sonneganiapalle",
-        "electors_male": 596,
-        "electors_female": 596,
-        "electors_total": 1192,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 11,
-        "locality": "KODITHIPALLE",
-        "polling_station": "MPP School Kodithipalle Mitta",
-        "electors_male": 392,
-        "electors_female": 374,
-        "electors_total": 766,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 12,
-        "locality": "BOYANAPALLE",
-        "polling_station": "MPP School Boyanapalle",
-        "electors_male": 448,
-        "electors_female": 469,
-        "electors_total": 917,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 13,
-        "locality": "ARIMUTHANAPALLE",
-        "polling_station": "MPP School Santhipuram H/o Arimuthanapalle",
-        "electors_male": 417,
-        "electors_female": 450,
-        "electors_total": 867,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 14,
-        "locality": "SANTHIPURAM",
-        "polling_station": "ANGANWADI BIJLIDING ,ARIMUTTHANAPALLE ARIMUTTHANAPALLE",
-        "electors_male": 281,
-        "electors_female": 295,
-        "electors_total": 576,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 15,
-        "locality": "SOGADABALLA",
-        "polling_station": "z p high school ,sogadaballa Sogadaballe",
-        "electors_male": 472,
-        "electors_female": 513,
-        "electors_total": 985,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 16,
-        "locality": "VENKATEPALLI",
-        "polling_station": "MPUP School venkatepalli",
-        "electors_male": 372,
-        "electors_female": 402,
-        "electors_total": 774,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 17,
-        "locality": "KONERUKUPPAM",
-        "polling_station": "Z P High School Konerukuppam",
-        "electors_male": 547,
-        "electors_female": 545,
-        "electors_total": 1092,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 18,
-        "locality": "11",
-        "polling_station": "MPP School II-Pedduru",
-        "electors_male": 419,
-        "electors_female": 432,
-        "electors_total": 851,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 19,
-        "locality": "CHENGUBALLA",
-        "polling_station": "MPP School Chenguballa H/o Settiballa",
-        "electors_male": 566,
-        "electors_female": 578,
-        "electors_total": 1144,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 20,
-        "locality": "KENNAMAKULAPALLE",
-        "polling_station": "ZP High School Kenamakulapalle",
-        "electors_male": 687,
-        "electors_female": 627,
-        "electors_total": 1314,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 21,
-        "locality": "CHOWDAMPALLE",
-        "polling_station": "MPP School Chowdampalle",
-        "electors_male": 350,
-        "electors_female": 375,
-        "electors_total": 725,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 22,
-        "locality": "DANDIKUPPAM",
-        "polling_station": "MPP School Dandikuppam",
-        "electors_male": 445,
-        "electors_female": 467,
-        "electors_total": 912,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 23,
-        "locality": "KOI-AMADUGU",
-        "polling_station": "Z P High School Kolamadugu",
-        "electors_male": 453,
-        "electors_female": 424,
-        "electors_total": 877,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 24,
-        "locality": "RAMAPURAM",
-        "polling_station": "MPP School , Ramapuram Ramapuram",
-        "electors_male": 251,
-        "electors_female": 241,
-        "electors_total": 492,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 25,
-        "locality": "REDLAPALLE",
-        "polling_station": "MPUP School Reddlapalle",
-        "electors_male": 383,
-        "electors_female": 349,
-        "electors_total": 732,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 26,
-        "locality": "JANGALAPALLE",
-        "polling_station": "M P P School , Jangalapalle, Jangalapalle",
-        "electors_male": 353,
-        "electors_female": 336,
-        "electors_total": 689,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 27,
-        "locality": "MPUP",
-        "polling_station": "MPUP SCHOOL ,abakaladodi Abakaladoddi H/o Donkumanipalle",
-        "electors_male": 504,
-        "electors_female": 549,
-        "electors_total": 1053,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 28,
-        "locality": "PEDDABOMMANAPALLE",
-        "polling_station": "MPUP School Peddabommanapalle H/o Donkumanipalle",
-        "electors_male": 451,
-        "electors_female": 411,
-        "electors_total": 862,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 29,
-        "locality": "KAREGOWNURU",
-        "polling_station": "MPP School Karegownuru Karegownuru",
-        "electors_male": 307,
-        "electors_female": 279,
-        "electors_total": 586,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 30,
-        "locality": "THUMSI",
-        "polling_station": "ZP High School, Room No.l Thumsi",
-        "electors_male": 374,
-        "electors_female": 0,
-        "electors_total": 753,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 31,
-        "locality": "GUNJARLAPALLE",
-        "polling_station": "MPP Shool Gunjarlapalle",
-        "electors_male": 459,
-        "electors_female": 444,
-        "electors_total": 903,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 32,
-        "locality": "NADIMPALLI",
-        "polling_station": "MPP School Nadimpalle H/o Morasanapalle",
-        "electors_male": 706,
-        "electors_female": 659,
-        "electors_total": 1365,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 33,
-        "locality": "MORASANAPALLE",
-        "polling_station": "MPUP School Morasanapalle",
-        "electors_male": 622,
-        "electors_female": 681,
-        "electors_total": 1303,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 34,
-        "locality": "KOTHAPETA",
-        "polling_station": "MPP School Kothapeta H/o Chinnaridoddi",
-        "electors_male": 456,
-        "electors_female": 494,
-        "electors_total": 950,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 35,
-        "locality": "ZP",
-        "polling_station": "ZP High School Main Building East side Rallabuduguru",
-        "electors_male": 464,
-        "electors_female": 508,
-        "electors_total": 972,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 36,
-        "locality": "Z.",
-        "polling_station": "Z. P. High School 8th Class Room Rallabuduguru",
-        "electors_male": 616,
-        "electors_female": 653,
-        "electors_total": 1269,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 37,
-        "locality": "MPP",
-        "polling_station": "MPP School , Gollapalle Gollapalle",
-        "electors_male": 480,
-        "electors_female": 503,
-        "electors_total": 983,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 38,
-        "locality": "SATHU",
-        "polling_station": "MPP School Sathu",
-        "electors_male": 433,
-        "electors_female": 422,
-        "electors_total": 855,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 39,
-        "locality": "PEDDUR",
-        "polling_station": "ZP High School, East Side 64-Pedduru H/o Muddanapalle",
-        "electors_male": 398,
-        "electors_female": 404,
-        "electors_total": 802,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 40,
-        "locality": "SOMAPURAM",
-        "polling_station": "MPP School, Somapuram Somapuram",
-        "electors_male": 374,
-        "electors_female": 358,
-        "electors_total": 732,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 41,
-        "locality": "PEDDURU",
-        "polling_station": "ZP High School, West Side 64-Pedduru H/o Muddanapalle",
-        "electors_male": 649,
-        "electors_female": 553,
-        "electors_total": 1202,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 42,
-        "locality": "C.BANDAPALLI",
-        "polling_station": "MPUP School C.Bandapalle H/o Muddanapalle",
-        "electors_male": 645,
-        "electors_female": 646,
-        "electors_total": 1291,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 44,
-        "locality": "CHEEMANAPALLE",
-        "polling_station": "MPP School , Cheemanapalle Cheemanapalle",
-        "electors_male": 347,
-        "electors_female": 325,
-        "electors_total": 672,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 45,
-        "locality": "KARL-AGATTA",
-        "polling_station": "MPP School Karlagatta",
-        "electors_male": 441,
-        "electors_female": 355,
-        "electors_total": 796,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 46,
-        "locality": "KADAPALLE",
-        "polling_station": "MPUP School Kadapalle",
-        "electors_male": 486,
-        "electors_female": 489,
-        "electors_total": 975,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 47,
-        "locality": "PODURCJ",
-        "polling_station": "MPUP School, 6th Class Room, Poduru",
-        "electors_male": 425,
-        "electors_female": 441,
-        "electors_total": 866,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 48,
-        "locality": "MPUP",
-        "polling_station": "MPUP School Kadapalle",
-        "electors_male": 300,
-        "electors_female": 254,
-        "electors_total": 554,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 49,
-        "locality": "THIMMARAJUPALLE",
-        "polling_station": "MPP School Timmarajupalli",
-        "electors_male": 662,
-        "electors_female": 652,
-        "electors_total": 1314,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 50,
-        "locality": "VEDURUGUTTAPALLE",
-        "polling_station": "MPP School Veduruguttapalle",
-        "electors_male": 387,
-        "electors_female": 356,
-        "electors_total": 743,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 51,
-        "locality": "SIVARAMAPURAM",
-        "polling_station": "Z P High School Sivaramapuram",
-        "electors_male": 646,
-        "electors_female": 664,
-        "electors_total": 1310,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 52,
-        "locality": "NANJAMPETA",
-        "polling_station": "MPP School Nanjampeta",
-        "electors_male": 641,
-        "electors_female": 671,
-        "electors_total": 1312,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 53,
-        "locality": "KONGANAPALLE",
-        "polling_station": "M P U P SCHOOL,Konganapalli, Konganapalli",
-        "electors_male": 553,
-        "electors_female": 592,
-        "electors_total": 1145,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 54,
-        "locality": "KONGANAPALLE",
-        "polling_station": "MPP School Kollupalle",
-        "electors_male": 354,
-        "electors_female": 359,
-        "electors_total": 713,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 55,
-        "locality": "CHELDIGANIPALLE",
-        "polling_station": "ZP High school,7th Class Room, A-Section, Cheldiganipalle",
-        "electors_male": 502,
-        "electors_female": 0,
-        "electors_total": 985,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 56,
-        "locality": "BAIPPAREDLAPALLE",
-        "polling_station": "MPP School Baiparedlapalli",
-        "electors_male": 385,
-        "electors_female": 363,
-        "electors_total": 748,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 57,
-        "locality": "RAMAKUPPAM",
-        "polling_station": "MPP SCHOOL,kempasamudram.",
-        "electors_male": 575,
-        "electors_female": 563,
-        "electors_total": 1138,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 58,
-        "locality": "MPP",
-        "polling_station": "MPP SCHOOL,gorivimakulapalli.",
-        "electors_male": 464,
-        "electors_female": 461,
-        "electors_total": 925,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 59,
-        "locality": "DESINAYANAPALLI",
-        "polling_station": "MPP School Desinayanapalli.",
-        "electors_male": 322,
-        "electors_female": 296,
-        "electors_total": 618,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 60,
-        "locality": "PEDDA",
-        "polling_station": "MPP School Peddagerigapalle",
-        "electors_male": 535,
-        "electors_female": 527,
-        "electors_total": 1062,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 61,
-        "locality": "PANDYALAMADUGU",
-        "polling_station": "ZP High School,10th Class Room,Pandyalamadugu",
-        "electors_male": 467,
-        "electors_female": 477,
-        "electors_total": 944,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 62,
-        "locality": "PANDYALAMADUGU",
-        "polling_station": "MPP School Pallikuppam",
-        "electors_male": 377,
-        "electors_female": 415,
-        "electors_total": 792,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 63,
-        "locality": "S.GOLLAPALLE",
-        "polling_station": "MPUP School S.G011apalle",
-        "electors_male": 539,
-        "electors_female": 559,
-        "electors_total": 1098,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 64,
-        "locality": "KANCHIDASANAPALLI",
-        "polling_station": "MPUP SCHOOL ,kanchidasanapalli.",
-        "electors_male": 557,
-        "electors_female": 583,
-        "electors_total": 1140,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 65,
-        "locality": "GADDURIJ",
-        "polling_station": "M P P SCHOOL GADDURU.",
-        "electors_male": 421,
-        "electors_female": 414,
-        "electors_total": 835,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 66,
-        "locality": "RAMAKIJPPAM",
-        "polling_station": "M P P SCHOOL ,NEW BULDING ,",
-        "electors_male": 539,
-        "electors_female": 535,
-        "electors_total": 1074,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 67,
-        "locality": "SAGINEKUPPAM",
-        "polling_station": "MPP School Saginekuppam.",
-        "electors_male": 222,
-        "electors_female": 216,
-        "electors_total": 438,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 68,
-        "locality": "BAGALANATHAM",
-        "polling_station": "MPUP School Bagalanatham",
-        "electors_male": 486,
-        "electors_female": 496,
-        "electors_total": 983,
-        "electors_third_gender": 1,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 69,
-        "locality": "MITTAPALLI",
-        "polling_station": "MPP School Mittapalle",
-        "electors_male": 448,
-        "electors_female": 495,
-        "electors_total": 943,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 70,
-        "locality": "RAJI-JPETA",
-        "polling_station": "MPP School ,Rajupeta.",
-        "electors_male": 329,
-        "electors_female": 368,
-        "electors_total": 697,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 71,
-        "locality": "RAMAKIJPPAM",
-        "polling_station": "ZP High School,10th Class Room,B/s Ramakuppam.",
-        "electors_male": 299,
-        "electors_female": 524,
-        "electors_total": 823,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 72,
-        "locality": "RAMAKIJPPAM",
-        "polling_station": "ZP High School,9th Class Room,A/s Ramakuppam.",
-        "electors_male": 301,
-        "electors_female": 425,
-        "electors_total": 726,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 73,
-        "locality": "RAMAKIJPPAM",
-        "polling_station": "ZP High School,3rd Class Room, Ramakuppam.",
-        "electors_male": 518,
-        "electors_female": 222,
-        "electors_total": 740,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 74,
-        "locality": "RAMAKIJPPAM",
-        "polling_station": "ZP High School,4th Class Room,B/s Ramakuppam.",
-        "electors_male": 491,
-        "electors_female": 514,
-        "electors_total": 1005,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 75,
-        "locality": "RAMAKIJPPAM",
-        "polling_station": "ZP High School,7th Class Room, Ramakuppam.",
-        "electors_male": 436,
-        "electors_female": 419,
-        "electors_total": 855,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 76,
-        "locality": "MUDDANAPALLE",
-        "polling_station": "MPUP School, Muddanapalle",
-        "electors_male": 470,
-        "electors_female": 483,
-        "electors_total": 953,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 77,
-        "locality": "AVULAKIJPPAM",
-        "polling_station": "MPP School Avulakuppam.",
-        "electors_male": 297,
-        "electors_female": 278,
-        "electors_total": 575,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 78,
-        "locality": "MUDDANAPALLE",
-        "polling_station": "Traible Welfare Primary School Narayanapuram Thanda H/o Muddanapalle",
-        "electors_male": 205,
-        "electors_female": 201,
-        "electors_total": 406,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 79,
-        "locality": "GIDDAPALLI",
-        "polling_station": "MPP School Giddapalle",
-        "electors_male": 529,
-        "electors_female": 535,
-        "electors_total": 1064,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 80,
-        "locality": "RAMAKIJPPAM",
-        "polling_station": "MPUP School Naniyala H/0 89-",
-        "electors_male": 528,
-        "electors_female": 535,
-        "electors_total": 1063,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 81,
-        "locality": "89",
-        "polling_station": "MPUP School 89-Pedduru",
-        "electors_male": 635,
-        "electors_female": 619,
-        "electors_total": 1254,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 82,
-        "locality": "ARIMANIPENTA",
-        "polling_station": "Z.P.High School,8th Class Room,Arimanipenta",
-        "electors_male": 475,
-        "electors_female": 490,
-        "electors_total": 965,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 83,
-        "locality": "VIJALAPURAM",
-        "polling_station": "MPP School,4th Class Room,Singasamudram.",
-        "electors_male": 605,
-        "electors_female": 0,
-        "electors_total": 1184,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 84,
-        "locality": "BAIPAREDLAPALLI",
-        "polling_station": "MPP School,5th Class Room,Singasamudram.",
-        "electors_male": 318,
-        "electors_female": 299,
-        "electors_total": 617,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 85,
-        "locality": "KENCHANABALLA",
-        "polling_station": "MPUP School,2nd Class Room ,KenchanabalIa.",
-        "electors_male": 586,
-        "electors_female": 606,
-        "electors_total": 1192,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 86,
-        "locality": "KENCHANABALLA",
-        "polling_station": "MPUP School,4th Class Room ,Kenchanaballa.",
-        "electors_male": 516,
-        "electors_female": 499,
-        "electors_total": 1015,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 87,
-        "locality": "87",
-        "polling_station": "MPP School Gandhinagaram",
-        "electors_male": 514,
-        "electors_female": 507,
-        "electors_total": 1021,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 88,
-        "locality": "ATHI",
-        "polling_station": "MPP School Athikuppam",
-        "electors_male": 318,
-        "electors_female": 343,
-        "electors_total": 661,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 89,
-        "locality": "MANENDRAM",
-        "polling_station": "MPUP School Manendram",
-        "electors_male": 713,
-        "electors_female": 694,
-        "electors_total": 1407,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 90,
-        "locality": "VIJALAPURAM",
-        "polling_station": "MPP School,4th Class Vijalapuram.",
-        "electors_male": 496,
-        "electors_female": 527,
-        "electors_total": 1023,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 91,
-        "locality": "VIJALAPURAM",
-        "polling_station": "MPP School,2nd Class Vijalapuram.",
-        "electors_male": 471,
-        "electors_female": 489,
-        "electors_total": 960,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 92,
-        "locality": "ANIGANIJRU",
-        "polling_station": "MPP School,4th Class Aniganuru",
-        "electors_male": 398,
-        "electors_female": 402,
-        "electors_total": 800,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 93,
-        "locality": "ANIGANURU",
-        "polling_station": "Z. P. High School , 7th Classs Aniganuru Aniganuru",
-        "electors_male": 600,
-        "electors_female": 0,
-        "electors_total": 1302,
-        "electors_third_gender": 702,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 94,
-        "locality": "ANIGANURU",
-        "polling_station": "MPP School,2nd Class Aniganuru.",
-        "electors_male": 0,
-        "electors_female": 0,
-        "electors_total": 760,
-        "electors_third_gender": 366,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 95,
-        "locality": "BALI-A",
-        "polling_station": "Mandal Parishad Primary School, Balla.",
-        "electors_male": 680,
-        "electors_female": 672,
-        "electors_total": 1352,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 96,
-        "locality": "BALI-A",
-        "polling_station": "Mandal Parishad Primary School, Balla.",
-        "electors_male": 358,
-        "electors_female": 360,
-        "electors_total": 718,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 97,
-        "locality": "PEDDAKURABALAPALLE",
-        "polling_station": "M P P SCHOOL ,Peddakurabalapalle.",
-        "electors_male": 542,
-        "electors_female": 516,
-        "electors_total": 1058,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 98,
-        "locality": "VEERNAMALA",
-        "polling_station": "ZP High School,8th Class Room,Veernamala",
-        "electors_male": 598,
-        "electors_female": 553,
-        "electors_total": 1151,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 99,
-        "locality": "VEERNAMALA",
-        "polling_station": "ZP High School,6th Class Room,Veernamala",
-        "electors_male": 607,
-        "electors_female": 645,
-        "electors_total": 1252,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 100,
-        "locality": "VEERNAMALA",
-        "polling_station": "Traible welfare P School Veernamala Thanda",
-        "electors_male": 687,
-        "electors_female": 658,
-        "electors_total": 1345,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 101,
-        "locality": "CHIKKAPALLE",
-        "polling_station": "MPP SCh001 Chikkapalle Thanda",
-        "electors_male": 346,
-        "electors_female": 309,
-        "electors_total": 655,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 102,
-        "locality": "BISANATHAM",
-        "polling_station": "MPUP School Bisanatham",
-        "electors_male": 303,
-        "electors_female": 284,
-        "electors_total": 588,
-        "electors_third_gender": 1,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 103,
-        "locality": "ATHINATHAM",
-        "polling_station": "MPP School Athinatham",
-        "electors_male": 242,
-        "electors_female": 212,
-        "electors_total": 454,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 104,
-        "locality": "POGURUPALLI",
-        "polling_station": "Z P H SCHOOL ,Pogurupalle.",
-        "electors_male": 520,
-        "electors_female": 518,
-        "electors_total": 1038,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 105,
-        "locality": "DASIMANIPALLI",
-        "polling_station": "MPP School Dasimanipalle",
-        "electors_male": 440,
-        "electors_female": 408,
-        "electors_total": 848,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 106,
-        "locality": "KUPPIGANIPALLI",
-        "polling_station": "MPUP SCHOOL ,kuppiganipalli.",
-        "electors_male": 371,
-        "electors_female": 331,
-        "electors_total": 702,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 107,
-        "locality": "KUPPIGANIPALLI",
-        "polling_station": "Mandala Parishad prathami ko nnata patashala 5 va tharagathi gadhi Kuppiganipalle, Kuppiganipalle",
-        "electors_male": 447,
-        "electors_female": 441,
-        "electors_total": 888,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 108,
-        "locality": "AGARAM",
-        "polling_station": "MPUP School Agaram",
-        "electors_male": 656,
-        "electors_female": 645,
-        "electors_total": 1301,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 109,
-        "locality": "YAMAGANIPALLI",
-        "polling_station": "MPP School Peddabadanavada",
-        "electors_male": 308,
-        "electors_female": 296,
-        "electors_total": 604,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 110,
-        "locality": "PEDDABADANAWADA",
-        "polling_station": "MANDALA PARISHAD PRATHAMIKA PATASHALA KAMMAGUTTAPALLI, Kammaguttapalli",
-        "electors_male": 690,
-        "electors_female": 675,
-        "electors_total": 1365,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 111,
-        "locality": "GUDIKOTHURIJ",
-        "polling_station": "D N TRIBAL UPPER PRIMARY SCHOOL,Gudik0thuru H/o Na Gudikothuru H/o Nalagampalle",
-        "electors_male": 470,
-        "electors_female": 459,
-        "electors_total": 929,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 112,
-        "locality": "GUDIKOTHURIJ",
-        "polling_station": "D N TW U p School South Side Gudikothuru Gudikothuru",
-        "electors_male": 342,
-        "electors_female": 345,
-        "electors_total": 687,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 113,
-        "locality": "KANCHIBANDARLAPALLI",
-        "polling_station": "MPP School Kanchibandarlapalle ane 114 Settipalle",
-        "electors_male": 520,
-        "electors_female": 460,
-        "electors_total": 980,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 114,
-        "locality": "KANCHIBANDARLAPALLI",
-        "polling_station": "M PP School 5th Class Room K B Palli kanchi bandarlapalli",
-        "electors_male": 395,
-        "electors_female": 408,
-        "electors_total": 803,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 115,
-        "locality": "115SETTlPALLl",
-        "polling_station": "z p high school ,new bulding east wing , 115 settip 115- Settipalle",
-        "electors_male": 641,
-        "electors_female": 643,
-        "electors_total": 1284,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 116,
-        "locality": "NALAGAMPALLI",
-        "polling_station": "Mandala parishad prathamika patashala nallagampalli, Nallagampalli",
-        "electors_male": 567,
-        "electors_female": 595,
-        "electors_total": 1162,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 117,
-        "locality": "BEGGILAPALLI",
-        "polling_station": "ZP High School, Room No.3 Begglipalle",
-        "electors_male": 413,
-        "electors_female": 402,
-        "electors_total": 815,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 118,
-        "locality": "BANDAKOTHURU",
-        "polling_station": "M P P S, BANDAKOTURIJ BANDAKOTURU",
-        "electors_male": 342,
-        "electors_female": 320,
-        "electors_total": 662,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 119,
-        "locality": "GUNDI-ASAGARAM",
-        "polling_station": "MPP School Gundlasagaram",
-        "electors_male": 478,
-        "electors_female": 512,
-        "electors_total": 990,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 120,
-        "locality": "GUTHARLAPALLE",
-        "polling_station": "Z.P. High School 9th class Gutharlapalle Guttharlapalle",
-        "electors_male": 303,
-        "electors_female": 286,
-        "electors_total": 589,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 121,
-        "locality": "KOTAPALLE",
-        "polling_station": "MPP School Kotapalle",
-        "electors_male": 362,
-        "electors_female": 338,
-        "electors_total": 700,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 122,
-        "locality": "KANAMANAPALLE",
-        "polling_station": "MPP School Kanamanapalle",
-        "electors_male": 376,
-        "electors_female": 438,
-        "electors_total": 814,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 123,
-        "locality": "KANAMANAPALLE",
-        "polling_station": "M PP School 5th Class Kanamanapalle Kanamanapalle",
-        "electors_male": 333,
-        "electors_female": 369,
-        "electors_total": 702,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 124,
-        "locality": "YAMAGANIPALLI",
-        "polling_station": "z p high school ,room no l,yamaganipalli Yamiganipalle",
-        "electors_male": 390,
-        "electors_female": 450,
-        "electors_total": 840,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 125,
-        "locality": "YAMAGANIPALLI",
-        "polling_station": "Z P H S NO 2 YAMAGANIPALLI",
-        "electors_male": 433,
-        "electors_female": 467,
-        "electors_total": 900,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 126,
-        "locality": "ADAVIBAJANAWADA",
-        "polling_station": "MPP SCHOOL,ADAVIBAJANAWADA ADAVIBAJANAWADA",
-        "electors_male": 251,
-        "electors_female": 237,
-        "electors_total": 488,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 127,
-        "locality": "KODATHANAPALLI",
-        "polling_station": "M P P S ,Kodatanapalle Kodatanapalle",
-        "electors_male": 644,
-        "electors_female": 0,
-        "electors_total": 1281,
-        "electors_third_gender": 637,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 128,
-        "locality": "GUDUPALLE",
-        "polling_station": "MPP School Gudupalle",
-        "electors_male": 404,
-        "electors_female": 404,
-        "electors_total": 808,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 129,
-        "locality": "GUDUPALLE",
-        "polling_station": "MPP School , 5th Class Room Gudupalle Gudupalle",
-        "electors_male": 406,
-        "electors_female": 401,
-        "electors_total": 807,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 130,
-        "locality": "MITTIJRU",
-        "polling_station": "MPUP SCHOOL MITTOOR MITTOOR",
-        "electors_male": 413,
-        "electors_female": 391,
-        "electors_total": 804,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 131,
-        "locality": "SIRIGIRIPALLE",
-        "polling_station": "MPP School Sirigiripalle",
-        "electors_male": 412,
-        "electors_female": 412,
-        "electors_total": 839,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 132,
-        "locality": "CHEEKATIPALLI",
-        "polling_station": "MPP School Cheekatipalle",
-        "electors_male": 296,
-        "electors_female": 281,
-        "electors_total": 577,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 133,
-        "locality": "KAKINAYANICHEEGARLAPALLE",
-        "polling_station": "Mandala Parishad Prathamiko natha patashala Kakinayani cheegarla palli, KAKINAYANI CHIGURLA pALLl",
-        "electors_male": 345,
-        "electors_female": 364,
-        "electors_total": 709,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 134,
-        "locality": "MALDEPALLI",
-        "polling_station": "MPP School Maldepalle",
-        "electors_male": 324,
-        "electors_female": 349,
-        "electors_total": 673,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 135,
-        "locality": "SODIGANIPALLI",
-        "polling_station": "MPP School Sodiganipalle",
-        "electors_male": 642,
-        "electors_female": 651,
-        "electors_total": 1293,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 136,
-        "locality": "ALIJGUMANIPALLI",
-        "polling_station": "MPP School Alugumanipalle",
-        "electors_male": 475,
-        "electors_female": 472,
-        "electors_total": 947,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 137,
-        "locality": "CHINNA",
-        "polling_station": "MPP School Chinnagollapalle",
-        "electors_male": 527,
-        "electors_female": 531,
-        "electors_total": 1058,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 138,
-        "locality": "MALAVANIKOTHIJRU",
-        "polling_station": "MPP School Malavanikothuru",
-        "electors_male": 289,
-        "electors_female": 291,
-        "electors_total": 580,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 139,
-        "locality": "SANGANAPALLI",
-        "polling_station": "ZP High School Room no 4 Sanganapalle",
-        "electors_male": 434,
-        "electors_female": 435,
-        "electors_total": 869,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 140,
-        "locality": "SANGANAPALLI",
-        "polling_station": "ZP High School Room No. 1 Sanganapalle",
-        "electors_male": 552,
-        "electors_female": 558,
-        "electors_total": 1110,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 141,
-        "locality": "PEDDAPARTHIKUNTA",
-        "polling_station": "MPP School Peddaparthikunta",
-        "electors_male": 294,
-        "electors_female": 242,
-        "electors_total": 536,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 142,
-        "locality": "THALI",
-        "polling_station": "MPP School Tali Agraharam",
-        "electors_male": 353,
-        "electors_female": 342,
-        "electors_total": 695,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 143,
-        "locality": "O.",
-        "polling_station": "MPP School O N Kothuru",
-        "electors_male": 503,
-        "electors_female": 475,
-        "electors_total": 978,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 144,
-        "locality": "KRISHNAPURAM",
-        "polling_station": "MPUP School Krishnapuram H/o Kangundhi R.F",
-        "electors_male": 501,
-        "electors_female": 481,
-        "electors_total": 982,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 145,
-        "locality": "KANGIJNDI",
-        "polling_station": "ZP High School, Old Building.",
-        "electors_male": 399,
-        "electors_female": 436,
-        "electors_total": 835,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 146,
-        "locality": "KANGIJNDI",
-        "polling_station": "ZP High School, Old Building, Kangundi",
-        "electors_male": 268,
-        "electors_female": 269,
-        "electors_total": 537,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 147,
-        "locality": "KANGIJNDI",
-        "polling_station": "ZP High School, New Building, Kangundi",
-        "electors_male": 493,
-        "electors_female": 460,
-        "electors_total": 953,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 148,
-        "locality": "KANGIJNDI",
-        "polling_station": "Z.P. High School, 10 th class Room Kangundhi.",
-        "electors_male": 301,
-        "electors_female": 285,
-        "electors_total": 586,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 149,
-        "locality": "KANGIJNDI",
-        "polling_station": "MPP School Devarajapuram H/o Kangundi R.F",
-        "electors_male": 422,
-        "electors_female": 448,
-        "electors_total": 871,
-        "electors_third_gender": 1,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 150,
-        "locality": "KANGIJNDI",
-        "polling_station": "MPP School Peddavanka H/o Kangundi R.F",
-        "electors_male": 251,
-        "electors_female": 239,
-        "electors_total": 0,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 151,
-        "locality": "KANGIJNDI",
-        "polling_station": "MPP School Bramhadevarachenlu H/o Kangundi R.F",
-        "electors_male": 403,
-        "electors_female": 403,
-        "electors_total": 778,
-        "electors_third_gender": 1,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 152,
-        "locality": "NAYANURU",
-        "polling_station": "MPP School Nayanuru H/o Kangundi R.F",
-        "electors_male": 417,
-        "electors_female": 431,
-        "electors_total": 848,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 153,
-        "locality": "DASEGOWNIYUR",
-        "polling_station": "MPP School Dasegownuru",
-        "electors_male": 519,
-        "electors_female": 533,
-        "electors_total": 1052,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 154,
-        "locality": "DASEGOWNURU",
-        "polling_station": "MPP School, New Building East side Balamandakotam",
-        "electors_male": 214,
-        "electors_female": 201,
-        "electors_total": 415,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 155,
-        "locality": "DASEGOWNURU",
-        "polling_station": "MPP School Boggupalle",
-        "electors_male": 526,
-        "electors_female": 533,
-        "electors_total": 1059,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 156,
-        "locality": "SEEGALAPALLE",
-        "polling_station": "MPP School Seegalapalle",
-        "electors_male": 666,
-        "electors_female": 682,
-        "electors_total": 1348,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 157,
-        "locality": "SAMMAGUTTAPALLE",
-        "polling_station": "MPUP School, West Wing, 5th Class Room, Samaguttapalle",
-        "electors_male": 473,
-        "electors_female": 485,
-        "electors_total": 958,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 158,
-        "locality": "SAMMAGUTTAPALLE",
-        "polling_station": "MPUP School, East Wing, 8th Class Room, Samaguttapalle",
-        "electors_male": 463,
-        "electors_female": 504,
-        "electors_total": 967,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 159,
-        "locality": "LAKSHMIPCJRAM",
-        "polling_station": "MPP School, 4th Class Room, Lakshmipuram.",
-        "electors_male": 589,
-        "electors_female": 0,
-        "electors_total": 1229,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 160,
-        "locality": "LAKSHMIPCJRAM",
-        "polling_station": "MPP School, 3rd Class Room, Cheemanayanapalli Lakshmipuram H/o Bairuganipalle",
-        "electors_male": 514,
-        "electors_female": 574,
-        "electors_total": 1088,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 161,
-        "locality": "KUPPAM",
-        "polling_station": "MPP School, Room No-I, Pathapeta, Kuppam",
-        "electors_male": 527,
-        "electors_female": 568,
-        "electors_total": 1095,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 162,
-        "locality": "KUPPAM",
-        "polling_station": "MPP School, Room No-2, Pathapeta, Kuppam",
-        "electors_male": 517,
-        "electors_female": 551,
-        "electors_total": 1069,
-        "electors_third_gender": 1,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 163,
-        "locality": "KI-JPPAM",
-        "polling_station": "MPP School, Room No-3, Pathapeta, Kuppam",
-        "electors_male": 443,
-        "electors_female": 479,
-        "electors_total": 922,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 164,
-        "locality": "KUPPAM",
-        "polling_station": "MPP School, Kuppam(urdu)",
-        "electors_male": 425,
-        "electors_female": 463,
-        "electors_total": 888,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 165,
-        "locality": "KUPPAM",
-        "polling_station": "MPP School, Kuppam(urdu) west side kuppam",
-        "electors_male": 378,
-        "electors_female": 418,
-        "electors_total": 796,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 166,
-        "locality": "KUPPAM",
-        "polling_station": "ZPHS, RS Pet, Room No-I, Kuppam",
-        "electors_male": 439,
-        "electors_female": 438,
-        "electors_total": 877,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 167,
-        "locality": "KUPPAM",
-        "polling_station": "ZPHS, RS Pet, Room No-2, Kuppam",
-        "electors_male": 327,
-        "electors_female": 311,
-        "electors_total": 638,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 168,
-        "locality": "KUPPAM",
-        "polling_station": "MPP School, RS Pet, 2nd Class Room, Kuppam.",
-        "electors_male": 611,
-        "electors_female": 635,
-        "electors_total": 1246,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 169,
-        "locality": "KUPPAM",
-        "polling_station": "MPP School, RS Pet, 1st Class Room, Kuppam.",
-        "electors_male": 570,
-        "electors_female": 632,
-        "electors_total": 1204,
-        "electors_third_gender": 2,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 170,
-        "locality": "KUPPAM",
-        "polling_station": "Government Boys High School, Kuppam",
-        "electors_male": 534,
-        "electors_female": 559,
-        "electors_total": 1093,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 171,
-        "locality": "KUPPAM",
-        "polling_station": "Government Boys High School, Kuppam",
-        "electors_male": 382,
-        "electors_female": 342,
-        "electors_total": 724,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 172,
-        "locality": "KUPPAM",
-        "polling_station": "Govt. Boys High School, Middle Room, Kuppam.",
-        "electors_male": 264,
-        "electors_female": 388,
-        "electors_total": 652,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 173,
-        "locality": "KUPPAM",
-        "polling_station": "Government Boys High School, Kuppam",
-        "electors_male": 424,
-        "electors_female": 488,
-        "electors_total": 912,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 174,
-        "locality": "KUPPAM",
-        "polling_station": "ZP High School (Girls) Kuppam",
-        "electors_male": 439,
-        "electors_female": 395,
-        "electors_total": 835,
-        "electors_third_gender": 1,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 175,
-        "locality": "KUPPAM",
-        "polling_station": "Z.P.High School (Girls), North Side Kuppam kuppam",
-        "electors_male": 214,
-        "electors_female": 265,
-        "electors_total": 479,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 176,
-        "locality": "KUPPAM",
-        "polling_station": "ZP High School, (Girls) (South wing) Kuppam",
-        "electors_male": 567,
-        "electors_female": 641,
-        "electors_total": 1208,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 177,
-        "locality": "KUPPAM",
-        "polling_station": "MPP School Newpet, Kuppam",
-        "electors_male": 396,
-        "electors_female": 544,
-        "electors_total": 940,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 178,
-        "locality": "KUPPAM",
-        "polling_station": "MPP School, (North/East) Side Kothapet, Kuppam.",
-        "electors_male": 524,
-        "electors_female": 410,
-        "electors_total": 934,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 179,
-        "locality": "KUPPAM",
-        "polling_station": "MPP School, (South/ West) Side Kothapet, Kuppam",
-        "electors_male": 347,
-        "electors_female": 526,
-        "electors_total": 873,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 180,
-        "locality": "KUPPAM",
-        "polling_station": "MPP School, West Wing Kothapet, Kuppam",
-        "electors_male": 556,
-        "electors_female": 646,
-        "electors_total": 1202,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 181,
-        "locality": "KUPPAM",
-        "polling_station": "MPP School, South Wing, NTR Colony 1-1/0 Chinnakurabalapalle.",
-        "electors_male": 451,
-        "electors_female": 526,
-        "electors_total": 978,
-        "electors_third_gender": 1,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 182,
-        "locality": "KUPPAM",
-        "polling_station": "MPP School, North Wing, NTR Colony H/o Chinnakurabalapalle., Chinnakurabalapalle",
-        "electors_male": 444,
-        "electors_female": 444,
-        "electors_total": 858,
-        "electors_third_gender": 1,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 183,
-        "locality": "KIJPPAM",
-        "polling_station": "MPP SCHOOL,dalavaikothapaIli Dalavaikothapalle H/o Chinnakurabalapalle",
-        "electors_male": 585,
-        "electors_female": 778,
-        "electors_total": 1363,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 184,
-        "locality": "KIJPPAM",
-        "polling_station": "Ward Sachivalayam, Dalavaikothapalli-l Secretariat, Dalavaikothapalli H/o Chinnakurabalapalle",
-        "electors_male": 664,
-        "electors_female": 603,
-        "electors_total": 1267,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 185,
-        "locality": "KIJPPAM",
-        "polling_station": "MPP School, 3rd Class Room Dalavaikothapalle H/o Chinnakurabalapalle",
-        "electors_male": 406,
-        "electors_female": 469,
-        "electors_total": 875,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 186,
-        "locality": "KIJPPAM",
-        "polling_station": "MPP School, West Wing, Model Colony Hamlet of Chinnakurabalapalle, Chinnakurabalapalle",
-        "electors_male": 411,
-        "electors_female": 440,
-        "electors_total": 851,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 187,
-        "locality": "KIJPPAM",
-        "polling_station": "MPP School, North Wing, Model Colony H/o Chinnakurabalapalle",
-        "electors_male": 475,
-        "electors_female": 505,
-        "electors_total": 980,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 188,
-        "locality": "KRISHNADASANAPALLE",
-        "polling_station": "MPP School Mattarlapalle H/o Yanadhipalle",
-        "electors_male": 550,
-        "electors_female": 556,
-        "electors_total": 1106,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 189,
-        "locality": "KRISHNADASANAPALLE",
-        "polling_station": "MPP School Krishnadasanapalle",
-        "electors_male": 594,
-        "electors_female": 650,
-        "electors_total": 0,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 190,
-        "locality": "GUDLANAYANIPALLI",
-        "polling_station": "MPP SCHOOL,GudlanayanapalIe.",
-        "electors_male": 582,
-        "electors_female": 587,
-        "electors_total": 1169,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 191,
-        "locality": "GUDLANAYANIPALLI",
-        "polling_station": "MPP SCHOOL,Jarugu.",
-        "electors_male": 607,
-        "electors_female": 625,
-        "electors_total": 1232,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 192,
-        "locality": "VENDIJGAMPALLI",
-        "polling_station": "MPP SCHOOL,Paramasamudram H/o Palarlapalle",
-        "electors_male": 499,
-        "electors_female": 550,
-        "electors_total": 1049,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 193,
-        "locality": "VENDUGAMPALLI",
-        "polling_station": "Grama/Ward Sachivalayam, Cheelepalle",
-        "electors_male": 352,
-        "electors_female": 0,
-        "electors_total": 725,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 194,
-        "locality": "VENDUGAMPALLI",
-        "polling_station": "MPP School Vaddipalle H/o Bevanapalle",
-        "electors_male": 542,
-        "electors_female": 0,
-        "electors_total": 1150,
-        "electors_third_gender": 1,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 195,
-        "locality": "VENDUGAMPALLI",
-        "polling_station": "MPP School, Room No-I, Animiganipalle",
-        "electors_male": 551,
-        "electors_female": 0,
-        "electors_total": 1152,
-        "electors_third_gender": 1,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 196,
-        "locality": "VENDUGAMPALLI",
-        "polling_station": "MPP School, Room No-2, Animiganipalle",
-        "electors_male": 421,
-        "electors_female": 0,
-        "electors_total": 853,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 197,
-        "locality": "THAMBIGANIPALLI",
-        "polling_station": "MPP School Thambiganipalle H/o Ekarlapalle",
-        "electors_male": 647,
-        "electors_female": 719,
-        "electors_total": 1366,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 198,
-        "locality": "KUPPAM",
-        "polling_station": "MPP School Gullepalle H/o Ekarlapalle",
-        "electors_male": 259,
-        "electors_female": 237,
-        "electors_total": 496,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 199,
-        "locality": "KUPPAM",
-        "polling_station": "MPP School Kamathamuru",
-        "electors_male": 543,
-        "electors_female": 582,
-        "electors_total": 1125,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 200,
-        "locality": "PEDDABANGARUNATHAM",
-        "polling_station": "ZP High School Kothaindlu H/o Ekarlapalle",
-        "electors_male": 548,
-        "electors_female": 488,
-        "electors_total": 1036,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 201,
-        "locality": "PEDDABANGARUNATHAM",
-        "polling_station": "ZP High School Kothaindlu H/o Ekarlapalle",
-        "electors_male": 420,
-        "electors_female": 434,
-        "electors_total": 854,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 202,
-        "locality": "NOOLAKUNTA",
-        "polling_station": "MPP School, Room No-I, Noolukunta",
-        "electors_male": 568,
-        "electors_female": 544,
-        "electors_total": 1112,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 203,
-        "locality": "NOOLAKUNTA",
-        "polling_station": "MPP School, Room No-2, Noolukunta.",
-        "electors_male": 488,
-        "electors_female": 472,
-        "electors_total": 960,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 204,
-        "locality": "SAJJALAPALLE",
-        "polling_station": "MPP School, Sajjalapalle",
-        "electors_male": 251,
-        "electors_female": 213,
-        "electors_total": 464,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 205,
-        "locality": "KOTHAPALLE",
-        "polling_station": "MPP School, Kothapalle",
-        "electors_male": 504,
-        "electors_female": 541,
-        "electors_total": 1045,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 206,
-        "locality": "GARIGACHEENEPALLI",
-        "polling_station": "MPP School, 3rd Class Room, Garigacheenepalle.",
-        "electors_male": 576,
-        "electors_female": 545,
-        "electors_total": 1121,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 207,
-        "locality": "GARIGACHEENEPALLI",
-        "polling_station": "MPP School, 5th Class Room, Garigacheenepalle.",
-        "electors_male": 462,
-        "electors_female": 496,
-        "electors_total": 958,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 208,
-        "locality": "MITTAPALLE",
-        "polling_station": "MPP School, Room No-I, Mittapalle.",
-        "electors_male": 528,
-        "electors_female": 570,
-        "electors_total": 1098,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 209,
-        "locality": "MITTAPALLI",
-        "polling_station": "MPP School, Room No-2, Mittapalle.",
-        "electors_male": 606,
-        "electors_female": 629,
-        "electors_total": 1235,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 210,
-        "locality": "AVULANATHAM",
-        "polling_station": "MPP School Avulanatham",
-        "electors_male": 460,
-        "electors_female": 443,
-        "electors_total": 903,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 211,
-        "locality": "PEDDA",
-        "polling_station": "MPP School Peddabangarunatham",
-        "electors_male": 551,
-        "electors_female": 574,
-        "electors_total": 1125,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 212,
-        "locality": "PEDDABANGARUNATHAM",
-        "polling_station": "Anganwadi building Marvada",
-        "electors_male": 433,
-        "electors_female": 465,
-        "electors_total": 898,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 213,
-        "locality": "PEDDABANGARUNATHAM",
-        "polling_station": "ZP High School Peddagopanapalle",
-        "electors_male": 580,
-        "electors_female": 504,
-        "electors_total": 1084,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 214,
-        "locality": "VENDUGAMPALLE",
-        "polling_station": "MPP School, North Wing, 4th Class Room, Vendugampalle.",
-        "electors_male": 468,
-        "electors_female": 450,
-        "electors_total": 918,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 215,
-        "locality": "VENDUGAMPALLE",
-        "polling_station": "MPP School, South Wing, 1st Class Room, Vendugampalle.",
-        "electors_male": 483,
-        "electors_female": 460,
-        "electors_total": 943,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 216,
-        "locality": "GONCJGIJR",
-        "polling_station": "ZP High School (Room No.3) Gonuguru",
-        "electors_male": 682,
-        "electors_female": 677,
-        "electors_total": 1359,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 217,
-        "locality": "VENDUGAMPALLI",
-        "polling_station": "MPP School Urlaobanapalle",
-        "electors_male": 687,
-        "electors_female": 622,
-        "electors_total": 1309,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 218,
-        "locality": "NADIMUR",
-        "polling_station": "MPP School, North Wing, Room No-I, Nadimuru",
-        "electors_male": 502,
-        "electors_female": 487,
-        "electors_total": 990,
-        "electors_third_gender": 1,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 219,
-        "locality": "NADIMUR",
-        "polling_station": "MPP School, South Wing, Room No-2, Nadimuru., Nadimuru.",
-        "electors_male": 500,
-        "electors_female": 472,
-        "electors_total": 972,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 220,
-        "locality": "VASANADU",
-        "polling_station": "z p high school ,8th class room,vasanadu Vasanadu",
-        "electors_male": 349,
-        "electors_female": 342,
-        "electors_total": 691,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 221,
-        "locality": "VASANADU",
-        "polling_station": "z p high school, 9th class room, vasanadu., Vasanadu",
-        "electors_male": 526,
-        "electors_female": 509,
-        "electors_total": 1035,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 222,
-        "locality": "VASANADU",
-        "polling_station": "MPP School Mankaladoddi",
-        "electors_male": 684,
-        "electors_female": 653,
-        "electors_total": 1337,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 223,
-        "locality": "PAIPALYAM",
-        "polling_station": "MPP School (1st Class Room) Paipalyam",
-        "electors_male": 710,
-        "electors_female": 703,
-        "electors_total": 1413,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 224,
-        "locality": "VASANADIJ",
-        "polling_station": "MPP School (5th Class Room) Paipalyam",
-        "electors_male": 576,
-        "electors_female": 574,
-        "electors_total": 1150,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 225,
-        "locality": "CHEKKUNATHAM",
-        "polling_station": "ZP High School Vanaguttapalle H/o Chekkunatham",
-        "electors_male": 431,
-        "electors_female": 440,
-        "electors_total": 873,
-        "electors_third_gender": 2,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 226,
-        "locality": "CHEKKUNATHAM",
-        "polling_station": "MPUP School URDU Ragimanumitta,",
-        "electors_male": 314,
-        "electors_female": 0,
-        "electors_total": 618,
-        "electors_third_gender": 1,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 227,
-        "locality": "CHEKKUNMATHAM",
-        "polling_station": "MPP School Chekkunatham",
-        "electors_male": 414,
-        "electors_female": 422,
-        "electors_total": 836,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 228,
-        "locality": "CHEKKUNATHAM",
-        "polling_station": "MPP School Chekkunatham",
-        "electors_male": 560,
-        "electors_female": 533,
-        "electors_total": 1094,
-        "electors_third_gender": 1,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 229,
-        "locality": "MALI-ANURU",
-        "polling_station": "Z PH SCHOOL ,M0tlachenu H/o Chinnaobba Motlachenu H/o Chinnaobba",
-        "electors_male": 446,
-        "electors_female": 446,
-        "electors_total": 888,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 230,
-        "locality": "MALI-ANURU",
-        "polling_station": "MPP School Valuru",
-        "electors_male": 308,
-        "electors_female": 306,
-        "electors_total": 614,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 231,
-        "locality": "TSADAMUR",
-        "polling_station": "Z P H SCHOOL,T Sahadumuru.",
-        "electors_male": 625,
-        "electors_female": 591,
-        "electors_total": 1216,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 232,
-        "locality": "MALI-ANURU",
-        "polling_station": "MPP SCHOOL, Singarapuram, Singarapuram",
-        "electors_male": 457,
-        "electors_female": 394,
-        "electors_total": 851,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 233,
-        "locality": "MALI-ANURU",
-        "polling_station": "MPP School Mallanuru",
-        "electors_male": 568,
-        "electors_female": 562,
-        "electors_total": 1130,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 234,
-        "locality": "MALI-ANURU",
-        "polling_station": "Z.P.HighSchool ,Ponnanguru.",
-        "electors_male": 475,
-        "electors_female": 529,
-        "electors_total": 1004,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 235,
-        "locality": "MALI-ANURU",
-        "polling_station": "Z P HIGH SCHOOL, ROOM NO 2, PONNANGURU.",
-        "electors_male": 445,
-        "electors_female": 418,
-        "electors_total": 864,
-        "electors_third_gender": 1,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 236,
-        "locality": "MALI-ANURU",
-        "polling_station": "MPP SCHOOL,Parthichenu.",
-        "electors_male": 573,
-        "electors_female": 529,
-        "electors_total": 1102,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 237,
-        "locality": "ADAVIBUDUGURU",
-        "polling_station": "ZP High School (West wing Room no 03) Adavibuduguru",
-        "electors_male": 707,
-        "electors_female": 671,
-        "electors_total": 1378,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 238,
-        "locality": "ADAVI",
-        "polling_station": "ZP High School (West wing Room no .4) Adavibuduguru",
-        "electors_male": 458,
-        "electors_female": 364,
-        "electors_total": 822,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 239,
-        "locality": "ADAVI",
-        "polling_station": "Z.P. High School, Adavibuduguru, Room No.5 Adavibuduguru",
-        "electors_male": 421,
-        "electors_female": 385,
-        "electors_total": 806,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 240,
-        "locality": "ADAVIBUDUGURU",
-        "polling_station": "MPP School Gundlamadugu H/o Adavibuduguru",
-        "electors_male": 383,
-        "electors_female": 395,
-        "electors_total": 778,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 241,
-        "locality": "ADAVIBUDUGURU",
-        "polling_station": "M PP School , South Side Gundlamadugu Gundlamadugu",
-        "electors_male": 395,
-        "electors_female": 352,
-        "electors_total": 747,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 242,
-        "locality": "ADAVI",
-        "polling_station": "MPP School Kataluru H/o Adavibuduguru",
-        "electors_male": 540,
-        "electors_female": 483,
-        "electors_total": 1023,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    },
-    {
-        "part": 243,
-        "locality": "ADAVIBUDUGURU",
-        "polling_station": "MPP School Yarramannuguntalu H/o Adavibuduguru",
-        "electors_male": 533,
-        "electors_female": 494,
-        "electors_total": 1027,
-        "electors_third_gender": 0,
-        "electors_unclassified": 0
-    }
+ {
+  "part": 1,
+  "locality": "NALLAPPAREDDIYURU",
+  "polling_station": "MPP School Vadagandlapalli",
+  "electors_male": 347,
+  "electors_female": 318,
+  "electors_total": 705,
+  "electors_third_gender": 0,
+  "electors_unclassified": 40
+ },
+ {
+  "part": 2,
+  "locality": "NALLAPPAREDDIYURU",
+  "polling_station": "M P P SCHOOL,BELLAKOILA",
+  "electors_male": 273,
+  "electors_female": 250,
+  "electors_total": 550,
+  "electors_third_gender": 0,
+  "electors_unclassified": 27
+ },
+ {
+  "part": 3,
+  "locality": "NALLAPPAREDDIYURU",
+  "polling_station": "M.P.P SCHOOL ,NALLAPPAREDDIYURU",
+  "electors_male": 475,
+  "electors_female": 444,
+  "electors_total": 976,
+  "electors_third_gender": 0,
+  "electors_unclassified": 57
+ },
+ {
+  "part": 4,
+  "locality": "REGADADINNEPALLE",
+  "polling_station": "MPP School Regadadinnepalle",
+  "electors_male": 172,
+  "electors_female": 162,
+  "electors_total": 359,
+  "electors_third_gender": 0,
+  "electors_unclassified": 25
+ },
+ {
+  "part": 5,
+  "locality": "MULLURU",
+  "polling_station": "MPP School Mulluru H/o Krishnapuram",
+  "electors_male": 587,
+  "electors_female": 570,
+  "electors_total": 1229,
+  "electors_third_gender": 0,
+  "electors_unclassified": 72
+ },
+ {
+  "part": 6,
+  "locality": "MPP",
+  "polling_station": "MPP School (Urdu) Krishnapuram",
+  "electors_male": 293,
+  "electors_female": 252,
+  "electors_total": 574,
+  "electors_third_gender": 0,
+  "electors_unclassified": 29
+ },
+ {
+  "part": 7,
+  "locality": "GUNDISETTIPALLI",
+  "polling_station": "MPP School Gundisettipalle",
+  "electors_male": 454,
+  "electors_female": 443,
+  "electors_total": 949,
+  "electors_third_gender": 0,
+  "electors_unclassified": 52
+ },
+ {
+  "part": 8,
+  "locality": "MPP",
+  "polling_station": "MPP School Mattam H/o Gudisettipalle",
+  "electors_male": 507,
+  "electors_female": 450,
+  "electors_total": 1009,
+  "electors_third_gender": 0,
+  "electors_unclassified": 52
+ },
+ {
+  "part": 9,
+  "locality": "KUTHEGANIPALLE",
+  "polling_station": "MPP School Kutheganipalle H/o Sonneganipalle",
+  "electors_male": 373,
+  "electors_female": 387,
+  "electors_total": 799,
+  "electors_third_gender": 0,
+  "electors_unclassified": 39
+ },
+ {
+  "part": 10,
+  "locality": "SANTHUR",
+  "polling_station": "MPP School Santuru H/o Sonneganiapalle",
+  "electors_male": 553,
+  "electors_female": 544,
+  "electors_total": 1163,
+  "electors_third_gender": 0,
+  "electors_unclassified": 66
+ },
+ {
+  "part": 11,
+  "locality": "KODITHIPALLE",
+  "polling_station": "MPP School Kodithipalle Mitta",
+  "electors_male": 367,
+  "electors_female": 338,
+  "electors_total": 748,
+  "electors_third_gender": 0,
+  "electors_unclassified": 43
+ },
+ {
+  "part": 12,
+  "locality": "BOYANAPALLE",
+  "polling_station": "MPP School Boyanapalle",
+  "electors_male": 417,
+  "electors_female": 418,
+  "electors_total": 885,
+  "electors_third_gender": 0,
+  "electors_unclassified": 50
+ },
+ {
+  "part": 13,
+  "locality": "ARIMUTHANAPALLE",
+  "polling_station": "MPP School Santhipuram H/o Arimuthanapalle",
+  "electors_male": 384,
+  "electors_female": 414,
+  "electors_total": 842,
+  "electors_third_gender": 0,
+  "electors_unclassified": 44
+ },
+ {
+  "part": 14,
+  "locality": "SANTHIPURAM",
+  "polling_station": "ANGANWADI BIJLIDING ,ARIMUTTHANAPALLE ARIMUTTHANAPALLE",
+  "electors_male": 256,
+  "electors_female": 266,
+  "electors_total": 554,
+  "electors_third_gender": 0,
+  "electors_unclassified": 32
+ },
+ {
+  "part": 15,
+  "locality": "SOGADABALLA",
+  "polling_station": "z p high school ,sogadaballa Sogadaballe",
+  "electors_male": 428,
+  "electors_female": 475,
+  "electors_total": 959,
+  "electors_third_gender": 0,
+  "electors_unclassified": 56
+ },
+ {
+  "part": 16,
+  "locality": "VENKATEPALLI",
+  "polling_station": "MPUP School venkatepalli",
+  "electors_male": 343,
+  "electors_female": 362,
+  "electors_total": 748,
+  "electors_third_gender": 0,
+  "electors_unclassified": 43
+ },
+ {
+  "part": 17,
+  "locality": "KONERUKUPPAM",
+  "polling_station": "Z P High School Konerukuppam",
+  "electors_male": 509,
+  "electors_female": 490,
+  "electors_total": 1063,
+  "electors_third_gender": 0,
+  "electors_unclassified": 64
+ },
+ {
+  "part": 18,
+  "locality": "11",
+  "polling_station": "MPP School II-Pedduru",
+  "electors_male": 392,
+  "electors_female": 386,
+  "electors_total": 823,
+  "electors_third_gender": 0,
+  "electors_unclassified": 45
+ },
+ {
+  "part": 19,
+  "locality": "CHENGUBALLA",
+  "polling_station": "MPP School Chenguballa H/o Settiballa",
+  "electors_male": 504,
+  "electors_female": 524,
+  "electors_total": 1100,
+  "electors_third_gender": 0,
+  "electors_unclassified": 72
+ },
+ {
+  "part": 20,
+  "locality": "KENNAMAKULAPALLE",
+  "polling_station": "ZP High School Kenamakulapalle",
+  "electors_male": 638,
+  "electors_female": 568,
+  "electors_total": 1278,
+  "electors_third_gender": 0,
+  "electors_unclassified": 72
+ },
+ {
+  "part": 21,
+  "locality": "CHOWDAMPALLE",
+  "polling_station": "MPP School Chowdampalle",
+  "electors_male": 330,
+  "electors_female": 338,
+  "electors_total": 708,
+  "electors_third_gender": 0,
+  "electors_unclassified": 40
+ },
+ {
+  "part": 22,
+  "locality": "DANDIKUPPAM",
+  "polling_station": "MPP School Dandikuppam",
+  "electors_male": 429,
+  "electors_female": 418,
+  "electors_total": 894,
+  "electors_third_gender": 0,
+  "electors_unclassified": 47
+ },
+ {
+  "part": 23,
+  "locality": "KOI-AMADUGU",
+  "polling_station": "Z P High School Kolamadugu",
+  "electors_male": 413,
+  "electors_female": 382,
+  "electors_total": 853,
+  "electors_third_gender": 0,
+  "electors_unclassified": 58
+ },
+ {
+  "part": 24,
+  "locality": "RAMAPURAM",
+  "polling_station": "MPP School , Ramapuram Ramapuram",
+  "electors_male": 223,
+  "electors_female": 218,
+  "electors_total": 468,
+  "electors_third_gender": 0,
+  "electors_unclassified": 27
+ },
+ {
+  "part": 25,
+  "locality": "REDLAPALLE",
+  "polling_station": "MPUP School Reddlapalle",
+  "electors_male": 347,
+  "electors_female": 315,
+  "electors_total": 698,
+  "electors_third_gender": 0,
+  "electors_unclassified": 36
+ },
+ {
+  "part": 26,
+  "locality": "JANGALAPALLE",
+  "polling_station": "M P P School , Jangalapalle, Jangalapalle",
+  "electors_male": 329,
+  "electors_female": 308,
+  "electors_total": 670,
+  "electors_third_gender": 0,
+  "electors_unclassified": 33
+ },
+ {
+  "part": 27,
+  "locality": "MPUP",
+  "polling_station": "MPUP SCHOOL ,abakaladodi Abakaladoddi H/o Donkumanipalle",
+  "electors_male": 469,
+  "electors_female": 506,
+  "electors_total": 1029,
+  "electors_third_gender": 0,
+  "electors_unclassified": 54
+ },
+ {
+  "part": 28,
+  "locality": "PEDDABOMMANAPALLE",
+  "polling_station": "MPUP School Peddabommanapalle H/o Donkumanipalle",
+  "electors_male": 425,
+  "electors_female": 373,
+  "electors_total": 842,
+  "electors_third_gender": 0,
+  "electors_unclassified": 44
+ },
+ {
+  "part": 29,
+  "locality": "KAREGOWNURU",
+  "polling_station": "MPP School Karegownuru Karegownuru",
+  "electors_male": 285,
+  "electors_female": 252,
+  "electors_total": 569,
+  "electors_third_gender": 0,
+  "electors_unclassified": 32
+ },
+ {
+  "part": 30,
+  "locality": "THUMSI",
+  "polling_station": "ZP High School, Room No.l Thumsi",
+  "electors_male": 349,
+  "electors_female": 350,
+  "electors_total": 737,
+  "electors_third_gender": 0,
+  "electors_unclassified": 38
+ },
+ {
+  "part": 31,
+  "locality": "GUNJARLAPALLE",
+  "polling_station": "MPP Shool Gunjarlapalle",
+  "electors_male": 427,
+  "electors_female": 400,
+  "electors_total": 874,
+  "electors_third_gender": 0,
+  "electors_unclassified": 47
+ },
+ {
+  "part": 32,
+  "locality": "NADIMPALLI",
+  "polling_station": "MPP School Nadimpalle H/o Morasanapalle",
+  "electors_male": 653,
+  "electors_female": 606,
+  "electors_total": 1331,
+  "electors_third_gender": 0,
+  "electors_unclassified": 72
+ },
+ {
+  "part": 33,
+  "locality": "MORASANAPALLE",
+  "polling_station": "MPUP School Morasanapalle",
+  "electors_male": 579,
+  "electors_female": 625,
+  "electors_total": 1273,
+  "electors_third_gender": 0,
+  "electors_unclassified": 69
+ },
+ {
+  "part": 34,
+  "locality": "KOTHAPETA",
+  "polling_station": "MPP School Kothapeta H/o Chinnaridoddi",
+  "electors_male": 422,
+  "electors_female": 451,
+  "electors_total": 920,
+  "electors_third_gender": 0,
+  "electors_unclassified": 47
+ },
+ {
+  "part": 35,
+  "locality": "ZP",
+  "polling_station": "ZP High School Main Building East side Rallabuduguru",
+  "electors_male": 431,
+  "electors_female": 463,
+  "electors_total": 950,
+  "electors_third_gender": 0,
+  "electors_unclassified": 56
+ },
+ {
+  "part": 36,
+  "locality": "Z.",
+  "polling_station": "Z. P. High School 8th Class Room Rallabuduguru",
+  "electors_male": 563,
+  "electors_female": 606,
+  "electors_total": 1228,
+  "electors_third_gender": 0,
+  "electors_unclassified": 59
+ },
+ {
+  "part": 37,
+  "locality": "MPP",
+  "polling_station": "MPP School , Gollapalle Gollapalle",
+  "electors_male": 444,
+  "electors_female": 453,
+  "electors_total": 953,
+  "electors_third_gender": 0,
+  "electors_unclassified": 56
+ },
+ {
+  "part": 38,
+  "locality": "SATHU",
+  "polling_station": "MPP School Sathu",
+  "electors_male": 409,
+  "electors_female": 386,
+  "electors_total": 837,
+  "electors_third_gender": 0,
+  "electors_unclassified": 42
+ },
+ {
+  "part": 39,
+  "locality": "PEDDUR",
+  "polling_station": "ZP High School, East Side 64-Pedduru H/o Muddanapalle",
+  "electors_male": 362,
+  "electors_female": 365,
+  "electors_total": 768,
+  "electors_third_gender": 0,
+  "electors_unclassified": 41
+ },
+ {
+  "part": 40,
+  "locality": "SOMAPURAM",
+  "polling_station": "MPP School, Somapuram Somapuram",
+  "electors_male": 334,
+  "electors_female": 321,
+  "electors_total": 699,
+  "electors_third_gender": 0,
+  "electors_unclassified": 44
+ },
+ {
+  "part": 41,
+  "locality": "PEDDURU",
+  "polling_station": "ZP High School, West Side 64-Pedduru H/o Muddanapalle",
+  "electors_male": 596,
+  "electors_female": 509,
+  "electors_total": 1171,
+  "electors_third_gender": 0,
+  "electors_unclassified": 66
+ },
+ {
+  "part": 42,
+  "locality": "C.BANDAPALLI",
+  "polling_station": "MPUP School C.Bandapalle H/o Muddanapalle",
+  "electors_male": 611,
+  "electors_female": 582,
+  "electors_total": 1264,
+  "electors_third_gender": 0,
+  "electors_unclassified": 71
+ },
+ {
+  "part": 44,
+  "locality": "CHEEMANAPALLE",
+  "polling_station": "MPP School , Cheemanapalle Cheemanapalle",
+  "electors_male": 323,
+  "electors_female": 291,
+  "electors_total": 650,
+  "electors_third_gender": 0,
+  "electors_unclassified": 36
+ },
+ {
+  "part": 45,
+  "locality": "KARL-AGATTA",
+  "polling_station": "MPP School Karlagatta",
+  "electors_male": 404,
+  "electors_female": 321,
+  "electors_total": 771,
+  "electors_third_gender": 0,
+  "electors_unclassified": 46
+ },
+ {
+  "part": 46,
+  "locality": "KADAPALLE",
+  "polling_station": "MPUP School Kadapalle",
+  "electors_male": 448,
+  "electors_female": 448,
+  "electors_total": 952,
+  "electors_third_gender": 0,
+  "electors_unclassified": 56
+ },
+ {
+  "part": 47,
+  "locality": "PODURCJ",
+  "polling_station": "MPUP School, 6th Class Room, Poduru",
+  "electors_male": 386,
+  "electors_female": 405,
+  "electors_total": 839,
+  "electors_third_gender": 0,
+  "electors_unclassified": 48
+ },
+ {
+  "part": 48,
+  "locality": "MPUP",
+  "polling_station": "MPUP School Kadapalle",
+  "electors_male": 267,
+  "electors_female": 235,
+  "electors_total": 539,
+  "electors_third_gender": 0,
+  "electors_unclassified": 37
+ },
+ {
+  "part": 49,
+  "locality": "THIMMARAJUPALLE",
+  "polling_station": "MPP School Timmarajupalli",
+  "electors_male": 620,
+  "electors_female": 596,
+  "electors_total": 1280,
+  "electors_third_gender": 0,
+  "electors_unclassified": 64
+ },
+ {
+  "part": 50,
+  "locality": "VEDURUGUTTAPALLE",
+  "polling_station": "MPP School Veduruguttapalle",
+  "electors_male": 359,
+  "electors_female": 323,
+  "electors_total": 725,
+  "electors_third_gender": 0,
+  "electors_unclassified": 43
+ },
+ {
+  "part": 51,
+  "locality": "SIVARAMAPURAM",
+  "polling_station": "Z P High School Sivaramapuram",
+  "electors_male": 607,
+  "electors_female": 586,
+  "electors_total": 1264,
+  "electors_third_gender": 0,
+  "electors_unclassified": 71
+ },
+ {
+  "part": 52,
+  "locality": "NANJAMPETA",
+  "polling_station": "MPP School Nanjampeta",
+  "electors_male": 603,
+  "electors_female": 605,
+  "electors_total": 1280,
+  "electors_third_gender": 0,
+  "electors_unclassified": 72
+ },
+ {
+  "part": 53,
+  "locality": "KONGANAPALLE",
+  "polling_station": "M P U P SCHOOL,Konganapalli, Konganapalli",
+  "electors_male": 516,
+  "electors_female": 524,
+  "electors_total": 1113,
+  "electors_third_gender": 0,
+  "electors_unclassified": 73
+ },
+ {
+  "part": 54,
+  "locality": "KONGANAPALLE",
+  "polling_station": "MPP School Kollupalle",
+  "electors_male": 331,
+  "electors_female": 314,
+  "electors_total": 684,
+  "electors_third_gender": 0,
+  "electors_unclassified": 39
+ },
+ {
+  "part": 55,
+  "locality": "CHELDIGANIPALLE",
+  "polling_station": "ZP High school,7th Class Room, A-Section, Cheldiganipalle",
+  "electors_male": 464,
+  "electors_female": 444,
+  "electors_total": 961,
+  "electors_third_gender": 0,
+  "electors_unclassified": 53
+ },
+ {
+  "part": 56,
+  "locality": "BAIPPAREDLAPALLE",
+  "polling_station": "MPP School Baiparedlapalli",
+  "electors_male": 351,
+  "electors_female": 325,
+  "electors_total": 717,
+  "electors_third_gender": 0,
+  "electors_unclassified": 41
+ },
+ {
+  "part": 57,
+  "locality": "RAMAKUPPAM",
+  "polling_station": "MPP SCHOOL,kempasamudram.",
+  "electors_male": 531,
+  "electors_female": 504,
+  "electors_total": 1091,
+  "electors_third_gender": 0,
+  "electors_unclassified": 56
+ },
+ {
+  "part": 58,
+  "locality": "MPP",
+  "polling_station": "MPP SCHOOL,gorivimakulapalli.",
+  "electors_male": 436,
+  "electors_female": 418,
+  "electors_total": 909,
+  "electors_third_gender": 0,
+  "electors_unclassified": 55
+ },
+ {
+  "part": 59,
+  "locality": "DESINAYANAPALLI",
+  "polling_station": "MPP School Desinayanapalli.",
+  "electors_male": 304,
+  "electors_female": 273,
+  "electors_total": 605,
+  "electors_third_gender": 0,
+  "electors_unclassified": 28
+ },
+ {
+  "part": 60,
+  "locality": "PEDDA",
+  "polling_station": "MPP School Peddagerigapalle",
+  "electors_male": 498,
+  "electors_female": 487,
+  "electors_total": 1031,
+  "electors_third_gender": 0,
+  "electors_unclassified": 46
+ },
+ {
+  "part": 61,
+  "locality": "PANDYALAMADUGU",
+  "polling_station": "ZP High School,10th Class Room,Pandyalamadugu",
+  "electors_male": 439,
+  "electors_female": 434,
+  "electors_total": 922,
+  "electors_third_gender": 0,
+  "electors_unclassified": 49
+ },
+ {
+  "part": 62,
+  "locality": "PANDYALAMADUGU",
+  "polling_station": "MPP School Pallikuppam",
+  "electors_male": 351,
+  "electors_female": 370,
+  "electors_total": 766,
+  "electors_third_gender": 0,
+  "electors_unclassified": 45
+ },
+ {
+  "part": 63,
+  "locality": "S.GOLLAPALLE",
+  "polling_station": "MPUP School S.G011apalle",
+  "electors_male": 501,
+  "electors_female": 501,
+  "electors_total": 1071,
+  "electors_third_gender": 0,
+  "electors_unclassified": 69
+ },
+ {
+  "part": 64,
+  "locality": "KANCHIDASANAPALLI",
+  "polling_station": "MPUP SCHOOL ,kanchidasanapalli.",
+  "electors_male": 509,
+  "electors_female": 528,
+  "electors_total": 1097,
+  "electors_third_gender": 0,
+  "electors_unclassified": 60
+ },
+ {
+  "part": 65,
+  "locality": "GADDURIJ",
+  "polling_station": "M P P SCHOOL GADDURU.",
+  "electors_male": 383,
+  "electors_female": 378,
+  "electors_total": 802,
+  "electors_third_gender": 0,
+  "electors_unclassified": 41
+ },
+ {
+  "part": 66,
+  "locality": "RAMAKIJPPAM",
+  "polling_station": "M P P SCHOOL ,NEW BULDING ,",
+  "electors_male": 493,
+  "electors_female": 484,
+  "electors_total": 1040,
+  "electors_third_gender": 0,
+  "electors_unclassified": 63
+ },
+ {
+  "part": 67,
+  "locality": "SAGINEKUPPAM",
+  "polling_station": "MPP School Saginekuppam.",
+  "electors_male": 205,
+  "electors_female": 197,
+  "electors_total": 429,
+  "electors_third_gender": 0,
+  "electors_unclassified": 27
+ },
+ {
+  "part": 68,
+  "locality": "BAGALANATHAM",
+  "polling_station": "MPUP School Bagalanatham",
+  "electors_male": 447,
+  "electors_female": 449,
+  "electors_total": 951,
+  "electors_third_gender": 0,
+  "electors_unclassified": 55
+ },
+ {
+  "part": 69,
+  "locality": "MITTAPALLI",
+  "polling_station": "MPP School Mittapalle",
+  "electors_male": 428,
+  "electors_female": 456,
+  "electors_total": 928,
+  "electors_third_gender": 0,
+  "electors_unclassified": 44
+ },
+ {
+  "part": 70,
+  "locality": "RAJI-JPETA",
+  "polling_station": "MPP School ,Rajupeta.",
+  "electors_male": 303,
+  "electors_female": 333,
+  "electors_total": 673,
+  "electors_third_gender": 0,
+  "electors_unclassified": 37
+ },
+ {
+  "part": 71,
+  "locality": "RAMAKIJPPAM",
+  "polling_station": "ZP High School,10th Class Room,B/s Ramakuppam.",
+  "electors_male": 266,
+  "electors_female": 477,
+  "electors_total": 796,
+  "electors_third_gender": 0,
+  "electors_unclassified": 53
+ },
+ {
+  "part": 72,
+  "locality": "RAMAKIJPPAM",
+  "polling_station": "ZP High School,9th Class Room,A/s Ramakuppam.",
+  "electors_male": 290,
+  "electors_female": 367,
+  "electors_total": 706,
+  "electors_third_gender": 0,
+  "electors_unclassified": 49
+ },
+ {
+  "part": 73,
+  "locality": "RAMAKIJPPAM",
+  "polling_station": "ZP High School,3rd Class Room, Ramakuppam.",
+  "electors_male": 483,
+  "electors_female": 199,
+  "electors_total": 721,
+  "electors_third_gender": 0,
+  "electors_unclassified": 39
+ },
+ {
+  "part": 74,
+  "locality": "RAMAKIJPPAM",
+  "polling_station": "ZP High School,4th Class Room,B/s Ramakuppam.",
+  "electors_male": 463,
+  "electors_female": 472,
+  "electors_total": 979,
+  "electors_third_gender": 0,
+  "electors_unclassified": 44
+ },
+ {
+  "part": 75,
+  "locality": "RAMAKIJPPAM",
+  "polling_station": "ZP High School,7th Class Room, Ramakuppam.",
+  "electors_male": 399,
+  "electors_female": 373,
+  "electors_total": 826,
+  "electors_third_gender": 0,
+  "electors_unclassified": 54
+ },
+ {
+  "part": 76,
+  "locality": "MUDDANAPALLE",
+  "polling_station": "MPUP School, Muddanapalle",
+  "electors_male": 430,
+  "electors_female": 434,
+  "electors_total": 923,
+  "electors_third_gender": 0,
+  "electors_unclassified": 59
+ },
+ {
+  "part": 77,
+  "locality": "AVULAKIJPPAM",
+  "polling_station": "MPP School Avulakuppam.",
+  "electors_male": 263,
+  "electors_female": 251,
+  "electors_total": 546,
+  "electors_third_gender": 0,
+  "electors_unclassified": 32
+ },
+ {
+  "part": 78,
+  "locality": "MUDDANAPALLE",
+  "polling_station": "Traible Welfare Primary School Narayanapuram Thanda H/o Muddanapalle",
+  "electors_male": 191,
+  "electors_female": 182,
+  "electors_total": 397,
+  "electors_third_gender": 0,
+  "electors_unclassified": 24
+ },
+ {
+  "part": 79,
+  "locality": "GIDDAPALLI",
+  "polling_station": "MPP School Giddapalle",
+  "electors_male": 501,
+  "electors_female": 477,
+  "electors_total": 1041,
+  "electors_third_gender": 0,
+  "electors_unclassified": 63
+ },
+ {
+  "part": 80,
+  "locality": "RAMAKIJPPAM",
+  "polling_station": "MPUP School Naniyala H/0 89-",
+  "electors_male": 490,
+  "electors_female": 486,
+  "electors_total": 1034,
+  "electors_third_gender": 0,
+  "electors_unclassified": 58
+ },
+ {
+  "part": 81,
+  "locality": "89",
+  "polling_station": "MPUP School 89-Pedduru",
+  "electors_male": 590,
+  "electors_female": 567,
+  "electors_total": 1228,
+  "electors_third_gender": 0,
+  "electors_unclassified": 71
+ },
+ {
+  "part": 82,
+  "locality": "ARIMANIPENTA",
+  "polling_station": "Z.P.High School,8th Class Room,Arimanipenta",
+  "electors_male": 433,
+  "electors_female": 443,
+  "electors_total": 932,
+  "electors_third_gender": 0,
+  "electors_unclassified": 56
+ },
+ {
+  "part": 83,
+  "locality": "VIJALAPURAM",
+  "polling_station": "MPP School,4th Class Room,Singasamudram.",
+  "electors_male": 560,
+  "electors_female": 523,
+  "electors_total": 1146,
+  "electors_third_gender": 0,
+  "electors_unclassified": 63
+ },
+ {
+  "part": 84,
+  "locality": "BAIPAREDLAPALLI",
+  "polling_station": "MPP School,5th Class Room,Singasamudram.",
+  "electors_male": 296,
+  "electors_female": 270,
+  "electors_total": 606,
+  "electors_third_gender": 0,
+  "electors_unclassified": 40
+ },
+ {
+  "part": 85,
+  "locality": "KENCHANABALLA",
+  "polling_station": "MPUP School,2nd Class Room ,KenchanabalIa.",
+  "electors_male": 531,
+  "electors_female": 558,
+  "electors_total": 1158,
+  "electors_third_gender": 0,
+  "electors_unclassified": 69
+ },
+ {
+  "part": 86,
+  "locality": "KENCHANABALLA",
+  "polling_station": "MPUP School,4th Class Room ,Kenchanaballa.",
+  "electors_male": 475,
+  "electors_female": 452,
+  "electors_total": 983,
+  "electors_third_gender": 0,
+  "electors_unclassified": 56
+ },
+ {
+  "part": 87,
+  "locality": "87",
+  "polling_station": "MPP School Gandhinagaram",
+  "electors_male": 476,
+  "electors_female": 454,
+  "electors_total": 983,
+  "electors_third_gender": 0,
+  "electors_unclassified": 53
+ },
+ {
+  "part": 88,
+  "locality": "ATHI",
+  "polling_station": "MPP School Athikuppam",
+  "electors_male": 293,
+  "electors_female": 310,
+  "electors_total": 640,
+  "electors_third_gender": 0,
+  "electors_unclassified": 37
+ },
+ {
+  "part": 89,
+  "locality": "MANENDRAM",
+  "polling_station": "MPUP School Manendram",
+  "electors_male": 649,
+  "electors_female": 629,
+  "electors_total": 1364,
+  "electors_third_gender": 0,
+  "electors_unclassified": 86
+ },
+ {
+  "part": 90,
+  "locality": "VIJALAPURAM",
+  "polling_station": "MPP School,4th Class Vijalapuram.",
+  "electors_male": 452,
+  "electors_female": 475,
+  "electors_total": 989,
+  "electors_third_gender": 0,
+  "electors_unclassified": 62
+ },
+ {
+  "part": 91,
+  "locality": "VIJALAPURAM",
+  "polling_station": "MPP School,2nd Class Vijalapuram.",
+  "electors_male": 431,
+  "electors_female": 435,
+  "electors_total": 926,
+  "electors_third_gender": 0,
+  "electors_unclassified": 60
+ },
+ {
+  "part": 92,
+  "locality": "ANIGANIJRU",
+  "polling_station": "MPP School,4th Class Aniganuru",
+  "electors_male": 374,
+  "electors_female": 361,
+  "electors_total": 781,
+  "electors_third_gender": 0,
+  "electors_unclassified": 46
+ },
+ {
+  "part": 93,
+  "locality": "ANIGANURU",
+  "polling_station": "Z. P. High School , 7th Classs Aniganuru Aniganuru",
+  "electors_male": 555,
+  "electors_female": 643,
+  "electors_total": 1272,
+  "electors_third_gender": 0,
+  "electors_unclassified": 74
+ },
+ {
+  "part": 94,
+  "locality": "ANIGANURU",
+  "polling_station": "MPP School,2nd Class Aniganuru.",
+  "electors_male": 364,
+  "electors_female": 340,
+  "electors_total": 741,
+  "electors_third_gender": 0,
+  "electors_unclassified": 37
+ },
+ {
+  "part": 95,
+  "locality": "BALI-A",
+  "polling_station": "Mandal Parishad Primary School, Balla.",
+  "electors_male": 635,
+  "electors_female": 613,
+  "electors_total": 1319,
+  "electors_third_gender": 0,
+  "electors_unclassified": 71
+ },
+ {
+  "part": 96,
+  "locality": "BALI-A",
+  "polling_station": "Mandal Parishad Primary School, Balla.",
+  "electors_male": 331,
+  "electors_female": 322,
+  "electors_total": 691,
+  "electors_third_gender": 0,
+  "electors_unclassified": 38
+ },
+ {
+  "part": 97,
+  "locality": "PEDDAKURABALAPALLE",
+  "polling_station": "M P P SCHOOL ,Peddakurabalapalle.",
+  "electors_male": 500,
+  "electors_female": 476,
+  "electors_total": 1027,
+  "electors_third_gender": 0,
+  "electors_unclassified": 51
+ },
+ {
+  "part": 98,
+  "locality": "VEERNAMALA",
+  "polling_station": "ZP High School,8th Class Room,Veernamala",
+  "electors_male": 554,
+  "electors_female": 502,
+  "electors_total": 1116,
+  "electors_third_gender": 0,
+  "electors_unclassified": 60
+ },
+ {
+  "part": 99,
+  "locality": "VEERNAMALA",
+  "polling_station": "ZP High School,6th Class Room,Veernamala",
+  "electors_male": 554,
+  "electors_female": 588,
+  "electors_total": 1206,
+  "electors_third_gender": 0,
+  "electors_unclassified": 64
+ },
+ {
+  "part": 100,
+  "locality": "VEERNAMALA",
+  "polling_station": "Traible welfare P School Veernamala Thanda",
+  "electors_male": 631,
+  "electors_female": 585,
+  "electors_total": 1291,
+  "electors_third_gender": 0,
+  "electors_unclassified": 75
+ },
+ {
+  "part": 101,
+  "locality": "CHIKKAPALLE",
+  "polling_station": "MPP SCh001 Chikkapalle Thanda",
+  "electors_male": 322,
+  "electors_female": 276,
+  "electors_total": 640,
+  "electors_third_gender": 0,
+  "electors_unclassified": 42
+ },
+ {
+  "part": 102,
+  "locality": "BISANATHAM",
+  "polling_station": "MPUP School Bisanatham",
+  "electors_male": 282,
+  "electors_female": 256,
+  "electors_total": 566,
+  "electors_third_gender": 0,
+  "electors_unclassified": 28
+ },
+ {
+  "part": 103,
+  "locality": "ATHINATHAM",
+  "polling_station": "MPP School Athinatham",
+  "electors_male": 226,
+  "electors_female": 188,
+  "electors_total": 436,
+  "electors_third_gender": 0,
+  "electors_unclassified": 22
+ },
+ {
+  "part": 104,
+  "locality": "POGURUPALLI",
+  "polling_station": "Z P H SCHOOL ,Pogurupalle.",
+  "electors_male": 490,
+  "electors_female": 462,
+  "electors_total": 1007,
+  "electors_third_gender": 0,
+  "electors_unclassified": 55
+ },
+ {
+  "part": 105,
+  "locality": "DASIMANIPALLI",
+  "polling_station": "MPP School Dasimanipalle",
+  "electors_male": 402,
+  "electors_female": 374,
+  "electors_total": 824,
+  "electors_third_gender": 0,
+  "electors_unclassified": 48
+ },
+ {
+  "part": 106,
+  "locality": "KUPPIGANIPALLI",
+  "polling_station": "MPUP SCHOOL ,kuppiganipalli.",
+  "electors_male": 345,
+  "electors_female": 297,
+  "electors_total": 677,
+  "electors_third_gender": 0,
+  "electors_unclassified": 35
+ },
+ {
+  "part": 107,
+  "locality": "KUPPIGANIPALLI",
+  "polling_station": "Mandala Parishad prathami ko nnata patashala 5 va tharagathi gadhi Kuppiganipalle, Kuppiganipalle",
+  "electors_male": 406,
+  "electors_female": 402,
+  "electors_total": 851,
+  "electors_third_gender": 0,
+  "electors_unclassified": 43
+ },
+ {
+  "part": 108,
+  "locality": "AGARAM",
+  "polling_station": "MPUP School Agaram",
+  "electors_male": 606,
+  "electors_female": 589,
+  "electors_total": 1258,
+  "electors_third_gender": 0,
+  "electors_unclassified": 63
+ },
+ {
+  "part": 109,
+  "locality": "YAMAGANIPALLI",
+  "polling_station": "MPP School Peddabadanavada",
+  "electors_male": 295,
+  "electors_female": 272,
+  "electors_total": 593,
+  "electors_third_gender": 0,
+  "electors_unclassified": 26
+ },
+ {
+  "part": 110,
+  "locality": "PEDDABADANAWADA",
+  "polling_station": "MANDALA PARISHAD PRATHAMIKA PATASHALA KAMMAGUTTAPALLI, Kammaguttapalli",
+  "electors_male": 631,
+  "electors_female": 623,
+  "electors_total": 1330,
+  "electors_third_gender": 0,
+  "electors_unclassified": 76
+ },
+ {
+  "part": 111,
+  "locality": "GUDIKOTHURIJ",
+  "polling_station": "D N TRIBAL UPPER PRIMARY SCHOOL,Gudik0thuru H/o Na Gudikothuru H/o Nalagampalle",
+  "electors_male": 442,
+  "electors_female": 410,
+  "electors_total": 902,
+  "electors_third_gender": 0,
+  "electors_unclassified": 50
+ },
+ {
+  "part": 112,
+  "locality": "GUDIKOTHURIJ",
+  "polling_station": "D N TW U p School South Side Gudikothuru Gudikothuru",
+  "electors_male": 310,
+  "electors_female": 316,
+  "electors_total": 668,
+  "electors_third_gender": 0,
+  "electors_unclassified": 42
+ },
+ {
+  "part": 113,
+  "locality": "KANCHIBANDARLAPALLI",
+  "polling_station": "MPP School Kanchibandarlapalle ane 114 Settipalle",
+  "electors_male": 471,
+  "electors_female": 419,
+  "electors_total": 944,
+  "electors_third_gender": 0,
+  "electors_unclassified": 54
+ },
+ {
+  "part": 114,
+  "locality": "KANCHIBANDARLAPALLI",
+  "polling_station": "M PP School 5th Class Room K B Palli kanchi bandarlapalli",
+  "electors_male": 367,
+  "electors_female": 371,
+  "electors_total": 783,
+  "electors_third_gender": 0,
+  "electors_unclassified": 45
+ },
+ {
+  "part": 115,
+  "locality": "115SETTlPALLl",
+  "polling_station": "z p high school ,new bulding east wing , 115 settip 115- Settipalle",
+  "electors_male": 581,
+  "electors_female": 590,
+  "electors_total": 1243,
+  "electors_third_gender": 0,
+  "electors_unclassified": 72
+ },
+ {
+  "part": 116,
+  "locality": "NALAGAMPALLI",
+  "polling_station": "Mandala parishad prathamika patashala nallagampalli, Nallagampalli",
+  "electors_male": 531,
+  "electors_female": 548,
+  "electors_total": 1128,
+  "electors_third_gender": 0,
+  "electors_unclassified": 49
+ },
+ {
+  "part": 117,
+  "locality": "BEGGILAPALLI",
+  "polling_station": "ZP High School, Room No.3 Begglipalle",
+  "electors_male": 385,
+  "electors_female": 363,
+  "electors_total": 786,
+  "electors_third_gender": 0,
+  "electors_unclassified": 38
+ },
+ {
+  "part": 118,
+  "locality": "BANDAKOTHURU",
+  "polling_station": "M P P S, BANDAKOTURIJ BANDAKOTURU",
+  "electors_male": 319,
+  "electors_female": 288,
+  "electors_total": 647,
+  "electors_third_gender": 0,
+  "electors_unclassified": 40
+ },
+ {
+  "part": 119,
+  "locality": "GUNDI-ASAGARAM",
+  "polling_station": "MPP School Gundlasagaram",
+  "electors_male": 448,
+  "electors_female": 472,
+  "electors_total": 966,
+  "electors_third_gender": 0,
+  "electors_unclassified": 46
+ },
+ {
+  "part": 120,
+  "locality": "GUTHARLAPALLE",
+  "polling_station": "Z.P. High School 9th class Gutharlapalle Guttharlapalle",
+  "electors_male": 279,
+  "electors_female": 261,
+  "electors_total": 566,
+  "electors_third_gender": 0,
+  "electors_unclassified": 26
+ },
+ {
+  "part": 121,
+  "locality": "KOTAPALLE",
+  "polling_station": "MPP School Kotapalle",
+  "electors_male": 331,
+  "electors_female": 305,
+  "electors_total": 675,
+  "electors_third_gender": 0,
+  "electors_unclassified": 39
+ },
+ {
+  "part": 122,
+  "locality": "KANAMANAPALLE",
+  "polling_station": "MPP School Kanamanapalle",
+  "electors_male": 346,
+  "electors_female": 402,
+  "electors_total": 793,
+  "electors_third_gender": 0,
+  "electors_unclassified": 45
+ },
+ {
+  "part": 123,
+  "locality": "KANAMANAPALLE",
+  "polling_station": "M PP School 5th Class Kanamanapalle Kanamanapalle",
+  "electors_male": 305,
+  "electors_female": 340,
+  "electors_total": 682,
+  "electors_third_gender": 0,
+  "electors_unclassified": 37
+ },
+ {
+  "part": 124,
+  "locality": "YAMAGANIPALLI",
+  "polling_station": "z p high school ,room no l,yamaganipalli Yamiganipalle",
+  "electors_male": 359,
+  "electors_female": 401,
+  "electors_total": 810,
+  "electors_third_gender": 0,
+  "electors_unclassified": 50
+ },
+ {
+  "part": 125,
+  "locality": "YAMAGANIPALLI",
+  "polling_station": "Z P H S NO 2 YAMAGANIPALLI",
+  "electors_male": 406,
+  "electors_female": 427,
+  "electors_total": 887,
+  "electors_third_gender": 0,
+  "electors_unclassified": 54
+ },
+ {
+  "part": 126,
+  "locality": "ADAVIBAJANAWADA",
+  "polling_station": "MPP SCHOOL,ADAVIBAJANAWADA ADAVIBAJANAWADA",
+  "electors_male": 233,
+  "electors_female": 215,
+  "electors_total": 476,
+  "electors_third_gender": 0,
+  "electors_unclassified": 28
+ },
+ {
+  "part": 127,
+  "locality": "KODATHANAPALLI",
+  "polling_station": "M P P S ,Kodatanapalle Kodatanapalle",
+  "electors_male": 595,
+  "electors_female": 570,
+  "electors_total": 1229,
+  "electors_third_gender": 0,
+  "electors_unclassified": 64
+ },
+ {
+  "part": 128,
+  "locality": "GUDUPALLE",
+  "polling_station": "MPP School Gudupalle",
+  "electors_male": 378,
+  "electors_female": 363,
+  "electors_total": 782,
+  "electors_third_gender": 0,
+  "electors_unclassified": 41
+ },
+ {
+  "part": 129,
+  "locality": "GUDUPALLE",
+  "polling_station": "MPP School , 5th Class Room Gudupalle Gudupalle",
+  "electors_male": 367,
+  "electors_female": 355,
+  "electors_total": 766,
+  "electors_third_gender": 0,
+  "electors_unclassified": 44
+ },
+ {
+  "part": 130,
+  "locality": "MITTIJRU",
+  "polling_station": "MPUP SCHOOL MITTOOR MITTOOR",
+  "electors_male": 376,
+  "electors_female": 354,
+  "electors_total": 770,
+  "electors_third_gender": 0,
+  "electors_unclassified": 40
+ },
+ {
+  "part": 131,
+  "locality": "SIRIGIRIPALLE",
+  "polling_station": "MPP School Sirigiripalle",
+  "electors_male": 384,
+  "electors_female": 369,
+  "electors_total": 805,
+  "electors_third_gender": 0,
+  "electors_unclassified": 52
+ },
+ {
+  "part": 132,
+  "locality": "CHEEKATIPALLI",
+  "polling_station": "MPP School Cheekatipalle",
+  "electors_male": 274,
+  "electors_female": 247,
+  "electors_total": 555,
+  "electors_third_gender": 0,
+  "electors_unclassified": 34
+ },
+ {
+  "part": 133,
+  "locality": "KAKINAYANICHEEGARLAPALLE",
+  "polling_station": "Mandala Parishad Prathamiko natha patashala Kakinayani cheegarla palli, KAKINAYANI CHIGURLA pALLl",
+  "electors_male": 316,
+  "electors_female": 335,
+  "electors_total": 682,
+  "electors_third_gender": 0,
+  "electors_unclassified": 31
+ },
+ {
+  "part": 134,
+  "locality": "MALDEPALLI",
+  "polling_station": "MPP School Maldepalle",
+  "electors_male": 299,
+  "electors_female": 320,
+  "electors_total": 651,
+  "electors_third_gender": 0,
+  "electors_unclassified": 32
+ },
+ {
+  "part": 135,
+  "locality": "SODIGANIPALLI",
+  "polling_station": "MPP School Sodiganipalle",
+  "electors_male": 587,
+  "electors_female": 588,
+  "electors_total": 1245,
+  "electors_third_gender": 0,
+  "electors_unclassified": 70
+ },
+ {
+  "part": 136,
+  "locality": "ALIJGUMANIPALLI",
+  "polling_station": "MPP School Alugumanipalle",
+  "electors_male": 431,
+  "electors_female": 427,
+  "electors_total": 910,
+  "electors_third_gender": 0,
+  "electors_unclassified": 52
+ },
+ {
+  "part": 137,
+  "locality": "CHINNA",
+  "polling_station": "MPP School Chinnagollapalle",
+  "electors_male": 483,
+  "electors_female": 480,
+  "electors_total": 1014,
+  "electors_third_gender": 0,
+  "electors_unclassified": 51
+ },
+ {
+  "part": 138,
+  "locality": "MALAVANIKOTHIJRU",
+  "polling_station": "MPP School Malavanikothuru",
+  "electors_male": 267,
+  "electors_female": 262,
+  "electors_total": 564,
+  "electors_third_gender": 0,
+  "electors_unclassified": 35
+ },
+ {
+  "part": 139,
+  "locality": "SANGANAPALLI",
+  "polling_station": "ZP High School Room no 4 Sanganapalle",
+  "electors_male": 393,
+  "electors_female": 400,
+  "electors_total": 836,
+  "electors_third_gender": 0,
+  "electors_unclassified": 43
+ },
+ {
+  "part": 140,
+  "locality": "SANGANAPALLI",
+  "polling_station": "ZP High School Room No. 1 Sanganapalle",
+  "electors_male": 508,
+  "electors_female": 509,
+  "electors_total": 1073,
+  "electors_third_gender": 0,
+  "electors_unclassified": 56
+ },
+ {
+  "part": 141,
+  "locality": "PEDDAPARTHIKUNTA",
+  "polling_station": "MPP School Peddaparthikunta",
+  "electors_male": 259,
+  "electors_female": 220,
+  "electors_total": 507,
+  "electors_third_gender": 0,
+  "electors_unclassified": 28
+ },
+ {
+  "part": 142,
+  "locality": "THALI",
+  "polling_station": "MPP School Tali Agraharam",
+  "electors_male": 313,
+  "electors_female": 308,
+  "electors_total": 661,
+  "electors_third_gender": 0,
+  "electors_unclassified": 40
+ },
+ {
+  "part": 143,
+  "locality": "O.",
+  "polling_station": "MPP School O N Kothuru",
+  "electors_male": 456,
+  "electors_female": 434,
+  "electors_total": 940,
+  "electors_third_gender": 0,
+  "electors_unclassified": 50
+ },
+ {
+  "part": 144,
+  "locality": "KRISHNAPURAM",
+  "polling_station": "MPUP School Krishnapuram H/o Kangundhi R.F",
+  "electors_male": 459,
+  "electors_female": 445,
+  "electors_total": 959,
+  "electors_third_gender": 0,
+  "electors_unclassified": 55
+ },
+ {
+  "part": 145,
+  "locality": "KANGIJNDI",
+  "polling_station": "ZP High School, Old Building.",
+  "electors_male": 372,
+  "electors_female": 391,
+  "electors_total": 806,
+  "electors_third_gender": 0,
+  "electors_unclassified": 43
+ },
+ {
+  "part": 146,
+  "locality": "KANGIJNDI",
+  "polling_station": "ZP High School, Old Building, Kangundi",
+  "electors_male": 253,
+  "electors_female": 242,
+  "electors_total": 525,
+  "electors_third_gender": 0,
+  "electors_unclassified": 30
+ },
+ {
+  "part": 147,
+  "locality": "KANGIJNDI",
+  "polling_station": "ZP High School, New Building, Kangundi",
+  "electors_male": 452,
+  "electors_female": 422,
+  "electors_total": 918,
+  "electors_third_gender": 0,
+  "electors_unclassified": 44
+ },
+ {
+  "part": 148,
+  "locality": "KANGIJNDI",
+  "polling_station": "Z.P. High School, 10 th class Room Kangundhi.",
+  "electors_male": 279,
+  "electors_female": 254,
+  "electors_total": 567,
+  "electors_third_gender": 0,
+  "electors_unclassified": 34
+ },
+ {
+  "part": 149,
+  "locality": "KANGIJNDI",
+  "polling_station": "MPP School Devarajapuram H/o Kangundi R.F",
+  "electors_male": 394,
+  "electors_female": 411,
+  "electors_total": 852,
+  "electors_third_gender": 0,
+  "electors_unclassified": 47
+ },
+ {
+  "part": 150,
+  "locality": "KANGIJNDI",
+  "polling_station": "MPP School Peddavanka H/o Kangundi R.F",
+  "electors_male": 227,
+  "electors_female": 214,
+  "electors_total": 468,
+  "electors_third_gender": 0,
+  "electors_unclassified": 27
+ },
+ {
+  "part": 151,
+  "locality": "KANGIJNDI",
+  "polling_station": "MPP School Bramhadevarachenlu H/o Kangundi R.F",
+  "electors_male": 339,
+  "electors_female": 367,
+  "electors_total": 753,
+  "electors_third_gender": 0,
+  "electors_unclassified": 47
+ },
+ {
+  "part": 152,
+  "locality": "NAYANURU",
+  "polling_station": "MPP School Nayanuru H/o Kangundi R.F",
+  "electors_male": 384,
+  "electors_female": 393,
+  "electors_total": 820,
+  "electors_third_gender": 0,
+  "electors_unclassified": 43
+ },
+ {
+  "part": 153,
+  "locality": "DASEGOWNIYUR",
+  "polling_station": "MPP School Dasegownuru",
+  "electors_male": 478,
+  "electors_female": 487,
+  "electors_total": 1022,
+  "electors_third_gender": 0,
+  "electors_unclassified": 57
+ },
+ {
+  "part": 154,
+  "locality": "DASEGOWNURU",
+  "polling_station": "MPP School, New Building East side Balamandakotam",
+  "electors_male": 195,
+  "electors_female": 188,
+  "electors_total": 409,
+  "electors_third_gender": 0,
+  "electors_unclassified": 26
+ },
+ {
+  "part": 155,
+  "locality": "DASEGOWNURU",
+  "polling_station": "MPP School Boggupalle",
+  "electors_male": 494,
+  "electors_female": 483,
+  "electors_total": 1033,
+  "electors_third_gender": 0,
+  "electors_unclassified": 56
+ },
+ {
+  "part": 156,
+  "locality": "SEEGALAPALLE",
+  "polling_station": "MPP School Seegalapalle",
+  "electors_male": 609,
+  "electors_female": 625,
+  "electors_total": 1303,
+  "electors_third_gender": 0,
+  "electors_unclassified": 69
+ },
+ {
+  "part": 157,
+  "locality": "SAMMAGUTTAPALLE",
+  "polling_station": "MPUP School, West Wing, 5th Class Room, Samaguttapalle",
+  "electors_male": 439,
+  "electors_female": 439,
+  "electors_total": 938,
+  "electors_third_gender": 0,
+  "electors_unclassified": 60
+ },
+ {
+  "part": 158,
+  "locality": "SAMMAGUTTAPALLE",
+  "polling_station": "MPUP School, East Wing, 8th Class Room, Samaguttapalle",
+  "electors_male": 423,
+  "electors_female": 458,
+  "electors_total": 933,
+  "electors_third_gender": 0,
+  "electors_unclassified": 52
+ },
+ {
+  "part": 159,
+  "locality": "LAKSHMIPCJRAM",
+  "polling_station": "MPP School, 4th Class Room, Lakshmipuram.",
+  "electors_male": 545,
+  "electors_female": 579,
+  "electors_total": 1195,
+  "electors_third_gender": 0,
+  "electors_unclassified": 71
+ },
+ {
+  "part": 160,
+  "locality": "LAKSHMIPCJRAM",
+  "polling_station": "MPP School, 3rd Class Room, Cheemanayanapalli Lakshmipuram H/o Bairuganipalle",
+  "electors_male": 483,
+  "electors_female": 533,
+  "electors_total": 1064,
+  "electors_third_gender": 0,
+  "electors_unclassified": 48
+ },
+ {
+  "part": 161,
+  "locality": "KUPPAM",
+  "polling_station": "MPP School, Room No-I, Pathapeta, Kuppam",
+  "electors_male": 480,
+  "electors_female": 519,
+  "electors_total": 1056,
+  "electors_third_gender": 0,
+  "electors_unclassified": 57
+ },
+ {
+  "part": 162,
+  "locality": "KUPPAM",
+  "polling_station": "MPP School, Room No-2, Pathapeta, Kuppam",
+  "electors_male": 475,
+  "electors_female": 499,
+  "electors_total": 1033,
+  "electors_third_gender": 0,
+  "electors_unclassified": 59
+ },
+ {
+  "part": 163,
+  "locality": "KI-JPPAM",
+  "polling_station": "MPP School, Room No-3, Pathapeta, Kuppam",
+  "electors_male": 414,
+  "electors_female": 436,
+  "electors_total": 898,
+  "electors_third_gender": 0,
+  "electors_unclassified": 48
+ },
+ {
+  "part": 164,
+  "locality": "KUPPAM",
+  "polling_station": "MPP School, Kuppam(urdu)",
+  "electors_male": 404,
+  "electors_female": 421,
+  "electors_total": 866,
+  "electors_third_gender": 0,
+  "electors_unclassified": 41
+ },
+ {
+  "part": 165,
+  "locality": "KUPPAM",
+  "polling_station": "MPP School, Kuppam(urdu) west side kuppam",
+  "electors_male": 346,
+  "electors_female": 377,
+  "electors_total": 764,
+  "electors_third_gender": 0,
+  "electors_unclassified": 41
+ },
+ {
+  "part": 166,
+  "locality": "KUPPAM",
+  "polling_station": "ZPHS, RS Pet, Room No-I, Kuppam",
+  "electors_male": 423,
+  "electors_female": 396,
+  "electors_total": 860,
+  "electors_third_gender": 0,
+  "electors_unclassified": 41
+ },
+ {
+  "part": 167,
+  "locality": "KUPPAM",
+  "polling_station": "ZPHS, RS Pet, Room No-2, Kuppam",
+  "electors_male": 299,
+  "electors_female": 276,
+  "electors_total": 617,
+  "electors_third_gender": 0,
+  "electors_unclassified": 42
+ },
+ {
+  "part": 168,
+  "locality": "KUPPAM",
+  "polling_station": "MPP School, RS Pet, 2nd Class Room, Kuppam.",
+  "electors_male": 568,
+  "electors_female": 575,
+  "electors_total": 1211,
+  "electors_third_gender": 0,
+  "electors_unclassified": 68
+ },
+ {
+  "part": 169,
+  "locality": "KUPPAM",
+  "polling_station": "MPP School, RS Pet, 1st Class Room, Kuppam.",
+  "electors_male": 513,
+  "electors_female": 575,
+  "electors_total": 1167,
+  "electors_third_gender": 0,
+  "electors_unclassified": 79
+ },
+ {
+  "part": 170,
+  "locality": "KUPPAM",
+  "polling_station": "Government Boys High School, Kuppam",
+  "electors_male": 480,
+  "electors_female": 510,
+  "electors_total": 1056,
+  "electors_third_gender": 0,
+  "electors_unclassified": 66
+ },
+ {
+  "part": 171,
+  "locality": "KUPPAM",
+  "polling_station": "Government Boys High School, Kuppam",
+  "electors_male": 348,
+  "electors_female": 315,
+  "electors_total": 710,
+  "electors_third_gender": 0,
+  "electors_unclassified": 47
+ },
+ {
+  "part": 172,
+  "locality": "KUPPAM",
+  "polling_station": "Govt. Boys High School, Middle Room, Kuppam.",
+  "electors_male": 242,
+  "electors_female": 355,
+  "electors_total": 638,
+  "electors_third_gender": 0,
+  "electors_unclassified": 41
+ },
+ {
+  "part": 173,
+  "locality": "KUPPAM",
+  "polling_station": "Government Boys High School, Kuppam",
+  "electors_male": 395,
+  "electors_female": 451,
+  "electors_total": 887,
+  "electors_third_gender": 0,
+  "electors_unclassified": 41
+ },
+ {
+  "part": 174,
+  "locality": "KUPPAM",
+  "polling_station": "ZP High School (Girls) Kuppam",
+  "electors_male": 737,
+  "electors_female": 731,
+  "electors_total": 1518,
+  "electors_third_gender": 0,
+  "electors_unclassified": 50
+ },
+ {
+  "part": 175,
+  "locality": "KUPPAM",
+  "polling_station": "Z.P.High School (Girls), North Side Kuppam kuppam",
+  "electors_male": 197,
+  "electors_female": 242,
+  "electors_total": 467,
+  "electors_third_gender": 0,
+  "electors_unclassified": 28
+ },
+ {
+  "part": 176,
+  "locality": "KUPPAM",
+  "polling_station": "ZP High School, (Girls) (South wing) Kuppam",
+  "electors_male": 512,
+  "electors_female": 580,
+  "electors_total": 1166,
+  "electors_third_gender": 0,
+  "electors_unclassified": 74
+ },
+ {
+  "part": 177,
+  "locality": "KUPPAM",
+  "polling_station": "MPP School Newpet, Kuppam",
+  "electors_male": 362,
+  "electors_female": 498,
+  "electors_total": 910,
+  "electors_third_gender": 0,
+  "electors_unclassified": 50
+ },
+ {
+  "part": 178,
+  "locality": "KUPPAM",
+  "polling_station": "MPP School, (North/East) Side Kothapet, Kuppam.",
+  "electors_male": 477,
+  "electors_female": 378,
+  "electors_total": 908,
+  "electors_third_gender": 0,
+  "electors_unclassified": 53
+ },
+ {
+  "part": 179,
+  "locality": "KUPPAM",
+  "polling_station": "MPP School, (South/ West) Side Kothapet, Kuppam",
+  "electors_male": 318,
+  "electors_female": 456,
+  "electors_total": 830,
+  "electors_third_gender": 0,
+  "electors_unclassified": 56
+ },
+ {
+  "part": 180,
+  "locality": "KUPPAM",
+  "polling_station": "MPP School, West Wing Kothapet, Kuppam",
+  "electors_male": 513,
+  "electors_female": 573,
+  "electors_total": 1160,
+  "electors_third_gender": 0,
+  "electors_unclassified": 74
+ },
+ {
+  "part": 181,
+  "locality": "KUPPAM",
+  "polling_station": "MPP School, South Wing, NTR Colony 1-1/0 Chinnakurabalapalle.",
+  "electors_male": 406,
+  "electors_female": 472,
+  "electors_total": 930,
+  "electors_third_gender": 0,
+  "electors_unclassified": 52
+ },
+ {
+  "part": 182,
+  "locality": "KUPPAM",
+  "polling_station": "MPP School, North Wing, NTR Colony H/o Chinnakurabalapalle., Chinnakurabalapalle",
+  "electors_male": 383,
+  "electors_female": 396,
+  "electors_total": 827,
+  "electors_third_gender": 0,
+  "electors_unclassified": 48
+ },
+ {
+  "part": 183,
+  "locality": "KIJPPAM",
+  "polling_station": "MPP SCHOOL,dalavaikothapaIli Dalavaikothapalle H/o Chinnakurabalapalle",
+  "electors_male": 543,
+  "electors_female": 703,
+  "electors_total": 1319,
+  "electors_third_gender": 0,
+  "electors_unclassified": 73
+ },
+ {
+  "part": 184,
+  "locality": "KIJPPAM",
+  "polling_station": "Ward Sachivalayam, Dalavaikothapalli-l Secretariat, Dalavaikothapalli H/o Chinnakurabalapalle",
+  "electors_male": 587,
+  "electors_female": 545,
+  "electors_total": 1203,
+  "electors_third_gender": 0,
+  "electors_unclassified": 71
+ },
+ {
+  "part": 185,
+  "locality": "KIJPPAM",
+  "polling_station": "MPP School, 3rd Class Room Dalavaikothapalle H/o Chinnakurabalapalle",
+  "electors_male": 370,
+  "electors_female": 421,
+  "electors_total": 839,
+  "electors_third_gender": 0,
+  "electors_unclassified": 48
+ },
+ {
+  "part": 186,
+  "locality": "KIJPPAM",
+  "polling_station": "MPP School, West Wing, Model Colony Hamlet of Chinnakurabalapalle, Chinnakurabalapalle",
+  "electors_male": 370,
+  "electors_female": 390,
+  "electors_total": 807,
+  "electors_third_gender": 0,
+  "electors_unclassified": 47
+ },
+ {
+  "part": 187,
+  "locality": "KIJPPAM",
+  "polling_station": "MPP School, North Wing, Model Colony H/o Chinnakurabalapalle",
+  "electors_male": 441,
+  "electors_female": 446,
+  "electors_total": 950,
+  "electors_third_gender": 0,
+  "electors_unclassified": 63
+ },
+ {
+  "part": 188,
+  "locality": "KRISHNADASANAPALLE",
+  "polling_station": "MPP School Mattarlapalle H/o Yanadhipalle",
+  "electors_male": 512,
+  "electors_female": 499,
+  "electors_total": 1079,
+  "electors_third_gender": 0,
+  "electors_unclassified": 68
+ },
+ {
+  "part": 189,
+  "locality": "KRISHNADASANAPALLE",
+  "polling_station": "MPP School Krishnadasanapalle",
+  "electors_male": 545,
+  "electors_female": 591,
+  "electors_total": 1197,
+  "electors_third_gender": 0,
+  "electors_unclassified": 61
+ },
+ {
+  "part": 190,
+  "locality": "GUDLANAYANIPALLI",
+  "polling_station": "MPP SCHOOL,GudlanayanapalIe.",
+  "electors_male": 543,
+  "electors_female": 538,
+  "electors_total": 1137,
+  "electors_third_gender": 0,
+  "electors_unclassified": 56
+ },
+ {
+  "part": 191,
+  "locality": "GUDLANAYANIPALLI",
+  "polling_station": "MPP SCHOOL,Jarugu.",
+  "electors_male": 570,
+  "electors_female": 564,
+  "electors_total": 1200,
+  "electors_third_gender": 0,
+  "electors_unclassified": 66
+ },
+ {
+  "part": 192,
+  "locality": "VENDIJGAMPALLI",
+  "polling_station": "MPP SCHOOL,Paramasamudram H/o Palarlapalle",
+  "electors_male": 460,
+  "electors_female": 495,
+  "electors_total": 1019,
+  "electors_third_gender": 0,
+  "electors_unclassified": 64
+ },
+ {
+  "part": 193,
+  "locality": "VENDUGAMPALLI",
+  "polling_station": "Grama/Ward Sachivalayam, Cheelepalle",
+  "electors_male": 324,
+  "electors_female": 334,
+  "electors_total": 700,
+  "electors_third_gender": 0,
+  "electors_unclassified": 42
+ },
+ {
+  "part": 194,
+  "locality": "VENDUGAMPALLI",
+  "polling_station": "MPP School Vaddipalle H/o Bevanapalle",
+  "electors_male": 503,
+  "electors_female": 554,
+  "electors_total": 1121,
+  "electors_third_gender": 0,
+  "electors_unclassified": 64
+ },
+ {
+  "part": 195,
+  "locality": "VENDUGAMPALLI",
+  "polling_station": "MPP School, Room No-I, Animiganipalle",
+  "electors_male": 506,
+  "electors_female": 547,
+  "electors_total": 1123,
+  "electors_third_gender": 0,
+  "electors_unclassified": 70
+ },
+ {
+  "part": 196,
+  "locality": "VENDUGAMPALLI",
+  "polling_station": "MPP School, Room No-2, Animiganipalle",
+  "electors_male": 388,
+  "electors_female": 387,
+  "electors_total": 818,
+  "electors_third_gender": 0,
+  "electors_unclassified": 43
+ },
+ {
+  "part": 197,
+  "locality": "THAMBIGANIPALLI",
+  "polling_station": "MPP School Thambiganipalle H/o Ekarlapalle",
+  "electors_male": 598,
+  "electors_female": 653,
+  "electors_total": 1321,
+  "electors_third_gender": 0,
+  "electors_unclassified": 70
+ },
+ {
+  "part": 198,
+  "locality": "KUPPAM",
+  "polling_station": "MPP School Gullepalle H/o Ekarlapalle",
+  "electors_male": 244,
+  "electors_female": 218,
+  "electors_total": 487,
+  "electors_third_gender": 0,
+  "electors_unclassified": 25
+ },
+ {
+  "part": 199,
+  "locality": "KUPPAM",
+  "polling_station": "MPP School Kamathamuru",
+  "electors_male": 503,
+  "electors_female": 519,
+  "electors_total": 1093,
+  "electors_third_gender": 0,
+  "electors_unclassified": 71
+ },
+ {
+  "part": 200,
+  "locality": "PEDDABANGARUNATHAM",
+  "polling_station": "ZP High School Kothaindlu H/o Ekarlapalle",
+  "electors_male": 485,
+  "electors_female": 445,
+  "electors_total": 998,
+  "electors_third_gender": 0,
+  "electors_unclassified": 68
+ },
+ {
+  "part": 201,
+  "locality": "PEDDABANGARUNATHAM",
+  "polling_station": "ZP High School Kothaindlu H/o Ekarlapalle",
+  "electors_male": 382,
+  "electors_female": 394,
+  "electors_total": 830,
+  "electors_third_gender": 0,
+  "electors_unclassified": 54
+ },
+ {
+  "part": 202,
+  "locality": "NOOLAKUNTA",
+  "polling_station": "MPP School, Room No-I, Noolukunta",
+  "electors_male": 529,
+  "electors_female": 492,
+  "electors_total": 1087,
+  "electors_third_gender": 0,
+  "electors_unclassified": 66
+ },
+ {
+  "part": 203,
+  "locality": "NOOLAKUNTA",
+  "polling_station": "MPP School, Room No-2, Noolukunta.",
+  "electors_male": 451,
+  "electors_female": 427,
+  "electors_total": 933,
+  "electors_third_gender": 0,
+  "electors_unclassified": 55
+ },
+ {
+  "part": 204,
+  "locality": "SAJJALAPALLE",
+  "polling_station": "MPP School, Sajjalapalle",
+  "electors_male": 233,
+  "electors_female": 188,
+  "electors_total": 445,
+  "electors_third_gender": 0,
+  "electors_unclassified": 24
+ },
+ {
+  "part": 205,
+  "locality": "KOTHAPALLE",
+  "polling_station": "MPP School, Kothapalle",
+  "electors_male": 461,
+  "electors_female": 491,
+  "electors_total": 1011,
+  "electors_third_gender": 0,
+  "electors_unclassified": 59
+ },
+ {
+  "part": 206,
+  "locality": "GARIGACHEENEPALLI",
+  "polling_station": "MPP School, 3rd Class Room, Garigacheenepalle.",
+  "electors_male": 525,
+  "electors_female": 493,
+  "electors_total": 1084,
+  "electors_third_gender": 0,
+  "electors_unclassified": 66
+ },
+ {
+  "part": 207,
+  "locality": "GARIGACHEENEPALLI",
+  "polling_station": "MPP School, 5th Class Room, Garigacheenepalle.",
+  "electors_male": 421,
+  "electors_female": 446,
+  "electors_total": 931,
+  "electors_third_gender": 0,
+  "electors_unclassified": 64
+ },
+ {
+  "part": 208,
+  "locality": "MITTAPALLE",
+  "polling_station": "MPP School, Room No-I, Mittapalle.",
+  "electors_male": 490,
+  "electors_female": 512,
+  "electors_total": 1065,
+  "electors_third_gender": 0,
+  "electors_unclassified": 63
+ },
+ {
+  "part": 209,
+  "locality": "MITTAPALLI",
+  "polling_station": "MPP School, Room No-2, Mittapalle.",
+  "electors_male": 547,
+  "electors_female": 556,
+  "electors_total": 1180,
+  "electors_third_gender": 0,
+  "electors_unclassified": 77
+ },
+ {
+  "part": 210,
+  "locality": "AVULANATHAM",
+  "polling_station": "MPP School Avulanatham",
+  "electors_male": 410,
+  "electors_female": 398,
+  "electors_total": 863,
+  "electors_third_gender": 0,
+  "electors_unclassified": 55
+ },
+ {
+  "part": 211,
+  "locality": "PEDDA",
+  "polling_station": "MPP School Peddabangarunatham",
+  "electors_male": 507,
+  "electors_female": 504,
+  "electors_total": 1075,
+  "electors_third_gender": 0,
+  "electors_unclassified": 64
+ },
+ {
+  "part": 212,
+  "locality": "PEDDABANGARUNATHAM",
+  "polling_station": "Anganwadi building Marvada",
+  "electors_male": 392,
+  "electors_female": 415,
+  "electors_total": 858,
+  "electors_third_gender": 0,
+  "electors_unclassified": 51
+ },
+ {
+  "part": 213,
+  "locality": "PEDDABANGARUNATHAM",
+  "polling_station": "ZP High School Peddagopanapalle",
+  "electors_male": 532,
+  "electors_female": 448,
+  "electors_total": 1046,
+  "electors_third_gender": 0,
+  "electors_unclassified": 66
+ },
+ {
+  "part": 214,
+  "locality": "VENDUGAMPALLE",
+  "polling_station": "MPP School, North Wing, 4th Class Room, Vendugampalle.",
+  "electors_male": 435,
+  "electors_female": 399,
+  "electors_total": 893,
+  "electors_third_gender": 0,
+  "electors_unclassified": 59
+ },
+ {
+  "part": 215,
+  "locality": "VENDUGAMPALLE",
+  "polling_station": "MPP School, South Wing, 1st Class Room, Vendugampalle.",
+  "electors_male": 451,
+  "electors_female": 412,
+  "electors_total": 921,
+  "electors_third_gender": 0,
+  "electors_unclassified": 58
+ },
+ {
+  "part": 216,
+  "locality": "GONCJGIJR",
+  "polling_station": "ZP High School (Room No.3) Gonuguru",
+  "electors_male": 628,
+  "electors_female": 608,
+  "electors_total": 1310,
+  "electors_third_gender": 0,
+  "electors_unclassified": 74
+ },
+ {
+  "part": 217,
+  "locality": "VENDUGAMPALLI",
+  "polling_station": "MPP School Urlaobanapalle",
+  "electors_male": 629,
+  "electors_female": 558,
+  "electors_total": 1259,
+  "electors_third_gender": 0,
+  "electors_unclassified": 72
+ },
+ {
+  "part": 218,
+  "locality": "NADIMUR",
+  "polling_station": "MPP School, North Wing, Room No-I, Nadimuru",
+  "electors_male": 460,
+  "electors_female": 444,
+  "electors_total": 967,
+  "electors_third_gender": 0,
+  "electors_unclassified": 63
+ },
+ {
+  "part": 219,
+  "locality": "NADIMUR",
+  "polling_station": "MPP School, South Wing, Room No-2, Nadimuru., Nadimuru.",
+  "electors_male": 457,
+  "electors_female": 423,
+  "electors_total": 940,
+  "electors_third_gender": 0,
+  "electors_unclassified": 60
+ },
+ {
+  "part": 220,
+  "locality": "VASANADU",
+  "polling_station": "z p high school ,8th class room,vasanadu Vasanadu",
+  "electors_male": 318,
+  "electors_female": 307,
+  "electors_total": 669,
+  "electors_third_gender": 0,
+  "electors_unclassified": 44
+ },
+ {
+  "part": 221,
+  "locality": "VASANADU",
+  "polling_station": "z p high school, 9th class room, vasanadu., Vasanadu",
+  "electors_male": 487,
+  "electors_female": 460,
+  "electors_total": 1004,
+  "electors_third_gender": 0,
+  "electors_unclassified": 57
+ },
+ {
+  "part": 222,
+  "locality": "VASANADU",
+  "polling_station": "MPP School Mankaladoddi",
+  "electors_male": 628,
+  "electors_female": 589,
+  "electors_total": 1294,
+  "electors_third_gender": 0,
+  "electors_unclassified": 77
+ },
+ {
+  "part": 223,
+  "locality": "PAIPALYAM",
+  "polling_station": "MPP School (1st Class Room) Paipalyam",
+  "electors_male": 651,
+  "electors_female": 641,
+  "electors_total": 1365,
+  "electors_third_gender": 0,
+  "electors_unclassified": 73
+ },
+ {
+  "part": 224,
+  "locality": "VASANADIJ",
+  "polling_station": "MPP School (5th Class Room) Paipalyam",
+  "electors_male": 528,
+  "electors_female": 512,
+  "electors_total": 1109,
+  "electors_third_gender": 0,
+  "electors_unclassified": 69
+ },
+ {
+  "part": 225,
+  "locality": "CHEKKUNATHAM",
+  "polling_station": "ZP High School Vanaguttapalle H/o Chekkunatham",
+  "electors_male": 404,
+  "electors_female": 409,
+  "electors_total": 856,
+  "electors_third_gender": 0,
+  "electors_unclassified": 43
+ },
+ {
+  "part": 226,
+  "locality": "CHEKKUNATHAM",
+  "polling_station": "MPUP School URDU Ragimanumitta,",
+  "electors_male": 285,
+  "electors_female": 267,
+  "electors_total": 588,
+  "electors_third_gender": 0,
+  "electors_unclassified": 36
+ },
+ {
+  "part": 227,
+  "locality": "CHEKKUNMATHAM",
+  "polling_station": "MPP School Chekkunatham",
+  "electors_male": 382,
+  "electors_female": 383,
+  "electors_total": 808,
+  "electors_third_gender": 0,
+  "electors_unclassified": 43
+ },
+ {
+  "part": 228,
+  "locality": "CHEKKUNATHAM",
+  "polling_station": "MPP School Chekkunatham",
+  "electors_male": 517,
+  "electors_female": 475,
+  "electors_total": 1056,
+  "electors_third_gender": 0,
+  "electors_unclassified": 64
+ },
+ {
+  "part": 229,
+  "locality": "MALI-ANURU",
+  "polling_station": "Z PH SCHOOL ,M0tlachenu H/o Chinnaobba Motlachenu H/o Chinnaobba",
+  "electors_male": 408,
+  "electors_female": 401,
+  "electors_total": 863,
+  "electors_third_gender": 0,
+  "electors_unclassified": 54
+ },
+ {
+  "part": 230,
+  "locality": "MALI-ANURU",
+  "polling_station": "MPP School Valuru",
+  "electors_male": 292,
+  "electors_female": 274,
+  "electors_total": 601,
+  "electors_third_gender": 0,
+  "electors_unclassified": 35
+ },
+ {
+  "part": 231,
+  "locality": "TSADAMUR",
+  "polling_station": "Z P H SCHOOL,T Sahadumuru.",
+  "electors_male": 566,
+  "electors_female": 537,
+  "electors_total": 1176,
+  "electors_third_gender": 0,
+  "electors_unclassified": 73
+ },
+ {
+  "part": 232,
+  "locality": "MALI-ANURU",
+  "polling_station": "MPP SCHOOL, Singarapuram, Singarapuram",
+  "electors_male": 420,
+  "electors_female": 364,
+  "electors_total": 826,
+  "electors_third_gender": 0,
+  "electors_unclassified": 42
+ },
+ {
+  "part": 233,
+  "locality": "MALI-ANURU",
+  "polling_station": "MPP School Mallanuru",
+  "electors_male": 515,
+  "electors_female": 512,
+  "electors_total": 1093,
+  "electors_third_gender": 0,
+  "electors_unclassified": 66
+ },
+ {
+  "part": 234,
+  "locality": "MALI-ANURU",
+  "polling_station": "Z.P.HighSchool ,Ponnanguru.",
+  "electors_male": 433,
+  "electors_female": 474,
+  "electors_total": 955,
+  "electors_third_gender": 0,
+  "electors_unclassified": 48
+ },
+ {
+  "part": 235,
+  "locality": "MALI-ANURU",
+  "polling_station": "Z P HIGH SCHOOL, ROOM NO 2, PONNANGURU.",
+  "electors_male": 401,
+  "electors_female": 368,
+  "electors_total": 819,
+  "electors_third_gender": 0,
+  "electors_unclassified": 50
+ },
+ {
+  "part": 236,
+  "locality": "MALI-ANURU",
+  "polling_station": "MPP SCHOOL,Parthichenu.",
+  "electors_male": 525,
+  "electors_female": 483,
+  "electors_total": 1068,
+  "electors_third_gender": 0,
+  "electors_unclassified": 60
+ },
+ {
+  "part": 237,
+  "locality": "ADAVIBUDUGURU",
+  "polling_station": "ZP High School (West wing Room no 03) Adavibuduguru",
+  "electors_male": 648,
+  "electors_female": 593,
+  "electors_total": 1313,
+  "electors_third_gender": 0,
+  "electors_unclassified": 72
+ },
+ {
+  "part": 238,
+  "locality": "ADAVI",
+  "polling_station": "ZP High School (West wing Room no .4) Adavibuduguru",
+  "electors_male": 423,
+  "electors_female": 328,
+  "electors_total": 792,
+  "electors_third_gender": 0,
+  "electors_unclassified": 41
+ },
+ {
+  "part": 239,
+  "locality": "ADAVI",
+  "polling_station": "Z.P. High School, Adavibuduguru, Room No.5 Adavibuduguru",
+  "electors_male": 374,
+  "electors_female": 348,
+  "electors_total": 772,
+  "electors_third_gender": 0,
+  "electors_unclassified": 50
+ },
+ {
+  "part": 240,
+  "locality": "ADAVIBUDUGURU",
+  "polling_station": "MPP School Gundlamadugu H/o Adavibuduguru",
+  "electors_male": 347,
+  "electors_female": 357,
+  "electors_total": 748,
+  "electors_third_gender": 0,
+  "electors_unclassified": 44
+ },
+ {
+  "part": 241,
+  "locality": "ADAVIBUDUGURU",
+  "polling_station": "M PP School , South Side Gundlamadugu Gundlamadugu",
+  "electors_male": 367,
+  "electors_female": 313,
+  "electors_total": 724,
+  "electors_third_gender": 0,
+  "electors_unclassified": 44
+ },
+ {
+  "part": 242,
+  "locality": "ADAVI",
+  "polling_station": "MPP School Kataluru H/o Adavibuduguru",
+  "electors_male": 488,
+  "electors_female": 437,
+  "electors_total": 981,
+  "electors_third_gender": 0,
+  "electors_unclassified": 56
+ },
+ {
+  "part": 243,
+  "locality": "ADAVIBUDUGURU",
+  "polling_station": "MPP School Yarramannuguntalu H/o Adavibuduguru",
+  "electors_male": 501,
+  "electors_female": 453,
+  "electors_total": 1016,
+  "electors_third_gender": 0,
+  "electors_unclassified": 62
+ }
 ]

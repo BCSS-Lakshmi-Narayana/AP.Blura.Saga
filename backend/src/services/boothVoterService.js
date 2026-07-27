@@ -77,6 +77,18 @@ const getBoothsByConstituency = (constituency) => {
   };
 };
 
+// Lightweight lookup of a single booth's summary row (locality / polling
+// station / counts) without touching the heavy voter roll — used by the
+// area-sentiment endpoint.
+const getBoothSummary = (constituency, part) => {
+  const key = SUMMARY_KEYS[normalizeConstituencyKey(constituency)];
+  if (!key) return null;
+  const partNum = Number(part);
+  if (!Number.isFinite(partNum)) return null;
+  const row = (loadSummary(key) || []).find((b) => b.part === partNum);
+  return row ? { key, ...row } : null;
+};
+
 const loadVoterRoll = (key, part) => {
   const cacheKey = `${key}/${part}`;
   if (voterCache.has(cacheKey)) return voterCache.get(cacheKey);
@@ -213,5 +225,6 @@ module.exports = {
   hasBoothData,
   getBoothsByConstituency,
   getBoothVoters,
+  getBoothSummary,
   normalizeConstituencyKey,
 };
