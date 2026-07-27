@@ -11,7 +11,7 @@ const {
   normalizeConstituencyKey,
   DATA_COVERAGE,
 } = require('../services/voterProfileService');
-const { getBoothsByConstituency } = require('../services/boothVoterService');
+const { getBoothsByConstituency, getBoothVoters } = require('../services/boothVoterService');
 
 const isInScope = (constituency, scope) => {
   if (!scope || scope.canSeeAll) return true;
@@ -109,4 +109,41 @@ const getBoothLevelData = (req, res) => {
   }
 };
 
-module.exports = { listVoterProfiles, getVoterProfile, getBoothLevelData };
+/* GET /api/voter-profiles/:constituency/booths/:part/voters — the full
+ * voter roll for one booth, paginated + searchable + gender-filterable.
+ * Query: page, pageSize, search, gender (all|male|female|third|other). */
+const getBoothVotersHandler = (req, res) => {
+  try {
+    const { constituency, part } = req.params;
+    const decoded = decodeURIComponent(constituency || '');
+
+    if (!isInScope(decoded, req.scope)) {
+      return res.status(403).json({
+        success: false,
+        code: 'CONSTITUENCY_FORBIDDEN',
+        message: 'You are not authorized to view this constituency',
+      });
+    }
+
+    const result = getBoothVoters(decoded, part, {
+      page: req.query.page,
+      pageSize: req.query.pageSize,
+      search: req.query.search,
+      gender: req.query.gender,
+    });
+
+    if (!result) {
+      return res.status(404).json({
+        success: false,
+        message: `No voter roll on record for "${decoded}" booth ${part}`,
+      });
+    }
+
+    return res.json({ success: true, ...result });
+  } catch (err) {
+    console.error('[voterProfile] booth-voters error:', err.message);
+    return res.status(500).json({ success: false, message: 'Failed to load booth voter list' });
+  }
+};
+
+module.exports = { listVoterProfiles, getVoterProfile, getBoothLevelData, getBoothVoters: getBoothVotersHandler };

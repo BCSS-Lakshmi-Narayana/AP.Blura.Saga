@@ -1,11 +1,101 @@
 [
  {
+  "part": 1,
+  "locality": "PENUMAKA",
+  "polling_station": "Zilla Parishad High School, North Block, Room No.1 from West side, Penumaka.",
+  "electors_male": 572,
+  "electors_female": 654,
+  "electors_total": 1226,
+  "electors_third_gender": 0,
+  "electors_unclassified": 0
+ },
+ {
+  "part": 2,
+  "locality": "PENUMAKA",
+  "polling_station": "Zilla Parishad High School, South Block, Room No.2 from West side, Penumaka.",
+  "electors_male": 398,
+  "electors_female": 443,
+  "electors_total": 841,
+  "electors_third_gender": 0,
+  "electors_unclassified": 0
+ },
+ {
+  "part": 3,
+  "locality": "PENUMAKA",
+  "polling_station": "Mandal Parishad (H.E) Primary School, South Building, 1st room from Western side, Penumaka.",
+  "electors_male": 521,
+  "electors_female": 582,
+  "electors_total": 1103,
+  "electors_third_gender": 0,
+  "electors_unclassified": 0
+ },
+ {
+  "part": 4,
+  "locality": "PENUMAKA",
+  "polling_station": "Mandal Parishad (H.E) Primary School, South Building, 2nd room from Western side, Penumaka.",
+  "electors_male": 386,
+  "electors_female": 420,
+  "electors_total": 806,
+  "electors_third_gender": 0,
+  "electors_unclassified": 0
+ },
+ {
   "part": 5,
   "locality": "PENUMAKA",
-  "polling_station": "Mandal Parishad Primary School(H.E), Old Building, Room No.5, Penumaka.",
-  "electors_male": 345,
-  "electors_female": 426,
+  "polling_station": "Mandal Parishad (H.E) Primary School, South Building, 3rd room from Western side, Penumaka.",
+  "electors_male": 346,
+  "electors_female": 425,
   "electors_total": 771,
+  "electors_third_gender": 0,
+  "electors_unclassified": 0
+ },
+ {
+  "part": 6,
+  "locality": "PENUMAKA",
+  "polling_station": "Mandal Parishad Primary School(H.E), New Building, Room No.4, Penumaka.",
+  "electors_male": 340,
+  "electors_female": 386,
+  "electors_total": 726,
+  "electors_third_gender": 0,
+  "electors_unclassified": 0
+ },
+ {
+  "part": 7,
+  "locality": "PENUMAKA",
+  "polling_station": "Mandal Parishad Primary School (L.E), South side Building, Penumaka.",
+  "electors_male": 456,
+  "electors_female": 474,
+  "electors_total": 930,
+  "electors_third_gender": 0,
+  "electors_unclassified": 0
+ },
+ {
+  "part": 8,
+  "locality": "PENUMAKA",
+  "polling_station": "Zilla Parishad High School, South Block, 6th Room from West side, Penumaka.",
+  "electors_male": 387,
+  "electors_female": 456,
+  "electors_total": 843,
+  "electors_third_gender": 0,
+  "electors_unclassified": 0
+ },
+ {
+  "part": 9,
+  "locality": "UNDAVALLI",
+  "polling_station": "Gade Ramaiah-Seetharavamma Mandal Parishad Upper Primary School, South Block, 1st Room from East, Undavalli.",
+  "electors_male": 605,
+  "electors_female": 660,
+  "electors_total": 1265,
+  "electors_third_gender": 0,
+  "electors_unclassified": 0
+ },
+ {
+  "part": 10,
+  "locality": "UNDAVALLI",
+  "polling_station": "Gade Ramaiah-Seetharavamma Mandal Parishad Upper Primary School, South Block, 2nd Room from East, Undavalli.",
+  "electors_male": 681,
+  "electors_female": 742,
+  "electors_total": 1423,
   "electors_third_gender": 0,
   "electors_unclassified": 0
  },
