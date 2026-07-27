@@ -11,7 +11,10 @@ const {
   normalizeConstituencyKey,
   DATA_COVERAGE,
 } = require('../services/voterProfileService');
-const { getBoothsByConstituency, getBoothVoters } = require('../services/boothVoterService');
+const { getBoothsByConstituency, getBoothVoters, getBoothSummary } = require('../services/boothVoterService');
+const Grievance = require('../models/Grievance');
+
+const escapeRegex = (s) => String(s || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 const isInScope = (constituency, scope) => {
   if (!scope || scope.canSeeAll) return true;
@@ -146,4 +149,111 @@ const getBoothVotersHandler = (req, res) => {
   }
 };
 
-module.exports = { listVoterProfiles, getVoterProfile, getBoothLevelData, getBoothVoters: getBoothVotersHandler };
+/* Sentiment + trending topics for one grievance $match scope. */
+const aggregateSentiment = async (match) => {
+  const [sentAgg, topicAgg] = await Promise.all([
+    Grievance.aggregate([
+      { $match: match },
+      {
+        $group: {
+          _id: null,
+          total: { $sum: 1 },
+          positive: { $sum: { $cond: [{ $eq: ['$analysis.sentiment', 'positive'] }, 1, 0] } },
+          negative: { $sum: { $cond: [{ $eq: ['$analysis.sentiment', 'negative'] }, 1, 0] } },
+          // 'moderate' is the current label; older rows may still carry 'neutral'.
+          moderate: { $sum: { $cond: [{ $in: ['$analysis.sentiment', ['moderate', 'neutral']] }, 1, 0] } },
+        },
+      },
+    ]),
+    Grievance.aggregate([
+      { $match: match },
+      { $group: { _id: { $ifNull: ['$analysis.grievance_type', '$analysis.category'] }, count: { $sum: 1 } } },
+      { $match: { _id: { $nin: [null, '', 'Normal'] } } },
+      { $sort: { count: -1 } },
+      { $limit: 6 },
+    ]),
+  ]);
+  const s = sentAgg[0] || { total: 0, positive: 0, negative: 0, moderate: 0 };
+  return { ...s, topics: topicAgg.map((t) => ({ name: t._id, count: t.count })) };
+};
+
+/* GET /api/voter-profiles/:constituency/booths/:part/sentiment — public
+ * sentiment (positive / moderate / negative) + trending topics for the AREA
+ * a booth sits in. Grievances are mapped to a booth via their detected city
+ * matching the booth's locality; when nothing maps to the locality we fall
+ * back to the constituency-wide signal (flagged via `scope`). No grievance is
+ * counted twice within a response. */
+const getBoothSentiment = async (req, res) => {
+  try {
+    const { constituency, part } = req.params;
+    const decoded = decodeURIComponent(constituency || '');
+
+    if (!isInScope(decoded, req.scope)) {
+      return res.status(403).json({ success: false, code: 'CONSTITUENCY_FORBIDDEN', message: 'You are not authorized to view this constituency' });
+    }
+
+    const summary = getBoothSummary(decoded, part);
+    if (!summary) {
+      return res.status(404).json({ success: false, message: `No booth ${part} on record for "${decoded}"` });
+    }
+
+    const days = Number(req.query.days);
+    const base = { is_active: true, 'detected_location.constituency': new RegExp(`^${escapeRegex(decoded)}$`, 'i') };
+    if (days > 0) base.post_date = { $gte: new Date(Date.now() - days * 86400000) };
+
+    // Locality name tokens (drop bracketed qualifiers like "(U)" and short words).
+    const tokens = String(summary.locality || '')
+      .replace(/\([^)]*\)/g, ' ')
+      .split(/[^A-Za-z0-9]+/)
+      .filter((t) => t.length >= 4);
+
+    let agg = null;
+    let scope = 'none';
+    let location = decoded;
+
+    if (tokens.length) {
+      const rx = new RegExp(`(^|[^a-z0-9])(${tokens.map(escapeRegex).join('|')})([^a-z0-9]|$)`, 'i');
+      const localityAgg = await aggregateSentiment({ ...base, 'detected_location.city': { $regex: rx } });
+      if (localityAgg.total > 0) {
+        agg = localityAgg;
+        scope = 'locality';
+        location = summary.locality;
+      }
+    }
+
+    if (!agg) {
+      const constAgg = await aggregateSentiment(base);
+      if (constAgg.total > 0) {
+        agg = constAgg;
+        scope = 'constituency';
+        location = decoded;
+      } else {
+        agg = { total: 0, positive: 0, negative: 0, moderate: 0, topics: [] };
+      }
+    }
+
+    const pctOf = (n) => (agg.total ? Math.round((n / agg.total) * 100) : 0);
+    return res.json({
+      success: true,
+      part: summary.part,
+      locality: summary.locality,
+      constituency: decoded,
+      scope,
+      location,
+      window_days: days > 0 ? days : null,
+      total: agg.total,
+      positive: agg.positive,
+      negative: agg.negative,
+      moderate: agg.moderate,
+      positive_pct: pctOf(agg.positive),
+      negative_pct: pctOf(agg.negative),
+      moderate_pct: pctOf(agg.moderate),
+      topics: agg.topics,
+    });
+  } catch (err) {
+    console.error('[voterProfile] booth-sentiment error:', err.message);
+    return res.status(500).json({ success: false, message: 'Failed to load booth sentiment' });
+  }
+};
+
+module.exports = { listVoterProfiles, getVoterProfile, getBoothLevelData, getBoothVoters: getBoothVotersHandler, getBoothSentiment };

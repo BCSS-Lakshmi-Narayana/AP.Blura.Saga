@@ -28,7 +28,7 @@ const fmtShort = (n) => {
 };
 
 /* ── Top stat strip tile (compact — 5 fit across a half-width column) ── */
-const StatCard = ({ icon: Icon, iconBg, iconColor, label, value, sub, pendingReason }) => (
+const StatCard = ({ icon: Icon, iconBg, iconColor, label, value, sub, pendingReason, exact }) => (
   <div className="rounded-xl border border-slate-200 bg-white px-3 py-2.5 flex items-start gap-2 shadow-sm min-w-0 transition-shadow duration-200 hover:shadow-md">
     <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${iconBg}`}>
       <Icon className={`h-4 w-4 ${iconColor}`} />
@@ -37,7 +37,14 @@ const StatCard = ({ icon: Icon, iconBg, iconColor, label, value, sub, pendingRea
       <div className="text-[9px] text-slate-500 leading-snug uppercase tracking-wide break-words">{label}</div>
       {value !== undefined && value !== null ? (
         <>
-          <div className="text-base font-bold text-slate-800 leading-tight break-words">{value}</div>
+          {/* Compact headline for scanning; the exact count (no rounding) is on
+              hover and in the sub-line, since every elector matters. */}
+          <div
+            className={`text-base font-bold text-slate-800 leading-tight break-words ${exact != null ? 'cursor-help' : ''}`}
+            title={exact != null ? `${fmtNum(exact)} — exact count` : undefined}
+          >
+            {value}
+          </div>
           {sub && <div className="text-[9px] text-slate-400 leading-snug break-words">{sub}</div>}
         </>
       ) : (
@@ -155,14 +162,25 @@ const GenderDonut = ({ male, female, other }) => {
             />
           ))}
         </svg>
-        <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-          <span className="text-lg font-bold text-slate-800 leading-none tabular-nums">{fmtShort(total)}</span>
-          <span className="text-[8px] text-slate-400 uppercase tracking-wide mt-1">Electors</span>
-        </div>
-      </div>
-      <div className="text-center -mt-1">
-        <div className="text-sm font-bold text-slate-700 leading-none tabular-nums">{fmtNum(total)}</div>
-        <div className="text-[9px] text-slate-400 uppercase tracking-wide mt-0.5">Total Electors</div>
+        {/* Exact elector count as the headline (no rounding — every vote counts).
+            Hover reveals the precise gender breakdown. */}
+        <TooltipProvider delayDuration={150}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div className="absolute inset-0 flex flex-col items-center justify-center cursor-help">
+                <span className="text-[15px] font-bold text-slate-800 leading-none tabular-nums">{fmtNum(total)}</span>
+                <span className="text-[8px] text-slate-400 uppercase tracking-wide mt-1">Total Electors</span>
+              </div>
+            </TooltipTrigger>
+            <TooltipContent side="bottom" className="text-xs">
+              <div className="font-semibold">{fmtNum(total)} total electors</div>
+              <div className="text-[11px] text-slate-300 mt-0.5">
+                Male {fmtNum(male)} · Female {fmtNum(female)}{other > 0 ? ` · Third gender ${fmtNum(other)}` : ''}
+              </div>
+              <div className="text-[10px] text-slate-400 mt-0.5">Exact ECI count — shown without rounding.</div>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       </div>
 
       {/* Icon-led breakdown, each row with its own proportion bar */}
@@ -420,13 +438,14 @@ const VoterProfilePanel = ({ profile, loading, topIssues = [], constituencyDispl
       {/* Row 1 — top stat strip (all real) */}
       <div className={statGrid}>
         <StatCard icon={Users} iconBg="bg-violet-100" iconColor="text-violet-600"
-          label="Total Voters" value={fmtShort(profile.electors_total)} sub={`${fmtNum(profile.electors_total)} electors`} />
+          label="Total Voters" value={fmtShort(profile.electors_total)} exact={profile.electors_total}
+          sub={`${fmtNum(profile.electors_total)} electors`} />
         <StatCard icon={Users} iconBg="bg-blue-100" iconColor="text-blue-600"
-          label="Male Voters" value={fmtShort(profile.electors_male)}
-          sub={profile.electors_total ? `${((profile.electors_male / profile.electors_total) * 100).toFixed(1)}%` : ''} />
+          label="Male Voters" value={fmtShort(profile.electors_male)} exact={profile.electors_male}
+          sub={profile.electors_total ? `${fmtNum(profile.electors_male)} · ${((profile.electors_male / profile.electors_total) * 100).toFixed(1)}%` : fmtNum(profile.electors_male)} />
         <StatCard icon={Users} iconBg="bg-pink-100" iconColor="text-pink-600"
-          label="Female Voters" value={fmtShort(profile.electors_female)}
-          sub={profile.electors_total ? `${((profile.electors_female / profile.electors_total) * 100).toFixed(1)}%` : ''} />
+          label="Female Voters" value={fmtShort(profile.electors_female)} exact={profile.electors_female}
+          sub={profile.electors_total ? `${fmtNum(profile.electors_female)} · ${((profile.electors_female / profile.electors_total) * 100).toFixed(1)}%` : fmtNum(profile.electors_female)} />
       </div>
 
       {/* Row 2 — Demographics | Socio-Economic | Key Issues */}
