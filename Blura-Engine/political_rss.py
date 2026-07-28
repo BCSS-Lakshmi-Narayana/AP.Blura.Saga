@@ -6,6 +6,7 @@ Fetches RSS feeds → filters for political/Andhra relevance → detects languag
 
 import os
 import re
+import json
 import time
 import socket
 import logging
@@ -346,20 +347,112 @@ def generate_english(title: str, summary: str, language: str) -> Tuple[str, str]
     return title, summary
 
 
+# ── Sentiment detection ─────────────────────────────────────────────────────────
+# Same three-bucket scheme the Mentions/Alerts pipeline uses: positive /
+# negative / moderate. Cohere classifies when available; a keyword heuristic is
+# the offline fallback so every article still gets a label.
+_POSITIVE_HINTS = [
+    'welfare', 'launch', 'inaugurat', 'development', 'growth', 'wins', ' win ', 'success',
+    'boost', 'approve', 'sanction', 'grant', 'relief', 'benefit', 'praise', 'achievement',
+    'progress', 'investment', 'jobs', 'scheme',
+    'అభివృద్ధి', 'సంక్షేమం', 'ప్రారంభం', 'విజయం', 'ప్రశంస', 'పథకం',
+]
+_NEGATIVE_HINTS = [
+    'scam', 'corruption', 'protest', 'arrest', 'attack', 'murder', 'death', 'crime', 'fraud',
+    'crisis', 'fail', 'slam', 'blast', 'oppose', 'clash', 'violence', 'controversy',
+    'allegation', ' row ', 'loss', 'accident', 'assault', 'illegal', 'scandal',
+    'అవినీతి', 'నిరసన', 'హత్య', 'దాడి', 'కుంభకోణం', 'ఆరోపణ', 'వివాదం',
+]
+
+
+def _heuristic_sentiment(text: str) -> str:
+    low = f" {text.lower()} "
+    pos = sum(1 for w in _POSITIVE_HINTS if w in low)
+    neg = sum(1 for w in _NEGATIVE_HINTS if w in low)
+    if neg > pos:
+        return 'negative'
+    if pos > neg:
+        return 'positive'
+    return 'moderate'
+
+
+def detect_sentiment(title: str, summary: str) -> str:
+    """Return 'positive' | 'negative' | 'moderate' for a news article."""
+    text = f"{title}. {summary}".strip()
+    if not text:
+        return 'moderate'
+    if _cohere_client:
+        prompt = (
+            "Classify the overall sentiment of this Andhra Pradesh political news as "
+            "exactly one word: positive, negative, or moderate.\n\n"
+            f"Headline: {title}\nSummary: {summary}\n\n"
+            "Answer with only one word."
+        )
+        try:
+            resp = _cohere_client.chat(
+                messages=[{'role': 'user', 'content': prompt}],
+                model='command-r-plus-08-2024',
+            )
+            if resp and resp.finish_reason == 'COMPLETE':
+                ans = resp.message.content[0].text.strip().lower()
+                for s in ('positive', 'negative', 'moderate'):
+                    if s in ans:
+                        return s
+                if 'neutral' in ans:
+                    return 'moderate'
+        except Exception as e:
+            print(f"[WARN] Cohere sentiment error: {e}")
+    return _heuristic_sentiment(text)
+
+
 # ── Google News URL resolver ──────────────────────────────────────────────────
 
 def resolve_google_news_url(url: str) -> str:
-    """Follow the Google News redirect to get the actual article URL."""
+    """Decode a Google News RSS link to the real article URL.
+
+    Modern Google News links (/rss/articles/CBMi...) are not plain HTTP
+    redirects — the real URL is obtained via Google's batchexecute endpoint,
+    using a signature + timestamp embedded in the article page. Returns '' if
+    it can't be decoded (caller then keeps the Google News link, headline-only).
+    """
     try:
+        # Cheap path first: an old-style HTTP redirect, if any.
         resp = requests.get(url, headers=HEADERS, timeout=10, allow_redirects=True)
         if 'news.google.com' not in resp.url:
             return resp.url
-        for r in resp.history:
-            loc = r.headers.get('Location', '')
-            if loc and 'news.google.com' not in loc:
-                return loc
-    except Exception:
-        pass
+
+        gn_id = urlparse(url).path.rstrip('/').split('/')[-1].split('?')[0]
+        if not gn_id:
+            return ''
+
+        soup = BeautifulSoup(resp.text, 'html.parser')
+        div = soup.select_one('c-wiz > div')
+        if not div:
+            return ''
+        sig = div.get('data-n-a-sg')
+        ts = div.get('data-n-a-ts')
+        if not (sig and ts):
+            return ''
+
+        inner = json.dumps([
+            'garturlreq',
+            [['X', 'X', ['X', 'X'], None, None, 1, 1, 'US:en', None, 1, None, None, None, None, None, 0, 1],
+             'X', 'X', 1, [1, 1, 1], 1, 1, None, 0, 0, None, 0],
+            gn_id, ts, sig,
+        ])
+        payload = [['Fbv4je', inner]]
+        r2 = requests.post(
+            'https://news.google.com/_/DotsSplashUi/data/batchexecute',
+            headers={'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'},
+            data={'f.req': json.dumps([payload])},
+            timeout=12,
+        )
+        for m in re.finditer(r'(https?://[^\s"\\]+)', r2.text):
+            u = m.group(1)
+            if 'google.com' not in u and 'gstatic.com' not in u:
+                return u
+    except Exception as e:
+        print(f"[WARN] gnews decode error: {e}")
     return ''
 
 
@@ -420,19 +513,13 @@ def process_feed(feed_cfg: dict) -> int:
     for entry in entries:
         try:
             article_url = getattr(entry, 'link', '') or ''
+            is_gnews = 'news.google.com' in article_url
 
-            if follow_redirect and 'news.google.com' in article_url:
-                article_url = resolve_google_news_url(article_url)
-                if not article_url:
-                    continue
-
-            if not is_article_url(article_url):
+            # Real (non-Google-News) URLs must look like article pages. Google
+            # News links are resolved later — only for NEW, relevant articles —
+            # since decoding costs two extra requests each.
+            if not is_gnews and not is_article_url(article_url):
                 continue
-
-            source_domain = (
-                urlparse(article_url).netloc.replace('www.', '')
-                if follow_redirect else feed_domain
-            )
 
             pub_date = None
             if hasattr(entry, 'published_parsed') and entry.published_parsed:
@@ -445,10 +532,21 @@ def process_feed(feed_cfg: dict) -> int:
 
             title   = (getattr(entry, 'title', '') or '').strip()
             summary = extract_summary(entry)
-            full_text = f"{title} {summary}"
 
             if not title:
                 continue
+
+            # Google News titles end with " - Outlet". Pull the real outlet out
+            # (so "coverage by outlet" shows Eenadu / Sakshi / ETV …) and clean
+            # the headline. Falls back to the feed's own name.
+            article_source_name = source_name
+            if is_gnews and ' - ' in title:
+                head, tail = title.rsplit(' - ', 1)
+                if head and 0 < len(tail) <= 40:
+                    article_source_name = tail.strip()
+                    title = head.strip()
+
+            full_text = f"{title} {summary}"
 
             lang = detect_language(full_text) if hint_lang == 'en' else hint_lang
             if hint_lang in ('hi', 'te') and detect_language(full_text) == 'en' and len(title) > 20:
@@ -458,14 +556,48 @@ def process_feed(feed_cfg: dict) -> int:
             if relevance_score < 1:
                 continue
 
+            # Skip already-seen articles BEFORE the costly page fetch below — this
+            # is the main speed-up, so a duplicate never costs an ~8s article
+            # fetch (previously the dedup check ran only after fetching).
+            col_news = get_db()['newsarticles']
+            if col_news.find_one({'title': title}):
+                continue
+
+            # Now (only for a new, relevant article) decode the Google News
+            # redirect to the real article URL, so we can scrape its content +
+            # image below. If decoding fails we keep the Google News link.
+            if follow_redirect and is_gnews:
+                resolved = resolve_google_news_url(article_url)
+                if resolved:
+                    article_url = resolved
+                    is_gnews = False
+
+            # Google News sometimes surfaces social posts (Instagram/YouTube/X) —
+            # skip those, they aren't news articles and have no scrapeable content.
+            _SOCIAL = ('instagram.com', 'facebook.com', 'twitter.com', '://x.com',
+                       'youtube.com', 'youtu.be', 'threads.net')
+            if not is_gnews and any(s in article_url for s in _SOCIAL):
+                continue
+
             image_url = extract_image(entry)
 
-            page = fetch_article_page(article_url)
-            if not image_url and page['image']:
-                image_url = page['image']
-            if len(summary) < 80 and page['description']:
-                summary = page['description']
-            full_content = page['content']
+            if is_gnews:
+                # Couldn't decode — keep RSS image/summary as-is. source_domain
+                # left blank so the backend's news.google.com exclusion doesn't
+                # hide the article.
+                full_content = ''
+                source_domain = ''
+            else:
+                page = fetch_article_page(article_url)
+                if not image_url and page['image']:
+                    image_url = page['image']
+                if len(summary) < 80 and page['description']:
+                    summary = page['description']
+                full_content = page['content']
+                source_domain = (
+                    urlparse(article_url).netloc.replace('www.', '')
+                    if follow_redirect else feed_domain
+                )
 
             if not image_url:
                 image_url = DEFAULT_IMAGE_URL
@@ -476,10 +608,19 @@ def process_feed(feed_cfg: dict) -> int:
 
             category = detect_category(full_text)
             location = detect_district(full_text)
-
-            col_news = get_db()['newsarticles']
-            if col_news.find_one({'title': title}):
-                continue
+            # District-specific feeds carry their own canonical district — use it
+            # as a fallback when the article text alone didn't reveal a district,
+            # so the piece still maps onto that district's constituencies.
+            feed_district = feed_cfg.get('district')
+            if feed_district and not location.get('location_found'):
+                location = {
+                    'location_found': True,
+                    'district': feed_district,
+                    'city': '',
+                    'state': 'Andhra Pradesh',
+                    'lat': None,
+                    'lng': None,
+                }
 
             title_english   = title
             summary_english = summary
@@ -494,6 +635,9 @@ def process_feed(feed_cfg: dict) -> int:
                 print(f"[SKIP] Invalid AI title: {check_title[:60]}")
                 continue
 
+            # Sentiment on the English text (positive / negative / moderate).
+            sentiment = detect_sentiment(title_english, summary_english)
+
             doc = {
                 'title':           title,
                 'title_english':   title_english,
@@ -501,13 +645,14 @@ def process_feed(feed_cfg: dict) -> int:
                 'summary_english': summary_english,
                 'content':         full_content,
                 'source_url':      article_url,
-                'source_name':     source_name,
+                'source_name':     article_source_name,
                 'source_domain':   source_domain,
                 'image_url':       image_url,
                 'published_date':  pub_date or datetime.utcnow(),
                 'scraped_at':      datetime.utcnow(),
                 'language':        lang,
                 'category':        category,
+                'sentiment':       sentiment,
                 'source_type':     'rss',
                 'relevance_score': relevance_score,
                 'keywords_matched': keywords_matched[:20],

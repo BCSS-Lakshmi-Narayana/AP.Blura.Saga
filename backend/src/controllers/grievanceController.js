@@ -858,6 +858,13 @@ const getGrievances = async (req, res) => {
             is_active: 1
         };
 
+        // Sentiment pill counts are computed WITHOUT the sentiment filter, so
+        // selecting one sentiment still shows the true totals for the other two
+        // (otherwise the unselected pills read 0). All other active filters
+        // (search, date, platform, location…) are kept.
+        const sentimentCountMatch = { ...query };
+        delete sentimentCountMatch['analysis.sentiment'];
+
         const [grievancesRaw, total, sentimentRows] = await Promise.all([
             Grievance.find(findQuery)
                 .select(listProjection)
@@ -867,14 +874,13 @@ const getGrievances = async (req, res) => {
                 .lean(),
             // Run count in parallel (skip for cursor-based loads — frontend already has total)
             cursor ? Promise.resolve(undefined) : Grievance.countDocuments(query),
-            // Sentiment breakdown over the full filtered set, so the pill
-            // counts on the Mentions UI reflect the true total at page 1
-            // load — not just the items currently visible. Skip on cursor
-            // loads since the frontend keeps the first-page counts cached.
+            // Sentiment breakdown across the current filters minus the sentiment
+            // filter, so the pill counts reflect the real per-sentiment totals.
+            // Skip on cursor loads since the frontend caches first-page counts.
             cursor
                 ? Promise.resolve(undefined)
                 : Grievance.aggregate([
-                    { $match: query },
+                    { $match: sentimentCountMatch },
                     { $group: { _id: '$analysis.sentiment', count: { $sum: 1 } } }
                 ])
         ]);

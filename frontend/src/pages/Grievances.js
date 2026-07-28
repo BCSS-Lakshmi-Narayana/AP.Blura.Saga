@@ -613,6 +613,9 @@ const Grievances = () => {
     const [rssDistrict, setRssDistrict] = useState('all');
     const [rssCategory, setRssCategory] = useState('all');
     const [rssSourceType, setRssSourceType] = useState('all');
+    // District + category options, derived from the actual scraped articles
+    // (not a hard-coded list) so the filters only offer what the RSS data holds.
+    const [rssFacets, setRssFacets] = useState({ districts: [], categories: [] });
     const rssSearchTimer = useRef(null);
 
     // ── RSS Keyword Management state ──────────────────────────────
@@ -988,6 +991,54 @@ const Grievances = () => {
         fetchNewsArticles(1, false);
     }, [navbarPlatform, rssSearch, rssDistrict, rssCategory, rssSourceType, fetchNewsArticles]);
 
+    // Admin-only: delete an article / edit its sentiment (mirrors the Mentions flow).
+    const handleDeleteRssArticle = async (article) => {
+        const id = article?._id;
+        if (!id) return;
+        try {
+            await api.delete(`/news/${id}`);
+            setRssArticles((prev) => prev.filter((a) => a._id !== id));
+            toast.success('Article deleted');
+        } catch (err) {
+            toast.error(err?.response?.data?.message || 'Failed to delete article');
+        }
+    };
+
+    const handleRssArticleSentiment = async (article, sentiment) => {
+        const id = article?._id;
+        if (!id) return;
+        try {
+            await api.patch(`/news/${id}/sentiment`, { sentiment });
+            setRssArticles((prev) => prev.map((a) => (a._id === id ? { ...a, sentiment } : a)));
+            toast.success('Sentiment updated');
+        } catch (err) {
+            toast.error(err?.response?.data?.message || 'Failed to update sentiment');
+        }
+    };
+
+    // Load the distinct districts + categories that actually appear in the
+    // scraped articles, to populate the filter dropdowns. Independent of the
+    // active filters so the full option set is always available.
+    const fetchRssFacets = useCallback(async () => {
+        try {
+            const res = await api.get('/news/stats');
+            const districts = (res.data?.byDistrict || [])
+                .map((d) => d._id)
+                .filter(Boolean)
+                .sort((a, b) => a.localeCompare(b));
+            const categories = (res.data?.byCategory || [])
+                .map((c) => c._id)
+                .filter(Boolean);
+            setRssFacets({ districts, categories });
+        } catch (err) {
+            console.error('[RSS] fetchRssFacets error:', err);
+        }
+    }, []);
+
+    useEffect(() => {
+        if (navbarPlatform === 'rss') fetchRssFacets();
+    }, [navbarPlatform, fetchRssFacets]);
+
     // ── RSS Keywords Fetch/Add/Delete ─────────────────────────────
     const fetchRssKeywords = useCallback(async () => {
         setRssKeywordsLoading(true);
@@ -1010,10 +1061,19 @@ const Grievances = () => {
         setRssKeywordError('');
         setRssKeywordSuccess('');
         try {
-            await api.post('/news/keywords', { keyword: kw, language: newRssKeywordLang });
+            // Backend accepts a comma-separated list and returns how many were
+            // added vs skipped (already existed).
+            const res = await api.post('/news/keywords', { keyword: kw, language: newRssKeywordLang });
+            const added = res.data?.added ?? 1;
+            const skipped = res.data?.skipped ?? 0;
             setNewRssKeyword('');
-            toast.success(`Successfully added keyword: "${kw}"`);
-            setIsAddRssKeywordOpen(false);
+            if (added > 0) {
+                toast.success(`Added ${added} keyword${added !== 1 ? 's' : ''}${skipped ? ` · ${skipped} already existed` : ''}`);
+                setIsAddRssKeywordOpen(false);
+            } else {
+                toast(skipped ? 'All of those keywords already exist' : 'Nothing to add');
+                setRssKeywordError(skipped ? 'All of those keywords already exist.' : 'Enter at least one keyword.');
+            }
             fetchRssKeywords();
         } catch (err) {
             console.error('[RSS] handleAddRssKeyword error:', err);
@@ -2301,16 +2361,8 @@ const Grievances = () => {
                             onChange={(e) => setRssDistrict(e.target.value)}
                             className="text-xs border border-slate-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-violet-400/30 focus:border-violet-400 bg-white"
                         >
-                            <option value="all">All Districts</option>
-                            {['Karimnagar','Rajanna Sircilla','Jagtial','Peddapalli','Siddipet',
-                              'Hyderabad','Secunderabad','Rangareddy','Medchal-Malkajgiri',
-                              'Warangal','Hanamkonda','Khammam','Bhadradri Kothagudem',
-                              'Nizamabad','Kamareddy','Mahbubnagar','Nalgonda','Suryapet',
-                              'Sangareddy','Medak','Adilabad','Nirmal','Mancherial',
-                              'Kumuram Bheem Asifabad','Mahabubabad','Jangaon',
-                              'Jayashankar Bhupalpally','Wanaparthy','Nagarkurnool',
-                              'Jogulamba Gadwal','Vikarabad','Narayanpet','Mulugu',
-                              'Yadadri Bhuvanagiri'].map(d => (
+                            <option value="all">All Districts{rssFacets.districts.length ? ` (${rssFacets.districts.length})` : ''}</option>
+                            {rssFacets.districts.map(d => (
                                 <option key={d} value={d}>{d}</option>
                             ))}
                         </select>
@@ -2322,9 +2374,8 @@ const Grievances = () => {
                             className="text-xs border border-slate-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-violet-400/30 focus:border-violet-400 bg-white"
                         >
                             <option value="all">All Categories</option>
-                            {['crime','politics','development','agriculture','health','education',
-                              'law_order','accident','sports','culture','general'].map(c => (
-                                <option key={c} value={c}>{c.replace('_',' ').replace(/\b\w/g,l=>l.toUpperCase())}</option>
+                            {rssFacets.categories.map(c => (
+                                <option key={c} value={c}>{String(c).replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</option>
                             ))}
                         </select>
 
@@ -2400,7 +2451,13 @@ const Grievances = () => {
                     {!rssLoading && rssArticles.length > 0 && (
                         <div className="space-y-4 w-full">
                             {rssArticles.map((article) => (
-                                <RssNewsCard key={article._id || article.source_url} article={article} />
+                                <RssNewsCard
+                                    key={article._id || article.source_url}
+                                    article={article}
+                                    canManage={canManageSpecialGrievanceUi}
+                                    onDelete={handleDeleteRssArticle}
+                                    onSentimentChange={handleRssArticleSentiment}
+                                />
                             ))}
 
                             {/* Load more */}
@@ -2577,12 +2634,13 @@ const Grievances = () => {
                                             const serverCounts = pagination.sentiment_counts;
                                             let counts;
                                             if (serverCounts) {
-                                                counts = {
-                                                    all: pagination.total || 0,
-                                                    positive: serverCounts.positive || 0,
-                                                    negative: serverCounts.negative || 0,
-                                                    neutral:  serverCounts.neutral  || 0
-                                                };
+                                                // sentiment_counts is the breakdown ignoring the active
+                                                // sentiment filter, so "All" is their sum — this keeps every
+                                                // pill's count stable no matter which sentiment is selected.
+                                                const positive = serverCounts.positive || 0;
+                                                const negative = serverCounts.negative || 0;
+                                                const neutral  = serverCounts.neutral  || 0;
+                                                counts = { all: positive + negative + neutral, positive, negative, neutral };
                                             } else {
                                                 counts = { all: displayedGrievances.length, positive: 0, neutral: 0, negative: 0 };
                                                 displayedGrievances.forEach((g) => {
@@ -3072,10 +3130,12 @@ const Grievances = () => {
                     <form onSubmit={handleAddRssKeyword} className="space-y-4">
                         <div className="space-y-3">
                             <div>
-                                <label className="text-xs font-semibold text-slate-600 block mb-1">Keyword Text</label>
+                                <label className="text-xs font-semibold text-slate-600 block mb-1">
+                                    Keyword Text <span className="font-normal text-slate-400">(add several at once, comma-separated)</span>
+                                </label>
                                 <input
                                     type="text"
-                                    placeholder="Enter keyword (e.g. Amaravati)..."
+                                    placeholder="e.g. cbn, ysr, polavaram"
                                     value={newRssKeyword}
                                     onChange={(e) => setNewRssKeyword(e.target.value)}
                                     className="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-400/30 focus:border-violet-400"

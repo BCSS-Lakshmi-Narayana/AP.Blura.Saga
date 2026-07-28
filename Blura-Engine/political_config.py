@@ -28,7 +28,7 @@ RSS_FEEDS = [
     {"url": "https://news.google.com/rss/search?q=%22Andhra+Pradesh%22+government+OR+welfare+OR+pension&hl=en-IN&gl=IN&ceid=IN:en", "source_name": "Google News – AP Welfare EN", "language": "en", "follow_redirect": True},
 
     # ── Telugu Portals & Feeds (Google News Telugu) ─────────────────
-    {"url": "https://news.google.com/rss/search?q=%E0%B0%86%E0%B0%82%E0%B0%A7%E0%B1%8D%E0%B0%B0%E0%B0%AA%E0%B1%8D%E0%B0%B0%E0%B0%A6%E0%B1%87%E0%B0%B6%E0%B1%8D+%E0%B0%B0%E0%B0%BE%E0%B0%9Mechanical+%E0%B0%B0%E0%B0%BE%E0%B0%9C%E0%B0%95%E0%B1%80%E0%B0%AF%E0%B0%BE%E0%B0%B2%E0%B1%81&hl=te&gl=IN&ceid=IN:te", "source_name": "Google News Telugu – AP Politics", "language": "te", "follow_redirect": True},
+    {"url": "https://news.google.com/rss/search?q=Andhra+Pradesh+politics&hl=te&gl=IN&ceid=IN:te", "source_name": "Google News Telugu – AP Politics", "language": "te", "follow_redirect": True},
     {"url": "https://news.google.com/rss/search?q=%E0%B0%9A%E0%B0%82%E0%B0%A6%E0%B1%8D%E0%B0%B0%E0%B0%AC%E0%B0%BE%E0%B0%AC%E0%B1%81+%E0%B0%A8%E0%B0%BE%E0%B0%AF%E0%B0%A1%E0%B1%81+OR+%E0%B0%9C%E0%B0%97%E0%B0%A8%E0%B1%8D+OR+%E0%B0%AA%E0%B0%B5%E0%B0%A8%E0%B1%8D+%E0%B0%95%E0%B0%B2%E0%B1%8D%E0%B0%AF%E0%B0%BE%E0%B0%A3%E0%B1%8D&hl=te&gl=IN&ceid=IN:te", "source_name": "Google News Telugu – AP Leaders", "language": "te", "follow_redirect": True},
     {"url": "https://news.google.com/rss/search?q=Andhra+Pradesh+source:Eenadu&hl=te&gl=IN&ceid=IN:te", "source_name": "Google News – Eenadu AP", "language": "te", "follow_redirect": True},
     {"url": "https://news.google.com/rss/search?q=Andhra+Pradesh+source:Sakshi&hl=te&gl=IN&ceid=IN:te", "source_name": "Google News – Sakshi AP", "language": "te", "follow_redirect": True},
@@ -40,7 +40,83 @@ RSS_FEEDS = [
     {"url": "https://telugu.greatandhra.com/rss.php", "source_name": "GreatAndhra Telugu", "language": "te"},
     {"url": "https://news.google.com/rss/search?q=Anantapur+OR+Kurnool+OR+Kadapa+OR+Chittoor+OR+Nellore+news&hl=en-IN&gl=IN&ceid=IN:en", "source_name": "Google News – Rayalaseema & South AP", "language": "en", "follow_redirect": True},
     {"url": "https://news.google.com/rss/search?q=%E0%B0%85%E0%B0%A8%E0%B0%82%E0%B0%A4%E0%B0%AA%E0%B1%81%E0%B0%B0%E0%B0%82&hl=te&gl=IN&ceid=IN:te", "source_name": "Google News Telugu – Anantapur", "language": "te", "follow_redirect": True},
+
+    # ── Constituency-focused Telugu papers (Kuppam & Mangalagiri) ──────
+    # Per-outlet feeds so we can see WHICH paper (Sakshi / Eenadu /
+    # Andhrajyothy / NTV) is covering our seats and what they publish — the
+    # source_name carries the outlet, which powers booth-level narrative
+    # monitoring. (Google News source: queries are used because these portals
+    # don't publish per-district RSS directly.)
+    {"url": "https://news.google.com/rss/search?q=Kuppam+source:Sakshi&hl=te&gl=IN&ceid=IN:te",           "source_name": "Sakshi – Kuppam",            "language": "te", "follow_redirect": True},
+    {"url": "https://news.google.com/rss/search?q=Kuppam+source:Eenadu&hl=te&gl=IN&ceid=IN:te",           "source_name": "Eenadu – Kuppam",            "language": "te", "follow_redirect": True},
+    {"url": "https://news.google.com/rss/search?q=Kuppam+source:Andhrajyothy&hl=te&gl=IN&ceid=IN:te",     "source_name": "Andhrajyothy – Kuppam",      "language": "te", "follow_redirect": True},
+    {"url": "https://news.google.com/rss/search?q=Kuppam+source:NTV+Telugu&hl=te&gl=IN&ceid=IN:te",       "source_name": "NTV Telugu – Kuppam",        "language": "te", "follow_redirect": True},
+    {"url": "https://news.google.com/rss/search?q=Mangalagiri+source:Sakshi&hl=te&gl=IN&ceid=IN:te",       "source_name": "Sakshi – Mangalagiri",       "language": "te", "follow_redirect": True},
+    {"url": "https://news.google.com/rss/search?q=Mangalagiri+source:Eenadu&hl=te&gl=IN&ceid=IN:te",       "source_name": "Eenadu – Mangalagiri",       "language": "te", "follow_redirect": True},
+    {"url": "https://news.google.com/rss/search?q=Mangalagiri+source:Andhrajyothy&hl=te&gl=IN&ceid=IN:te", "source_name": "Andhrajyothy – Mangalagiri", "language": "te", "follow_redirect": True},
+    {"url": "https://news.google.com/rss/search?q=Mangalagiri+source:NTV+Telugu&hl=te&gl=IN&ceid=IN:te",   "source_name": "NTV Telugu – Mangalagiri",   "language": "te", "follow_redirect": True},
+    # General AP coverage from the four target outlets (NTV was missing).
+    {"url": "https://news.google.com/rss/search?q=Andhra+Pradesh+source:NTV+Telugu&hl=te&gl=IN&ceid=IN:te", "source_name": "Google News – NTV Telugu AP", "language": "te", "follow_redirect": True},
 ]
+
+# ── Per-district Telugu coverage (all 26 AP districts) ───────────────────────
+# The Telugu portals (Sakshi, Eenadu, …) organise news by district but don't
+# expose per-district RSS, so we pull each district's Telugu news via Google
+# News. detect_district() tags each article to its district, and the backend's
+# `constituencymasters` collection maps district -> constituencies — so this
+# one feed-per-district set covers every constituency (Kuppam ⊂ Chittoor,
+# Mangalagiri ⊂ Guntur, …) for booth-level narrative monitoring.
+# (canonical district — MUST match constituencymasters.district exactly so the
+#  backend can map it to constituencies, search term — what to query on Google News)
+AP_DISTRICTS = [
+    ('Anantapur',                    'Anantapur'),
+    ('Annamayya',                    'Annamayya Rajampet'),
+    ('Bapatla',                      'Bapatla'),
+    ('Chittoor',                     'Chittoor'),
+    ('East Godavari',                'East Godavari Rajahmundry'),
+    ('Eluru',                        'Eluru'),
+    ('Guntur',                       'Guntur'),
+    ('Kakinada',                     'Kakinada'),
+    ('Dr. B.R. Ambedkar Konaseema',  'Konaseema Amalapuram'),
+    ('Krishna',                      'Krishna Machilipatnam'),
+    ('Kurnool',                      'Kurnool'),
+    ('Nandyal',                      'Nandyal'),
+    ('NTR',                          'Vijayawada NTR district'),
+    ('Palnadu',                      'Palnadu Narasaraopet'),
+    ('Prakasam',                     'Prakasam Ongole'),
+    ('Sri Potti Sriramulu Nellore',  'Nellore'),
+    ('Sri Sathya Sai',               'Sri Sathya Sai Puttaparthi'),
+    ('Srikakulam',                   'Srikakulam'),
+    ('Tirupati',                     'Tirupati'),
+    ('Visakhapatnam',                'Visakhapatnam'),
+    ('Vizianagaram',                 'Vizianagaram'),
+    ('West Godavari',                'West Godavari Bhimavaram'),
+    ('YSR Kadapa',                   'Kadapa YSR district'),
+    ('Alluri Sitharama Raju',        'Alluri Sitharama Raju Paderu'),
+    ('Anakapalli',                   'Anakapalli'),
+    ('Parvathipuram Manyam',         'Parvathipuram Manyam'),
+]
+
+
+def _district_feed(canonical, search):
+    from urllib.parse import quote_plus
+    query = quote_plus(f"{search} Andhra Pradesh")
+    return {
+        "url": f"https://news.google.com/rss/search?q={query}&hl=te&gl=IN&ceid=IN:te",
+        "source_name": f"AP District – {canonical}",
+        "language": "te",
+        "district": canonical,   # attached to each article (see political_rss.process_feed)
+        "follow_redirect": True,
+    }
+
+
+RSS_FEEDS += [_district_feed(canonical, search) for canonical, search in AP_DISTRICTS]
+
+# Fetch Telugu (and the district) feeds FIRST each cycle. A single run can be
+# slow, so front-loading the priority Telugu coverage guarantees it's collected
+# even if a run doesn't get through every English national feed. Python's sort
+# is stable, so the original order within each language group is preserved.
+RSS_FEEDS.sort(key=lambda f: 0 if f.get('language') == 'te' else 1)
 
 # ── Relevance filter keywords (any 1 match = relevant) ───────────────────────
 POLITICAL_RELEVANCE_KEYWORDS = [
