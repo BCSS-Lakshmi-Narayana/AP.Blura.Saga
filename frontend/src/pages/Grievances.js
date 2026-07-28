@@ -1284,8 +1284,13 @@ const Grievances = () => {
             toast.error('Failed to load grievances');
             console.error(error);
         } finally {
-            setLoading(false);
-            setLoadingMore(false);
+            // Don't clear the loader for a request that a newer one aborted —
+            // otherwise the empty "No grievances found" state flashes while the
+            // newer request is still in flight.
+            if (!abortController.signal.aborted) {
+                setLoading(false);
+                setLoadingMore(false);
+            }
         }
     };
 

@@ -203,7 +203,13 @@ exports.getConstituencyDistrictNews = async (req, res) => {
 // (UI gated to the grievance-admin email; deleting here removes the article
 // from every view, incl. the District News panel, since all read `newsarticles`).
 const NEWS_ADMIN_EMAIL = 'sreenu@gmail.com';
-const isNewsAdmin = (req) => String(req.user?.email || '').trim().toLowerCase() === NEWS_ADMIN_EMAIL;
+const isNewsAdmin = (req) => {
+  const u = req.user || {};
+  const email = String(u.email || '').trim().toLowerCase();
+  if (email === NEWS_ADMIN_EMAIL) return true;
+  const role = String(u.role || '').trim().toLowerCase();
+  return u.is_super_admin === true || role === 'superadmin' || role === 'super_admin';
+};
 
 /* PATCH /api/news/:id/sentiment — set an article's sentiment. */
 exports.updateArticleSentiment = async (req, res) => {
