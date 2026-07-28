@@ -1,7 +1,14 @@
 import React, { useState } from 'react';
-import { Calendar, Clock, MapPin, ExternalLink, Globe, Tag, Newspaper } from 'lucide-react';
+import { Calendar, Clock, MapPin, ExternalLink, Globe, Tag, Newspaper, Trash2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '../../lib/utils';
+
+// Same positive / moderate / negative scheme as Mentions & Alerts.
+const SENTIMENT_CONFIG = {
+  positive: { label: 'Positive', color: 'bg-emerald-50 text-emerald-700 border-emerald-200', dot: 'bg-emerald-500' },
+  moderate: { label: 'Moderate', color: 'bg-amber-50 text-amber-700 border-amber-200', dot: 'bg-amber-500' },
+  negative: { label: 'Negative', color: 'bg-rose-50 text-rose-700 border-rose-200', dot: 'bg-rose-500' },
+};
 
 const CATEGORY_CONFIG = {
   crime: { label: 'Crime', color: 'bg-red-50 text-red-700 border-red-200 ring-1 ring-red-100' },
@@ -30,7 +37,7 @@ function timeAgo(date) {
   return format(new Date(date), 'dd MMM yyyy');
 }
 
-export const RssNewsCard = ({ article }) => {
+export const RssNewsCard = ({ article, canManage = false, onDelete, onSentimentChange }) => {
   const [imgError, setImgError] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -40,6 +47,8 @@ export const RssNewsCard = ({ article }) => {
   const displaySummary = article.content || article.summary_english || article.summary;
 
   const catConfig = CATEGORY_CONFIG[article.category] || CATEGORY_CONFIG.general;
+  const sentKey = String(article.sentiment || '').toLowerCase();
+  const sentConfig = SENTIMENT_CONFIG[sentKey === 'neutral' ? 'moderate' : sentKey] || null;
   const sourceName = article.source_name || article.source || article.source_domain || 'Unknown Source';
 
   // Content Truncation Logic
@@ -84,13 +93,45 @@ export const RssNewsCard = ({ article }) => {
             )}
           </div>
           
-          <div className="flex gap-1.5 shrink-0 items-center">
+          <div className="flex gap-1.5 shrink-0 items-center flex-wrap justify-end">
+            {canManage ? (
+              /* Admin: edit the sentiment inline (same 3 buckets as Mentions). */
+              <select
+                value={sentKey === 'neutral' ? 'moderate' : (sentKey || 'moderate')}
+                onChange={(e) => onSentimentChange?.(article, e.target.value)}
+                title="Edit sentiment"
+                className={`text-[10px] font-semibold px-1.5 py-0.5 rounded border cursor-pointer outline-none ${sentConfig ? sentConfig.color : 'bg-slate-50 text-slate-600 border-slate-200'}`}
+              >
+                <option value="positive">Positive</option>
+                <option value="moderate">Moderate</option>
+                <option value="negative">Negative</option>
+              </select>
+            ) : (
+              sentConfig && (
+                <span className={`text-[10px] font-semibold px-2 py-0.5 rounded border inline-flex items-center gap-1 ${sentConfig.color}`}>
+                  <span className={`w-1.5 h-1.5 rounded-full ${sentConfig.dot}`} />
+                  {sentConfig.label}
+                </span>
+              )
+            )}
             <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-slate-100 text-slate-600 border border-slate-200">
               {catConfig.label}
             </span>
             <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-blue-50 text-blue-600 border border-blue-100">
               {article.language === 'te' ? 'Telugu' : article.language === 'hi' ? 'Hindi' : 'English'}
             </span>
+            {canManage && (
+              <button
+                type="button"
+                title="Delete article"
+                onClick={() => {
+                  if (window.confirm('Delete this article? This cannot be undone.')) onDelete?.(article);
+                }}
+                className="text-rose-400 hover:text-rose-600 hover:bg-rose-50 rounded p-1 transition-colors"
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+              </button>
+            )}
           </div>
         </div>
 

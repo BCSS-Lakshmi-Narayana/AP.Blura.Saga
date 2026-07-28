@@ -1,4 +1,8 @@
+const mongoose = require('mongoose');
 const NewsArticle = require('../models/NewsArticle');
+const ConstituencyMaster = require('../models/ConstituencyMaster');
+
+const escapeRx = (s) => String(s || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 // Build the constituency $or fragment for a scoped MLA/MP. Returns null when the
 // caller can see everything (super admin / party leadership / legacy roles) and
@@ -98,6 +102,154 @@ exports.getArticles = async (req, res) => {
   }
 };
 
+/* GET /api/news/constituency/:constituency — district news for the district a
+ * constituency belongs to. Resolves AC -> district via ConstituencyMaster,
+ * then returns articles tagged to that district (newest first). Powers the
+ * "District News" panel on the constituency page. */
+exports.getConstituencyDistrictNews = async (req, res) => {
+  try {
+    const decoded = decodeURIComponent(req.params.constituency || '');
+    const key = ConstituencyMaster.normKey(decoded);
+
+    // RBAC: a scoped MLA/MP can only pull their own seat's district.
+    const scope = req.scope;
+    if (scope && !scope.canSeeAll) {
+      const allowed = new Set((scope.constituencies || []).map(ConstituencyMaster.normKey));
+      if (!allowed.has(key)) {
+        return res.status(403).json({ success: false, message: 'Not authorized for this constituency' });
+      }
+    }
+
+    const ac = await ConstituencyMaster.findOne({ ac_key: key }).select('ac_name district').lean();
+    const district = ac && ac.district ? ac.district : null;
+
+    const page = Math.max(1, parseInt(req.query.page || '1', 10));
+    const limit = Math.min(50, Math.max(1, parseInt(req.query.limit || '12', 10)));
+
+    if (!district) {
+      return res.json({
+        success: true, constituency: decoded, district: null,
+        outlets: [], activeSource: null,
+        articles: [], pagination: { page: 1, pages: 0, total: 0, limit },
+      });
+    }
+
+    const EXCLUDED_DOMAINS = ['indianexpress.com', 'news.google.com'];
+    const districtFilter = {
+      source_domain: { $nin: EXCLUDED_DOMAINS },
+      'detected_location.district': new RegExp(`^${escapeRx(district)}$`, 'i'),
+    };
+    if (req.query.language && req.query.language !== 'all') districtFilter.language = req.query.language;
+
+    // Per-outlet breakdown across the whole district (independent of the source
+    // filter below) so the summary always lists every paper — this is the
+    // "which newspaper is covering us" view; click an outlet to see its articles.
+    const outletsAgg = await NewsArticle.aggregate([
+      { $match: districtFilter },
+      {
+        $group: {
+          _id: '$source_name',
+          count: { $sum: 1 },
+          latest: { $max: '$published_date' },
+          positive: { $sum: { $cond: [{ $eq: ['$sentiment', 'positive'] }, 1, 0] } },
+          negative: { $sum: { $cond: [{ $eq: ['$sentiment', 'negative'] }, 1, 0] } },
+          // Everything that isn't explicitly positive/negative — moderate,
+          // legacy 'neutral', or not-yet-scored — buckets as moderate.
+          moderate: { $sum: { $cond: [{ $in: ['$sentiment', ['positive', 'negative']] }, 0, 1] } },
+        },
+      },
+      { $sort: { count: -1 } },
+    ]);
+    const outlets = outletsAgg
+      .filter((o) => o._id)
+      .map((o) => ({
+        source_name: o._id,
+        count: o.count,
+        latest: o.latest,
+        positive: o.positive,
+        negative: o.negative,
+        moderate: o.moderate,
+      }));
+
+    // Article list — optionally narrowed to one outlet (the "proof" on click).
+    const activeSource = String(req.query.source || '').trim();
+    const articleFilter = { ...districtFilter };
+    if (activeSource && activeSource !== 'all') {
+      articleFilter.source_name = new RegExp(`^${escapeRx(activeSource)}$`, 'i');
+    }
+
+    const skip = (page - 1) * limit;
+    const [articles, total] = await Promise.all([
+      NewsArticle.find(articleFilter).sort({ published_date: -1 }).skip(skip).limit(limit).lean(),
+      NewsArticle.countDocuments(articleFilter),
+    ]);
+
+    res.json({
+      success: true,
+      constituency: ac.ac_name || decoded,
+      district,
+      outlets,
+      activeSource: activeSource && activeSource !== 'all' ? activeSource : null,
+      articles,
+      pagination: { page, pages: Math.ceil(total / limit), total, limit },
+    });
+  } catch (err) {
+    console.error('[NewsController] getConstituencyDistrictNews error:', err);
+    res.status(500).json({ success: false, message: 'Failed to fetch district news' });
+  }
+};
+
+// Admin-only mutations on a single article — mirrors the Mentions/Alerts flow
+// (UI gated to the grievance-admin email; deleting here removes the article
+// from every view, incl. the District News panel, since all read `newsarticles`).
+const NEWS_ADMIN_EMAIL = 'sreenu@gmail.com';
+const isNewsAdmin = (req) => String(req.user?.email || '').trim().toLowerCase() === NEWS_ADMIN_EMAIL;
+
+/* PATCH /api/news/:id/sentiment — set an article's sentiment. */
+exports.updateArticleSentiment = async (req, res) => {
+  try {
+    if (!isNewsAdmin(req)) {
+      return res.status(403).json({ success: false, message: 'Not authorized' });
+    }
+    const { id } = req.params;
+    if (!mongoose.isValidObjectId(id)) {
+      return res.status(400).json({ success: false, message: 'Invalid article id' });
+    }
+    let sentiment = String(req.body.sentiment || '').toLowerCase();
+    if (sentiment === 'neutral') sentiment = 'moderate';
+    if (!['positive', 'negative', 'moderate'].includes(sentiment)) {
+      return res.status(400).json({ success: false, message: 'Invalid sentiment' });
+    }
+    const doc = await NewsArticle.findByIdAndUpdate(id, { $set: { sentiment } }, { new: true }).lean();
+    if (!doc) return res.status(404).json({ success: false, message: 'Article not found' });
+    return res.json({ success: true, id, sentiment });
+  } catch (err) {
+    console.error('[NewsController] updateArticleSentiment error:', err);
+    return res.status(500).json({ success: false, message: 'Failed to update sentiment' });
+  }
+};
+
+/* DELETE /api/news/:id — permanently remove an article. */
+exports.deleteArticle = async (req, res) => {
+  try {
+    if (!isNewsAdmin(req)) {
+      return res.status(403).json({ success: false, message: 'Not authorized' });
+    }
+    const { id } = req.params;
+    if (!mongoose.isValidObjectId(id)) {
+      return res.status(400).json({ success: false, message: 'Invalid article id' });
+    }
+    const result = await NewsArticle.deleteOne({ _id: id });
+    if (result.deletedCount === 0) {
+      return res.status(404).json({ success: false, message: 'Article not found' });
+    }
+    return res.json({ success: true, deleted: id });
+  } catch (err) {
+    console.error('[NewsController] deleteArticle error:', err);
+    return res.status(500).json({ success: false, message: 'Failed to delete article' });
+  }
+};
+
 exports.getStats = async (req, res) => {
   try {
     const scopeOr = buildNewsScopeOr(req.scope);
@@ -107,13 +259,16 @@ exports.getStats = async (req, res) => {
     const matchStage = scopeOr ? [{ $match: { $or: scopeOr } }] : [];
     const countFilter = scopeOr ? { $or: scopeOr } : {};
 
-    const [total, byCategory, byLanguage, bySourceType] = await Promise.all([
+    const [total, byCategory, byLanguage, bySourceType, byDistrict] = await Promise.all([
       NewsArticle.countDocuments(countFilter),
-      NewsArticle.aggregate([...matchStage, { $group: { _id: '$category', count: { $sum: 1 } } }]),
+      NewsArticle.aggregate([...matchStage, { $match: { category: { $nin: [null, ''] } } }, { $group: { _id: '$category', count: { $sum: 1 } } }, { $sort: { count: -1 } }]),
       NewsArticle.aggregate([...matchStage, { $group: { _id: '$language', count: { $sum: 1 } } }]),
       NewsArticle.aggregate([...matchStage, { $group: { _id: '$source_type', count: { $sum: 1 } } }]),
+      // Districts actually present in the scraped articles — powers the filter
+      // dropdown dynamically instead of a hard-coded list.
+      NewsArticle.aggregate([...matchStage, { $match: { 'detected_location.district': { $nin: [null, ''] } } }, { $group: { _id: '$detected_location.district', count: { $sum: 1 } } }, { $sort: { count: -1 } }]),
     ]);
-    res.json({ total, byCategory, byLanguage, bySourceType });
+    res.json({ total, byCategory, byLanguage, bySourceType, byDistrict });
   } catch (err) {
     res.status(500).json({ message: 'Failed to fetch news stats' });
   }
@@ -185,10 +340,18 @@ exports.addRssKeyword = async (req, res) => {
   try {
     const mongoose = require('mongoose');
     const { keyword, language } = req.body;
-    if (!keyword || !keyword.trim()) {
+
+    // Accept one keyword or a comma-separated list ("cbn, ysr, polavaram"):
+    // split, normalise, drop blanks and in-request duplicates.
+    const requested = [...new Set(
+      String(keyword || '')
+        .split(',')
+        .map((k) => k.trim().toLowerCase())
+        .filter(Boolean)
+    )];
+    if (!requested.length) {
       return res.status(400).json({ message: 'Keyword is required' });
     }
-    const cleanKeyword = keyword.trim().toLowerCase();
 
     const col = mongoose.connection.db.collection('rsskeywords');
     const langCol = mongoose.connection.db.collection('rsslanguages');
@@ -206,19 +369,22 @@ exports.addRssKeyword = async (req, res) => {
       lang = first?.code || 'en';
     }
 
-    const existing = await col.findOne({ keyword: cleanKeyword });
-    if (existing) {
-      return res.status(409).json({ message: 'Keyword already exists' });
+    // Skip keywords that already exist (in any language) so we never duplicate.
+    const existingDocs = await col.find({ keyword: { $in: requested } }).project({ keyword: 1 }).toArray();
+    const existing = new Set(existingDocs.map((d) => d.keyword));
+    const toInsert = requested
+      .filter((k) => !existing.has(k))
+      .map((k) => ({ keyword: k, language: lang, is_active: true, created_at: new Date() }));
+
+    if (toInsert.length) {
+      await col.insertMany(toInsert);
     }
 
-    const doc = {
-      keyword: cleanKeyword,
-      language: lang,
-      is_active: true,
-      created_at: new Date()
-    };
-    await col.insertOne(doc);
-    res.status(201).json(doc);
+    return res.status(201).json({
+      added: toInsert.length,
+      skipped: requested.length - toInsert.length,
+      keywords: toInsert.map((d) => d.keyword),
+    });
   } catch (err) {
     console.error('[NewsController] addRssKeyword error:', err);
     res.status(500).json({ message: 'Failed to add RSS keyword' });

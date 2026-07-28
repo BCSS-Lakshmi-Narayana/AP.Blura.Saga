@@ -3058,7 +3058,7 @@ export const PostEngagersDialog = ({ open, onOpenChange, contentId, platform, on
                                         ) : (
                                             <a href={getProfileUrl(selectedNode)} target="_blank" rel="noopener noreferrer" className="hover:opacity-80 transition-opacity">
                                                 <div className="w-9 h-9 rounded-full bg-muted flex items-center justify-center text-xs font-bold border">
-                                                    {selectedNode.handle[0].toUpperCase()}
+                                                    {(selectedNode.handle || selectedNode.name || '?')[0].toUpperCase()}
                                                 </div>
                                             </a>
                                         )}
@@ -3078,16 +3078,18 @@ export const PostEngagersDialog = ({ open, onOpenChange, contentId, platform, on
                                                     </span>
                                                 )}
                                                 {getEngagementBadge(selectedNode.engagement_type)}
-                                                <span className={`text-[8px] px-1.5 py-0.5 rounded font-bold uppercase tracking-wider ${
-                                                    selectedNode.tier === 'verified-influencer' ? 'bg-purple-100 text-purple-700 dark:bg-purple-950/30 dark:text-purple-400 border border-purple-200/50' :
-                                                    selectedNode.tier === 'super-active' ? 'bg-red-100 text-red-700 dark:bg-red-950/30 dark:text-red-400 border border-red-200/50' :
-                                                    selectedNode.tier === 'regular' ? 'bg-orange-100 text-orange-700 dark:bg-orange-950/30 dark:text-orange-400 border border-orange-200/50' :
-                                                    selectedNode.tier === 'occasional' ? 'bg-amber-100 text-amber-700 dark:bg-amber-950/30 dark:text-amber-400 border border-amber-200/50' :
-                                                    selectedNode.tier === 'new-engager' ? 'bg-slate-100 text-slate-600 dark:bg-slate-900/30 dark:text-slate-400' :
-                                                    'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400'
-                                                }`}>
-                                                    {selectedNode.tier.replace('-', ' ')}
-                                                </span>
+                                                {selectedNode.tier && (
+                                                    <span className={`text-[8px] px-1.5 py-0.5 rounded font-bold uppercase tracking-wider ${
+                                                        selectedNode.tier === 'verified-influencer' ? 'bg-purple-100 text-purple-700 dark:bg-purple-950/30 dark:text-purple-400 border border-purple-200/50' :
+                                                        selectedNode.tier === 'super-active' ? 'bg-red-100 text-red-700 dark:bg-red-950/30 dark:text-red-400 border border-red-200/50' :
+                                                        selectedNode.tier === 'regular' ? 'bg-orange-100 text-orange-700 dark:bg-orange-950/30 dark:text-orange-400 border border-orange-200/50' :
+                                                        selectedNode.tier === 'occasional' ? 'bg-amber-100 text-amber-700 dark:bg-amber-950/30 dark:text-amber-400 border border-amber-200/50' :
+                                                        selectedNode.tier === 'new-engager' ? 'bg-slate-100 text-slate-600 dark:bg-slate-900/30 dark:text-slate-400' :
+                                                        'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400'
+                                                    }`}>
+                                                        {selectedNode.tier.replace('-', ' ')}
+                                                    </span>
+                                                )}
                                             </div>
                                             <p className="text-[10px] text-muted-foreground">{selectedNode.name}</p>
                                         </div>

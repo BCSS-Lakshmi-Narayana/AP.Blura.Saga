@@ -4,6 +4,7 @@ import { ArrowLeft, MapPin, Loader2, Calendar, ExternalLink, Swords } from 'luci
 import VoterProfilePanel from '../components/VoterProfilePanel';
 import SocialNarrativePanel from '../components/SocialNarrativePanel';
 import CompareModal from '../components/compare/CompareModal';
+import DistrictNewsPanel from '../components/DistrictNewsPanel';
 import api from '../lib/api';
 import { Card } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
@@ -305,6 +306,13 @@ const MlaProfile = () => {
           <SocialNarrativePanel
             sectionNumber={2}
             constituency={mla?.constituency || decoded}
+          />
+        </div>
+        <div className="min-w-0">
+          <DistrictNewsPanel
+            sectionNumber={3}
+            constituency={mla?.constituency || decoded}
+            constituencyDisplayName={titleCase(decoded)}
           />
         </div>
       </div>
