@@ -251,6 +251,7 @@ def fetch_article_page(url: str) -> dict:
         if resp.status_code != 200:
             return {'image': None, 'description': None, 'content': ''}
 
+        resp.encoding = resp.apparent_encoding or 'utf-8'
         soup = BeautifulSoup(resp.text, 'html.parser')
 
         for tag in soup.select(

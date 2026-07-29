@@ -34,6 +34,8 @@ exports.getArticles = async (req, res) => {
       category,
       source_type,
       language,
+      startDate,
+      endDate,
     } = req.query;
 
     // Never show articles from these domains in the UI
@@ -76,6 +78,18 @@ exports.getArticles = async (req, res) => {
     }
     if (language && language !== 'all') {
       filter.language = language;
+    }
+
+    if (startDate || endDate) {
+      filter.published_date = {};
+      if (startDate) {
+        filter.published_date.$gte = new Date(startDate);
+      }
+      if (endDate) {
+        const endLimit = new Date(endDate);
+        endLimit.setHours(23, 59, 59, 999);
+        filter.published_date.$lte = endLimit;
+      }
     }
 
     const pageNum  = Math.max(1, parseInt(page, 10));
