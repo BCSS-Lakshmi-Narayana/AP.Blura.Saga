@@ -283,18 +283,23 @@ router.post('/channels/:id/sync', mockUser, async (req, res) => {
                 await newContent.save();
                 newCount++;
 
-                // Create detailed analysis record
-                const analysisDoc = await Analysis.create({
-                    content_id: newContent.content_id,
-                    violence_score: analysisResult.violence_score || 0,
-                    threat_score: analysisResult.threat_score || 0,
-                    hate_score: analysisResult.hate_score || 0,
-                    sentiment: analysisResult.sentiment || 'neutral',
-                    sentiment_score: analysisResult.sentiment_score,
-                    risk_level: riskLevel,
-                    triggered_keywords: triggered_keywords || [],
-                    explanation: analysisResult.explanation || 'Analyzed by threat detection model.'
-                });
+                // Upsert detailed analysis record keyed by content_id
+                const analysisDoc = await Analysis.findOneAndUpdate(
+                    { content_id: newContent.content_id },
+                    {
+                        $set: {
+                            violence_score: analysisResult.violence_score || 0,
+                            threat_score: analysisResult.threat_score || 0,
+                            hate_score: analysisResult.hate_score || 0,
+                            sentiment: analysisResult.sentiment || 'neutral',
+                            sentiment_score: analysisResult.sentiment_score,
+                            risk_level: riskLevel,
+                            triggered_keywords: triggered_keywords || [],
+                            explanation: analysisResult.explanation || 'Analyzed by threat detection model.'
+                        }
+                    },
+                    { upsert: true, new: true, setDefaultsOnInsert: true }
+                );
 
                 // Create Alert when threat detected
                 if ((triggered_keywords && triggered_keywords.length > 0) || maxScore >= (settings?.medium_risk_threshold ?? 40)) {
@@ -355,22 +360,27 @@ router.post('/channels/:id/sync', mockUser, async (req, res) => {
                 };
                 await existing.save();
 
-                // Check and backfill analysis if missing - use Python model
+                // Check and backfill analysis if missing - use Python model with upsert
                 const existingAnalysis = await Analysis.findOne({ content_id: existing.content_id });
                 if (!existingAnalysis) {
                     const analysisResult = await analysisService.analyzeVideo(video, activeKeywords);
-                    await Analysis.create({
-                        content_id: existing.content_id,
-                        violence_score: analysisResult.violence_score || 0,
-                        threat_score: analysisResult.threat_score || 0,
-                        hate_score: analysisResult.hate_score || 0,
-                        sentiment: analysisResult.sentiment || 'neutral',
-                        sentiment_score: analysisResult.sentiment_score,
-                        risk_level: analysisResult.risk_level,
-                        triggered_keywords: analysisResult.triggered_keywords || [],
-                        explanation: analysisResult.explanation || 'Analyzed by threat detection model.',
-                        llm_analysis: analysisResult.llm_analysis || null
-                    });
+                    await Analysis.findOneAndUpdate(
+                        { content_id: existing.content_id },
+                        {
+                            $set: {
+                                violence_score: analysisResult.violence_score || 0,
+                                threat_score: analysisResult.threat_score || 0,
+                                hate_score: analysisResult.hate_score || 0,
+                                sentiment: analysisResult.sentiment || 'neutral',
+                                sentiment_score: analysisResult.sentiment_score,
+                                risk_level: analysisResult.risk_level,
+                                triggered_keywords: analysisResult.triggered_keywords || [],
+                                explanation: analysisResult.explanation || 'Analyzed by threat detection model.',
+                                llm_analysis: analysisResult.llm_analysis || null
+                            }
+                        },
+                        { upsert: true, new: true, setDefaultsOnInsert: true }
+                    );
                 }
             }
         }

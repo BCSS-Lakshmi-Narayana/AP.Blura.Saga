@@ -3,9 +3,10 @@ const axios = require('axios');
 const crypto = require('crypto');
 const { categorizeText } = require('./llmService');
 const mappingService = require('./mappingService');
-const { buildPoliticalContext } = require('./politicalContextService');
+const { buildPoliticalContext, detectLanguageHints } = require('./politicalContextService');
 const { analyzePoliticalSentiment } = require('./politicalSentimentService');
 const cacheService = require('./cacheService');
+const translationService = require('./translationService');
 const LegalSection = require('../models/LegalSection');
 const PlatformPolicy = require('../models/PlatformPolicy');
 
@@ -106,9 +107,36 @@ const analyzeContent = async (text, options = {}) => {
 
     log(`Starting Dual-Pass analysis for: "${text.substring(0, 50)}..."`);
 
+    // --- PRE-TRANSLATION: non-English (native-script) text is translated
+    // ONCE here via the existing Google-Translate-backed translationService,
+    // and the translated text is what both LLM stages reason over. This
+    // replaces asking each LLM stage to silently translate-then-reason
+    // in a single inference pass (observed to hallucinate/invert meaning on
+    // regional-language text — see Stage 4 cross-check comment below).
+    // Entity/language detection (buildPoliticalContext) still runs on the
+    // ORIGINAL text — its deterministic alias matching already handles
+    // native scripts directly and is more reliable than re-matching against
+    // a machine translation of proper nouns.
+    let analysisText = text;
+    const langHints = detectLanguageHints(text);
+    const isNonEnglish = langHints.has_telugu || langHints.has_hindi ||
+      langHints.has_devanagari || langHints.has_tamil ||
+      langHints.has_kannada || langHints.has_urdu;
+    if (isNonEnglish) {
+      try {
+        const translated = await translationService.translate(text, 'en', 'auto');
+        if (translated && translated.trim()) {
+          analysisText = translated;
+          log(`Pre-translated non-English text for analysis: "${analysisText.substring(0, 50)}..."`);
+        }
+      } catch (err) {
+        log(`Pre-translation failed (${err.message}); analyzing original text.`);
+      }
+    }
+
     // --- PASS A: LLM INTENT ANALYSIS ---
     log("Running Pass A (Primary AI Content Understanding)...");
-    let llmResult = await categorizeText(text);
+    let llmResult = await categorizeText(analysisText);
 
     if (!llmResult) {
       log("Pass A failed. Using fallback categorization (Normal).");
@@ -209,7 +237,7 @@ const analyzeContent = async (text, options = {}) => {
     log(`Political context: mode=${politicalCtx.mode} target=${politicalCtx.primary_target || 'none'} bsk_relevance=${politicalCtx.bsk_relevance.toFixed(2)}`);
 
     log("Running Stage 4 (Target-Aware Political Sentiment LLM)...");
-    const political = await analyzePoliticalSentiment(text, politicalCtx);
+    const political = await analyzePoliticalSentiment(analysisText, politicalCtx);
     log(`Stance=${political.stance} bsk_sentiment=${political.bsk_sentiment} beneficiary=${political.beneficiary} provider=${political.provider}`);
 
     // ── risk_level is the Alerts page's Negative/Moderate/Positive bucket ──

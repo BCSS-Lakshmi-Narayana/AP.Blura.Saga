@@ -75,6 +75,8 @@ RULES:
 JOB 3: SENTIMENT ANALYSIS
 ════════════════════════
 Identify the sentiment in the context of N. Chandrababu Naidu (CBN), Nara Lokesh, and the Telugu Desam Party (TDP)-led NDA government in Andhra Pradesh:
+
+MIXED-PARTY POSTS: When a post mentions BOTH TDP/CBN/Lokesh AND an opposition party/leader (e.g. "X did great work, unlike the current government" or "TDP failed the people but YSRCP delivered"), first work out which clause is actually about which entity, then score sentiment for the TDP/CBN side of that comparison ONLY. Praise of the opposition does not make the post positive, and criticism of the opposition does not make it negative — judge TDP/CBN's own tone independently of what's said about the other party.
 - 'positive':
     * Praise, gratitude or support towards Chandrababu Naidu (CBN), Nara Lokesh, the TDP, or the TDP-led NDA government (with BJP and Jana Sena).
     * Appreciation for TDP governance and development work across Andhra Pradesh constituencies (Amaravati, welfare schemes, infrastructure, jobs).

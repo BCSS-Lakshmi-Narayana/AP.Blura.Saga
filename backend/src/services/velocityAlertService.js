@@ -141,7 +141,8 @@ const checkAndCreateVelocityAlerts = async (content, settings) => {
                     { id: existingAlert.id },
                     {
                         priority: highestPriority.priority,
-                        risk_level: highestPriority.priority === 'HIGH' ? 'high' : 'medium',
+                        // risk_level intentionally left untouched here — it reflects
+                        // the AI content analysis, not viral engagement velocity.
                         title: `🔥 VIRAL: ${metricsDisplay} in ${Math.round(postAgeMinutes)} min`,
                         description: `Post crossed ${highestPriority.priority} threshold (${highestPriority.thresholdTriggered.toLocaleString()}) within ${threshold.time_window_minutes} minutes of posting`,
                         velocity_data: {
@@ -188,25 +189,17 @@ const checkAndCreateVelocityAlerts = async (content, settings) => {
             triggered_metrics: triggeredMetrics
         };
 
-        // Determine Final Risk Score (Velocity Override)
-        // If content is benign (0%), but Viral is High/Medium, we must show a score reflecting that risk.
-        let velocityRiskScore = 0;
-        if (highestPriority.priority === 'HIGH') velocityRiskScore = 80; // High Risk Base
-        if (highestPriority.priority === 'MEDIUM') velocityRiskScore = 45; // Medium Risk Base
-        if (highestPriority.priority === 'LOW') velocityRiskScore = 15;
-
-        // Take the HIGHER of AI Score or Velocity Score
-        const finalRiskScore = Math.max(Number(content.risk_score) || 0, velocityRiskScore);
+        // risk_level/risk_score reflect the AI content analysis only. Virality
+        // is still surfaced via `priority` and the "VIRAL" title/alert itself —
+        // it just no longer inflates the risk bucket for benign viral posts.
+        const finalRiskScore = Number(content.risk_score) || 0;
 
         const alertData = {
             content_id: content.id,
             alert_type: 'velocity',
             priority: highestPriority.priority,
             published_at: content.published_at || null,
-            // If content is High Risk (AI), keep it High. If Viral is High, upgrade to High.
-            risk_level: (content.risk_level === 'high' || content.risk_level === 'critical' || highestPriority.priority === 'HIGH')
-                ? 'high'
-                : (highestPriority.priority === 'MEDIUM' ? 'medium' : 'low'),
+            risk_level: content.risk_level || 'low',
             title: `🔥 VIRAL: ${metricsDisplay} (${aiReasons.length > 0 ? 'Risk Detected' : 'Trending'})`,
             description: `Post crossed ${highestPriority.priority} threshold within ${threshold.time_window_minutes}min.`,
             content_url: content.content_url,

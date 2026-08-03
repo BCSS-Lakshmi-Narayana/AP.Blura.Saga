@@ -665,7 +665,9 @@ const Grievances = () => {
         if (normalized === 'govt praise' || normalized === 'government praise' || normalized === 'general praise' || normalized === 'general complaint') {
             return 'General Complaint';
         }
-        return raw;
+        if (normalized === 'law and order' || normalized === 'law & order' || normalized === 'law_order') return 'Law & Order';
+        if (normalized === 'road and infrastructure' || normalized === 'road & infrastructure') return 'Road & Infrastructure';
+        return raw.replace(/[_-]+/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
     }, []);
 
     const mapTopicFilterToApi = useCallback((topic) => {
@@ -676,13 +678,15 @@ const Grievances = () => {
 
     const [selectedHandle, setSelectedHandle] = useState(() => searchParams.get('posted_by') || searchParams.get('handle') || null);
     const [sentimentFilter, setSentimentFilter] = useState(() => searchParams.get('sentiment') || null);
-    const [topicFilter, setTopicFilter] = useState(() => normalizeTopicFilterLabel(searchParams.get('grievance_type')));
+    const [topicFilter, setTopicFilter] = useState(() => normalizeTopicFilterLabel(searchParams.get('grievance_type') || searchParams.get('topic')));
     const [analysisCategoryFilter, setAnalysisCategoryFilter] = useState(() => searchParams.get('analysis_category') || null);
     const [targetEntityFilter, setTargetEntityFilter] = useState(() => searchParams.get('target_entity') || null);
     const GRIEVANCE_TOPICS = [
+        'Education', 'Welfare', 'Water', 'Roads', 'Health', 'Employment',
+        'Electricity', 'Agriculture', 'Drainage', 'Housing', 'Sanitation',
+        'Irrigation', 'Civic Amenities', 'Road & Infrastructure', 'Law & Order',
         'Political Criticism', 'Hate Speech', 'Public Complaint', 'Corruption Complaint',
-        'General Complaint', 'Traffic Complaint', 'Public Nuisance', 'Road & Infrastructure',
-        'Law & Order', 'Normal'
+        'General Complaint', 'Traffic Complaint', 'Public Nuisance', 'Normal'
     ];
     const [openGReportCode, setOpenGReportCode] = useState('');
     const [openSReportCode, setOpenSReportCode] = useState('');
@@ -757,7 +761,7 @@ const Grievances = () => {
         const urlLocation = searchParams.get('location') || null;
         const urlSentiment = searchParams.get('sentiment') || null;
         const urlHandle = searchParams.get('posted_by') || searchParams.get('handle') || null;
-        const urlTopic = normalizeTopicFilterLabel(searchParams.get('grievance_type'));
+        const urlTopic = normalizeTopicFilterLabel(searchParams.get('grievance_type') || searchParams.get('topic'));
         const urlAnalysisCategory = searchParams.get('analysis_category') || null;
         const urlTargetEntity = searchParams.get('target_entity') || null;
         const urlPlatform = searchParams.get('platform') || 'all';
@@ -1284,12 +1288,15 @@ const Grievances = () => {
             toast.error('Failed to load grievances');
             console.error(error);
         } finally {
-            // Don't clear the loader for a request that a newer one aborted —
-            // otherwise the empty "No grievances found" state flashes while the
-            // newer request is still in flight.
-            if (!abortController.signal.aborted) {
-                setLoading(false);
+            // A superseded (aborted) request must not clear `loading` on behalf
+            // of the newer request that replaced it — only the request that's
+            // still current (i.e. still referenced by fetchAbortRef) may do so.
+            // "Load More" calls never touch fetchAbortRef, so they always clear
+            // loadingMore unconditionally, same as before.
+            if (cursor) {
                 setLoadingMore(false);
+            } else if (fetchAbortRef.current === abortController) {
+                setLoading(false);
             }
         }
     };
@@ -2413,6 +2420,22 @@ const Grievances = () => {
                                 <RefreshCw className={cn('h-3 w-3', rssLoading && 'animate-spin')} />
                                 Refresh
                             </Button>
+                            {(rssDistrict !== 'all' || rssCategory !== 'all' || rssSourceType !== 'all' || (rssSearch && rssSearch.trim() !== '')) && (
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => {
+                                        setRssDistrict('all');
+                                        setRssCategory('all');
+                                        setRssSourceType('all');
+                                        setRssSearch('');
+                                    }}
+                                    className="h-7 gap-1 text-xs font-semibold text-slate-500 hover:text-red-600 hover:bg-red-50 border border-slate-200 rounded-lg px-2 transition-colors"
+                                >
+                                    <X className="h-3 w-3" />
+                                    Clear Filters
+                                </Button>
+                            )}
                         </div>
                     </div>
 

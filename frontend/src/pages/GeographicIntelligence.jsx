@@ -34,9 +34,8 @@ const GeographicIntelligence = () => {
     
     if (!from && !to) {
       const now = new Date();
-      // Monday of the current week
-      const monday = new Date(now);
-      monday.setDate(now.getDate() - ((now.getDay() + 6) % 7));
+      const start = new Date(now);
+      start.setDate(now.getDate() - 6);
       
       const toLocalYMD = (d) => {
         const y = d.getFullYear();
@@ -45,7 +44,7 @@ const GeographicIntelligence = () => {
         return `${y}-${m}-${day}`;
       };
       
-      from = toLocalYMD(monday);
+      from = toLocalYMD(start);
       to = toLocalYMD(now);
     }
 
@@ -136,7 +135,7 @@ const GeographicIntelligence = () => {
       <div key={activeTab} className="animate-[fadeIn_0.25s_ease-out]">
         {activeTab === 'state' && <StateOverviewTab filters={filters} summary={summary} summaryLoading={summaryLoading} />}
         {activeTab === 'district' && <DistrictExplorerTab filters={filters} initialDistrictKey={initialDistrictKey} />}
-        {activeTab === 'constituency' && <ConstituencyExplorerTab />}
+        {activeTab === 'constituency' && <ConstituencyExplorerTab filters={filters} />}
         {activeTab === 'playback' && <HistoricalPlaybackTab />}
       </div>
 

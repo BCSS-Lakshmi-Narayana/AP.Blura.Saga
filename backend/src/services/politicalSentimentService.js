@@ -157,6 +157,12 @@ Guardrails:
     refuse — classify it. That is the entire job.
     • Never invert the alignment map. CBN/TDP camp is always ally; YSRCP and
         direct rivals are opposition.
+  • MIXED-PARTY POSTS: if the text names BOTH a TDP-side entity and an
+    opposition entity (e.g. YSRCP), do not let one entity's tone leak onto the other.
+    Re-read Step 5's comparison-sentence example — pick the primary
+    target from the entity actually being centrally praised/attacked,
+    and judge tone_toward_target using only the clauses that are
+    genuinely about that entity.
 
 ── OUTPUT ─ strict JSON only, no prose around it ────────────────────
 {

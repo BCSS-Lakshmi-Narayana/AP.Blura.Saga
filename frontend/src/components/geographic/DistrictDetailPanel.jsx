@@ -10,15 +10,11 @@ import RecentActivityList from './RecentActivityList';
 import RiskGauge from './RiskGauge';
 import RiskBadge from './RiskBadge';
 import TrendIndicator from './TrendIndicator';
+import { formatGeoName } from './sentimentScale';
 import { useDistrictDetail, useCityLeaderboard, useTopicAnalytics } from '../../hooks/useGeoIntel';
 
 /**
- * District drill-down content — district profile header (risk, trend,
- * mentions, engagement, platform, sentiment), sentiment trend, platform
- * distribution, city statistics, topic analytics, recent activity, top
- * posts and top influencers. Used both as the standalone
- * /geographic-intelligence/:districtKey page and embedded in the District
- * Explorer tab's split pane, so it owns no route/URL logic itself.
+ * District drill-down content.
  */
 const DistrictDetailPanel = ({ districtKey, filters }) => {
   const navigate = useNavigate();
@@ -30,7 +26,7 @@ const DistrictDetailPanel = ({ districtKey, filters }) => {
   const { data: allCities, loading: allCitiesLoading } = useCityLeaderboard(districtKey, filters, { enabled: showAllCities });
   const { data: allTopics, loading: allTopicsLoading } = useTopicAnalytics(districtKey, filters, { enabled: showAllTopics });
 
-  const districtName = data?.district?.name || districtKey;
+  const districtName = formatGeoName(data?.district?.name || districtKey);
   const stats = data?.stats;
 
   const cityRows = showAllCities ? (allCities?.cities || []) : (data?.cities_preview || []);

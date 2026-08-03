@@ -7,7 +7,6 @@ const PLATFORM_OPTIONS = [
   { value: 'facebook', label: 'Facebook' },
   { value: 'instagram', label: 'Instagram' },
   { value: 'youtube', label: 'YouTube' },
-  { value: 'whatsapp', label: 'WhatsApp' },
 ];
 
 const SENTIMENT_OPTIONS = [
@@ -43,8 +42,8 @@ const PRESETS = [
     label: 'This Week',
     resolve: () => {
       const now = new Date();
-      const mon = new Date(now); mon.setDate(now.getDate() - ((now.getDay() + 6) % 7));
-      return { from: toYMD(mon), to: toYMD(now) };
+      const start = new Date(now); start.setDate(now.getDate() - 6);
+      return { from: toYMD(start), to: toYMD(now) };
     },
   },
   {
@@ -83,14 +82,21 @@ const fmtDisplay = (ymd) => {
 };
 
 const getTriggerLabel = (from, to) => {
-  if (!from && !to) return null;
+  let f = from;
+  let t = to;
+  if (!f && !t) {
+    const now = new Date();
+    const mon = new Date(now); mon.setDate(now.getDate() - ((now.getDay() + 6) % 7));
+    f = toYMD(mon);
+    t = toYMD(now);
+  }
   for (const p of PRESETS) {
     const r = p.resolve();
-    if (r.from === from && r.to === to) return p.label;
+    if (r.from === f && r.to === t) return p.label;
   }
-  if (from && to) return `${fmtDisplay(from)} – ${fmtDisplay(to)}`;
-  if (from) return `From ${fmtDisplay(from)}`;
-  return `To ${fmtDisplay(to)}`;
+  if (f && t) return `${fmtDisplay(f)} – ${fmtDisplay(t)}`;
+  if (f) return `From ${fmtDisplay(f)}`;
+  return `To ${fmtDisplay(f)}`;
 };
 
 // ─── DateRangePicker ───────────────────────────────────────────────────────
@@ -113,7 +119,15 @@ const DateRangePicker = ({ from, to, onApply }) => {
   const triggerLabel = getTriggerLabel(from, to);
 
   const currentPresetLabel = (() => {
-    for (const p of PRESETS) { const r = p.resolve(); if (r.from === from && r.to === to) return p.label; }
+    let f = from;
+    let t = to;
+    if (!f && !t) {
+      const now = new Date();
+      const mon = new Date(now); mon.setDate(now.getDate() - ((now.getDay() + 6) % 7));
+      f = toYMD(mon);
+      t = toYMD(now);
+    }
+    for (const p of PRESETS) { const r = p.resolve(); if (r.from === f && r.to === t) return p.label; }
     return null;
   })();
 

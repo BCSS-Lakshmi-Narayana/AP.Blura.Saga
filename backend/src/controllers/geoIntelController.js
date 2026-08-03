@@ -40,9 +40,84 @@ const parseFrom = (v) => { if (!v) return null; const d = new Date(v); return is
 const parseTo = (v) => { if (!v) return null; const d = new Date(v); return isNaN(d.getTime()) ? null : endOfDay(d); };
 const pct = (n, t) => (t > 0 ? Math.round((n / t) * 100) : 0);
 
-// Sentiment index in [-100, 100] — same formula as constituencyIntelligenceController,
-// kept consistent so "positive/negative" reads the same way across both modules.
 const sentimentIndex = (pos, neg, total) => (total > 0 ? Math.round(((pos - neg) / total) * 100) : 0);
+
+const toYMD = (d) => {
+  const y = d.getUTCFullYear();
+  const m = String(d.getUTCMonth() + 1).padStart(2, '0');
+  const day = String(d.getUTCDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+};
+
+const padTrendSeries = (trendArray, fromDate, toDate) => {
+  const map = new Map();
+  for (const item of (trendArray || [])) {
+    const key = item._id || item.date;
+    if (key) map.set(key, item);
+  }
+  const result = [];
+  const curr = new Date(fromDate);
+  const end = new Date(toDate);
+  curr.setUTCHours(0, 0, 0, 0);
+  end.setUTCHours(0, 0, 0, 0);
+
+  if (curr.getTime() === end.getTime()) {
+    curr.setUTCDate(curr.getUTCDate() - 6);
+  }
+
+  while (curr <= end) {
+    const ymd = toYMD(curr);
+    const existing = map.get(ymd);
+    const pos = existing ? (existing.positive || 0) : 0;
+    const neg = existing ? (existing.negative || 0) : 0;
+    const neu = existing ? (existing.neutral || 0) : 0;
+    const tot = existing ? (existing.total || existing.count || 0) : 0;
+    result.push({
+      date: ymd,
+      total: tot,
+      positive: pos,
+      negative: neg,
+      neutral: neu,
+      sentiment_index: sentimentIndex(pos, neg, tot),
+    });
+    curr.setUTCDate(curr.getUTCDate() + 1);
+  }
+  return result;
+};
+
+const formatGeoName = (rawName) => {
+  if (!rawName) return '';
+  const s = String(rawName).trim();
+  const lower = s.toLowerCase().replace(/[\s._\-]/g, '');
+  
+  if (lower === 'ysrkadapa' || lower === 'kadapa') return 'YSR Kadapa';
+  if (lower === 'westgodavari') return 'West Godavari';
+  if (lower === 'eastgodavari') return 'East Godavari';
+  if (lower === 'drbrambedkarkonaseema' || lower === 'konaseema') return 'Dr. B.R. Ambedkar Konaseema';
+  if (lower === 'spsrnellore' || lower === 'nellore') return 'SPSR Nellore';
+  if (lower === 'srisathyasai' || lower === 'sathyasai') return 'Sri Sathya Sai';
+  if (lower === 'parvathipurammanyam' || lower === 'manyam') return 'Parvathipuram Manyam';
+  if (lower === 'allurisitharamaraju' || lower === 'asr') return 'Alluri Sitharama Raju';
+  if (lower === 'annamayya') return 'Annamayya';
+  if (lower === 'bapatla') return 'Bapatla';
+  if (lower === 'palnadu') return 'Palnadu';
+  if (lower === 'nandyal') return 'Nandyal';
+  if (lower === 'eluru') return 'Eluru';
+  if (lower === 'kakinada') return 'Kakinada';
+  if (lower === 'anakapalli') return 'Anakapalli';
+  if (lower === 'vizianagaram') return 'Vizianagaram';
+  if (lower === 'srikakulam') return 'Srikakulam';
+  if (lower === 'visakhapatnam' || lower === 'vizag') return 'Visakhapatnam';
+  if (lower === 'ntr') return 'NTR';
+  if (lower === 'guntur') return 'Guntur';
+  if (lower === 'prakasam') return 'Prakasam';
+  if (lower === 'chittoor') return 'Chittoor';
+  if (lower === 'tirupati') return 'Tirupati';
+  if (lower === 'kurnool') return 'Kurnool';
+  if (lower === 'anantapur' || lower === 'ananthapuramu') return 'Ananthapuramu';
+
+  return s.replace(/[_-]+/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+};
 
 const riskLevelFromScore = (score) => {
   if (score >= 75) return 'critical';
@@ -225,7 +300,7 @@ const computeLeaderboard = async ({ path, from, to, prevFrom, prevTo, platform, 
 
     return {
       key,
-      name: r.name || key,
+      name: formatGeoName(r.name || key),
       total_mentions: total,
       total_social: total,
       positive,
@@ -566,8 +641,7 @@ const getDistrictDetail = async (req, res) => {
       stats: withNews,
       cities_preview: cities.slice(0, 8).map((c) => ({ ...c, city_key: c.key, city_name: c.name })),
       city_count: cities.length,
-      top_topics: topics,
-      sentiment_trend: trendSeries.map((v) => ({ date: v._id, total: v.total, positive: v.positive, negative: v.negative, neutral: v.neutral })),
+      sentiment_trend: padTrendSeries(trendSeries, from, to),
       recent_activity: recentActivity.map((g) => ({
         id: g.tweet_id,
         text: g?.content?.text || '',
@@ -783,14 +857,7 @@ const getSummary = async (req, res) => {
       emerging_topics: risingTopics.slice(0, 5),
       top_issues_by_volume: topIssuesByVolume,
       platform_distribution: platformDistribution,
-      sentiment_trend: dailyTrend.map((v) => ({
-        date: v._id,
-        total: v.total,
-        positive: v.positive,
-        negative: v.negative,
-        neutral: v.neutral,
-        sentiment_index: sentimentIndex(v.positive, v.negative, v.total),
-      })),
+      sentiment_trend: padTrendSeries(dailyTrend, from, to),
     };
 
     await cacheService.set(cacheKey, payload, LEADERBOARD_CACHE_TTL);

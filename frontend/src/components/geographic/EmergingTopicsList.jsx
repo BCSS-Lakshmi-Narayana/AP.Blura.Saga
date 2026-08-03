@@ -2,7 +2,7 @@ import React from 'react';
 import { TrendingUp } from 'lucide-react';
 
 /** Professional ranking of topics with the sharpest week-over-week growth — the "what's newly hot" answer. */
-const EmergingTopicsList = ({ topics = [], loading }) => {
+const EmergingTopicsList = ({ topics = [], loading, onSelect }) => {
   if (loading) {
     return (
       <div className="space-y-2 animate-pulse">
@@ -25,7 +25,13 @@ const EmergingTopicsList = ({ topics = [], loading }) => {
   return (
     <div className="space-y-1">
       {topics.map((t, idx) => (
-        <div key={t.topic} className="flex items-center gap-3 px-2 py-2 rounded-lg hover:bg-slate-50 transition-colors">
+        <button
+          key={t.topic}
+          type="button"
+          onClick={() => onSelect?.(t)}
+          className="w-full flex items-center gap-3 px-2 py-2 rounded-lg hover:bg-purple-50/60 transition-colors text-left cursor-pointer"
+          title={`View grievances for ${t.topic}`}
+        >
           <span className="text-[11px] font-extrabold text-purple-400 w-4">{idx + 1}</span>
           <div className="flex-1 min-w-0">
             <div className="flex items-baseline justify-between gap-2">
@@ -41,7 +47,7 @@ const EmergingTopicsList = ({ topics = [], loading }) => {
             </div>
           </div>
           <span className="text-[10px] text-slate-400 w-16 text-right flex-shrink-0">{t.mention_count.toLocaleString()} mentions</span>
-        </div>
+        </button>
       ))}
     </div>
   );

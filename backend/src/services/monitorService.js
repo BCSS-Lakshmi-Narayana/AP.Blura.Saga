@@ -1790,31 +1790,41 @@ const performFullAnalysis = async (content, settings, keywords, options = {}) =>
       analysisData.risk_score = 65;
     }
 
-    const analysis = new Analysis({
-      id: analysisId,
-      content_id: content.id,
-      risk_score: Math.round(analysisData.risk_score || 0),
-      risk_level: toContentRiskLevel(analysisData.risk_level),
-      intent: analysisData.intent || 'unknown',
-      explanation: analysisData.explanation,
-      sentiment: 'neutral',
+    // Upsert keyed by content_id (NOT a plain insert): monitorXSource/monitorInstagramSource
+    // re-push already-seen content into newContent on every poll, so performFullAnalysis runs
+    // repeatedly for the same content_id. Upserting keeps exactly one Analysis per content_id
+    // and preserves the original `id` (via $setOnInsert) so earlier Alert links stay valid.
+    const analysis = await Analysis.findOneAndUpdate(
+      { content_id: content.id },
+      {
+        $set: {
+          risk_score: Math.round(analysisData.risk_score || 0),
+          risk_level: toContentRiskLevel(analysisData.risk_level),
+          intent: analysisData.intent || 'unknown',
+          explanation: analysisData.explanation,
+          sentiment: 'neutral',
 
-      // REQUIRED FIELDS (Mapped from Risk Score or specific intent)
-      violence_score: (analysisData.intent === 'Violence' ? Math.round((analysisData.risk_score || 0) * 10) : 0) || 0,
-      threat_score: (analysisData.intent === 'Threat' ? Math.round((analysisData.risk_score || 0) * 10) : 0) || 0,
-      hate_score: (analysisData.intent === 'Hate_Speech' ? Math.round((analysisData.risk_score || 0) * 10) : 0) || 0,
+          // REQUIRED FIELDS (Mapped from Risk Score or specific intent)
+          violence_score: (analysisData.intent === 'Violence' ? Math.round((analysisData.risk_score || 0) * 10) : 0) || 0,
+          threat_score: (analysisData.intent === 'Threat' ? Math.round((analysisData.risk_score || 0) * 10) : 0) || 0,
+          hate_score: (analysisData.intent === 'Hate_Speech' ? Math.round((analysisData.risk_score || 0) * 10) : 0) || 0,
 
-      triggered_keywords: analysisData.triggered_keywords || [],
-      legal_sections: analysisData.legal_sections || [],
-      violated_policies: analysisData.violated_policies || [],
-      reasons: analysisData.reasons || [],
-      highlights: analysisData.triggered_keywords || [],
-      confidence: 0,
-      language: 'en',
-      llm_analysis: analysisData.llm_analysis || null, // Save rich LLM data
-      forensic_results: analysisData.forensic_results || null
-    });
-    await analysis.save();
+          triggered_keywords: analysisData.triggered_keywords || [],
+          legal_sections: analysisData.legal_sections || [],
+          violated_policies: analysisData.violated_policies || [],
+          reasons: analysisData.reasons || [],
+          highlights: analysisData.triggered_keywords || [],
+          confidence: 0,
+          language: 'en',
+          llm_analysis: analysisData.llm_analysis || null, // Save rich LLM data
+          forensic_results: analysisData.forensic_results || null
+        },
+        $setOnInsert: {
+          id: analysisId
+        }
+      },
+      { upsert: true, new: true }
+    );
 
     // Persist derived intelligence back onto the content record for dashboard/reporting.
     const normalizeText = (value) => String(value || '')

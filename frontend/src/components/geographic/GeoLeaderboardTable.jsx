@@ -2,12 +2,10 @@ import React from 'react';
 import { ChevronRight, ExternalLink } from 'lucide-react';
 import RiskBadge from './RiskBadge';
 import TrendIndicator from './TrendIndicator';
+import { formatGeoName } from './sentimentScale';
 
 /**
- * Geography-agnostic leaderboard table — renders district rows on the
- * landing page and city rows on the district drill-down page with the same
- * component; the caller decides what a row click means (navigate to detail
- * vs navigate to Mentions filtered by that city).
+ * Geography-agnostic leaderboard table.
  */
 const GeoLeaderboardTable = ({ rows = [], loading, levelLabel = 'District', onRowClick, onQuickAction, emptyMessage, selectedKey }) => {
   if (loading) {
@@ -61,7 +59,7 @@ const GeoLeaderboardTable = ({ rows = [], loading, levelLabel = 'District', onRo
               >
                 <td className="px-4 py-3 text-xs font-semibold text-slate-400">{idx + 1}</td>
                 <td className="px-3 py-3">
-                  <div className="text-sm font-semibold text-slate-800">{row.name}</div>
+                  <div className="text-sm font-semibold text-slate-800">{formatGeoName(row.name)}</div>
                   {row.total_news > 0 && (
                     <div className="text-[10px] text-slate-400">{row.total_social.toLocaleString()} social · {row.total_news.toLocaleString()} news</div>
                   )}
