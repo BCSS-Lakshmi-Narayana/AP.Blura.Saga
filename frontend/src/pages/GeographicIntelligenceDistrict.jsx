@@ -16,13 +16,32 @@ const GeographicIntelligenceDistrict = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const { scope } = useGeoScope();
 
-  const filters = useMemo(() => ({
-    from: searchParams.get('from') || '',
-    to: searchParams.get('to') || '',
-    platform: searchParams.get('platform') || 'all',
-    sentiment: searchParams.get('sentiment') || 'all',
-    topic: searchParams.get('topic') || 'all',
-  }), [searchParams]);
+  const filters = useMemo(() => {
+    let from = searchParams.get('from') || '';
+    let to = searchParams.get('to') || '';
+
+    if (!from && !to) {
+      const now = new Date();
+      const start = new Date(now);
+      start.setDate(now.getDate() - 6);
+      const toLocalYMD = (d) => {
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${y}-${m}-${day}`;
+      };
+      from = toLocalYMD(start);
+      to = toLocalYMD(now);
+    }
+
+    return {
+      from,
+      to,
+      platform: searchParams.get('platform') || 'all',
+      sentiment: searchParams.get('sentiment') || 'all',
+      topic: searchParams.get('topic') || 'all',
+    };
+  }, [searchParams]);
 
   const handleFilterChange = (next) => {
     const params = {};

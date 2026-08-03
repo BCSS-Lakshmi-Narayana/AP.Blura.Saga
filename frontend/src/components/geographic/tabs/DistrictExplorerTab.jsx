@@ -3,6 +3,7 @@ import { Search, ShieldAlert } from 'lucide-react';
 import RiskBadge from '../RiskBadge';
 import DistrictDetailPanel from '../DistrictDetailPanel';
 import { useDistrictLeaderboard } from '../../../hooks/useGeoIntel';
+import { formatGeoName } from '../sentimentScale';
 
 /**
  * District Explorer — searchable district list on the left, full detail
@@ -65,7 +66,7 @@ const DistrictExplorerTab = ({ filters, initialDistrictKey }) => {
               >
                 {selectedKey === d.key && <span className="absolute left-0 top-0 bottom-0 w-0.5 bg-yellow-600" />}
                 <div className="min-w-0">
-                  <span className={`block text-xs font-semibold truncate ${selectedKey === d.key ? 'text-yellow-800' : 'text-slate-700'}`}>{d.name}</span>
+                  <span className={`block text-xs font-semibold truncate ${selectedKey === d.key ? 'text-yellow-800' : 'text-slate-700'}`}>{formatGeoName(d.name)}</span>
                   <span className="text-[9px] text-slate-400">{d.total_mentions.toLocaleString()} mentions</span>
                 </div>
                 <RiskBadge level={d.risk_level} />

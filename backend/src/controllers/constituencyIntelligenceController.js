@@ -369,7 +369,15 @@ const getConstituencyNarrative = async (req, res) => {
       Grievance.aggregate([{ $match: prevMatch }, { $group: sentimentGroup }]),
       Grievance.aggregate([
         { $match: baseMatch },
-        { $group: { _id: { $dateToString: { format: '%Y-%m-%d', date: '$post_date' } }, count: { $sum: 1 } } },
+        {
+          $group: {
+            _id: { $dateToString: { format: '%Y-%m-%d', date: '$post_date' } },
+            count: { $sum: 1 },
+            positive: { $sum: { $cond: [{ $eq: ['$analysis.sentiment', 'positive'] }, 1, 0] } },
+            negative: { $sum: { $cond: [{ $eq: ['$analysis.sentiment', 'negative'] }, 1, 0] } },
+            neutral: { $sum: { $cond: [{ $in: ['$analysis.sentiment', ['neutral', 'moderate']] }, 1, 0] } },
+          }
+        },
         { $sort: { _id: 1 } },
       ]),
       Grievance.aggregate([
@@ -464,7 +472,14 @@ const getConstituencyNarrative = async (req, res) => {
         score: curScore,
         score_change: curScore - prevScore,
       },
-      volume_trend: volume.map((v) => ({ date: v._id, count: v.count })),
+      volume_trend: volume.map((v) => ({
+        date: v._id,
+        count: v.count,
+        total: v.count,
+        positive: v.positive || 0,
+        negative: v.negative || 0,
+        neutral: v.neutral || 0,
+      })),
       platforms: platformMix,
       top_topics: topTopics,
       trending_hashtags: trendingHashtags,
@@ -523,7 +538,15 @@ const analyzeSeat = async (rawConstituency, days) => {
     Grievance.aggregate([{ $match: prevMatch }, { $group: countsGroup }]),
     Grievance.aggregate([
       { $match: baseMatch },
-      { $group: { _id: { $dateToString: { format: '%Y-%m-%d', date: '$post_date' } }, count: { $sum: 1 } } },
+      {
+        $group: {
+          _id: { $dateToString: { format: '%Y-%m-%d', date: '$post_date' } },
+          count: { $sum: 1 },
+          positive: { $sum: { $cond: [{ $eq: ['$analysis.sentiment', 'positive'] }, 1, 0] } },
+          negative: { $sum: { $cond: [{ $eq: ['$analysis.sentiment', 'negative'] }, 1, 0] } },
+          neutral: { $sum: { $cond: [{ $in: ['$analysis.sentiment', ['neutral', 'moderate']] }, 1, 0] } },
+        }
+      },
       { $sort: { _id: 1 } },
     ]),
     Grievance.aggregate([
@@ -628,7 +651,14 @@ const analyzeSeat = async (rawConstituency, days) => {
     top_issues: topIssues,
     top_topics: topList(topicCounts, 6),
     trending_hashtags: topList(hashtagCounts, 6),
-    volume_trend: volume.map((v) => ({ date: v._id, count: v.count })),
+    volume_trend: volume.map((v) => ({
+      date: v._id,
+      count: v.count,
+      total: v.count,
+      positive: v.positive || 0,
+      negative: v.negative || 0,
+      neutral: v.neutral || 0,
+    })),
     platforms: platformMix,
     top_influencers: influencers.map((i) => ({
       handle: i._id,

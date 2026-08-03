@@ -747,16 +747,23 @@ const getGrievances = async (req, res) => {
         }
 
         // Superadmin / unscoped roles see every grievance in the collection,
-        // including legacy rows that lack BSK keywords — but NOT soft-deleted
-        // (is_active=false) rows. That filter must always apply; dropping it
-        // for admin view meant a deleted grievance reappeared for the admin
-        // who deleted it on the very next list refresh.
+        // including legacy rows that lack BSK keywords. This must NOT also
+        // resurrect user-deleted rows: deleteGrievance() soft-deletes via
+        // is_active=false, so stripping the is_active filter here made every
+        // deleted grievance reappear for admin/superadmin logins on the very
+        // next fetch. Only drop the is_active filter when the caller
+        // explicitly opts in (include_inactive=true) — admin view alone
+        // should still default to hiding deleted rows.
         const isAdminView = !!(req.scope && req.scope.canSeeAll);
+        const includeInactive = String(req.query.include_inactive || '').toLowerCase() === 'true';
         const queryParams = isAdminView
             ? { ...req.query, bsk_only: 'false' }
             : req.query;
 
         const query = buildListQuery(queryParams);
+        if (isAdminView && includeInactive) {
+            delete query.is_active;
+        }
 
         // Limit search space to 400 most recent grievances for location + civic issue categories
         const hasLocation = queryParams.location_city || queryParams.location_district || queryParams.location_constituency;
@@ -765,6 +772,9 @@ const getGrievances = async (req, res) => {
             const baseQueryParams = { ...queryParams };
             delete baseQueryParams.analysis_category;
             const baseQuery = buildListQuery(baseQueryParams);
+            if (isAdminView && includeInactive) {
+                delete baseQuery.is_active;
+            }
             const recentDocs = await Grievance.find(baseQuery)
                 .select('_id')
                 .sort({ post_date: -1 })

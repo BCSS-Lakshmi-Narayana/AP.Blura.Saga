@@ -1,4 +1,5 @@
 import React, { useMemo, useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Search, Scale, Users, FileText, TrendingUp, Newspaper, LayoutGrid } from 'lucide-react';
 import ConstituencyHeatMap from '../../ConstituencyHeatMap';
 import RiskGauge from '../RiskGauge';
@@ -33,18 +34,32 @@ const SUB_TABS = [
 ];
 
 /**
- * Constituency Explorer — an investigative workspace for a single seat,
- * composed almost entirely from the pre-existing "Constituency War Room"
- * surface (constituencyIntelligenceController + ConstituencyHeatMap),
- * extending it one level down from what this module's State/District tabs
- * cover. No new backend endpoints were needed here.
+ * Constituency Explorer — an investigative workspace for a single seat.
  */
-const ConstituencyExplorerTab = () => {
+const ConstituencyExplorerTab = ({ filters = {} }) => {
+  const navigate = useNavigate();
   const { data: leaderboard, loading: leaderboardLoading } = useConstituencyLeaderboard(90);
   const [search, setSearch] = useState('');
   const [selected, setSelected] = useState(null);
   const [subTab, setSubTab] = useState('overview');
   const [compareWith, setCompareWith] = useState('');
+
+  const capitalizeIssue = (str) => {
+    if (!str) return '';
+    const s = String(str).replace(/_/g, ' ').trim();
+    if (s.toLowerCase() === 'law and order' || s.toLowerCase() === 'law order') return 'Law & Order';
+    return s.replace(/\b\w/g, (c) => c.toUpperCase());
+  };
+
+  const goToGrievances = (opts = {}) => {
+    const params = new URLSearchParams();
+    if (opts.search) params.set('search', capitalizeIssue(opts.search));
+    if (opts.topic) params.set('topic', capitalizeIssue(opts.topic));
+    if (selected) params.set('location', selected);
+    if (filters?.from) params.set('from', filters.from);
+    if (filters?.to) params.set('to', filters.to);
+    navigate(`/grievances?${params.toString()}`);
+  };
 
   const rows = useMemo(() => leaderboard?.data || [], [leaderboard]);
 
@@ -161,7 +176,16 @@ const ConstituencyExplorerTab = () => {
                   ) : (
                     <div className="flex flex-wrap gap-1.5">
                       {detail.top_issues.map((i) => (
-                        <span key={i.issue} className="text-[10px] bg-slate-100 text-slate-600 px-2 py-1 rounded-full font-medium capitalize">{i.issue.replace(/_/g, ' ')} · {i.count}</span>
+                        <button
+                          key={i.issue}
+                          type="button"
+                          onClick={() => goToGrievances({ topic: i.issue, search: i.issue })}
+                          className="text-[10px] bg-slate-100 hover:bg-yellow-100 text-slate-700 hover:text-yellow-900 px-2.5 py-1 rounded-full font-medium transition-colors flex items-center gap-1 cursor-pointer border border-slate-200/60"
+                          title={`View grievances for ${capitalizeIssue(i.issue)}`}
+                        >
+                          <span>{capitalizeIssue(i.issue)}</span>
+                          <span className="opacity-60">· {i.count}</span>
+                        </button>
                       ))}
                     </div>
                   )}
@@ -177,7 +201,13 @@ const ConstituencyExplorerTab = () => {
 
             {subTab === 'trend' && (
               <SentimentTrendChart
-                data={(narrative?.volume_trend || []).map((v) => ({ date: v.date, total: v.count }))}
+                data={(narrative?.volume_trend || detail?.volume_trend || []).map((v) => ({
+                  date: v.date,
+                  total: v.count || v.total || 0,
+                  positive: v.positive || 0,
+                  negative: v.negative || 0,
+                  neutral: v.neutral || 0,
+                }))}
                 loading={detailLoading}
                 title="Conversation Volume Trend (30d)"
               />
@@ -189,7 +219,16 @@ const ConstituencyExplorerTab = () => {
                   <h3 className="text-sm font-bold text-slate-800 mb-2">Top Issues</h3>
                   <div className="flex flex-wrap gap-1.5">
                     {(detail?.top_issues || []).map((i) => (
-                      <span key={i.issue} className="text-[10px] bg-slate-100 text-slate-600 px-2 py-1 rounded-full font-medium capitalize">{i.issue.replace(/_/g, ' ')} · {i.count}</span>
+                      <button
+                        key={i.issue}
+                        type="button"
+                        onClick={() => goToGrievances({ topic: i.issue, search: i.issue })}
+                        className="text-[10px] bg-slate-100 hover:bg-yellow-100 text-slate-700 hover:text-yellow-900 px-2.5 py-1 rounded-full font-medium transition-colors flex items-center gap-1 cursor-pointer border border-slate-200/60"
+                        title={`View grievances for ${capitalizeIssue(i.issue)}`}
+                      >
+                        <span>{capitalizeIssue(i.issue)}</span>
+                        <span className="opacity-60">· {i.count}</span>
+                      </button>
                     ))}
                     {!detail?.top_issues?.length && <span className="text-xs text-slate-400">No classified issues yet</span>}
                   </div>
@@ -198,7 +237,16 @@ const ConstituencyExplorerTab = () => {
                   <h3 className="text-sm font-bold text-slate-800 mb-2">Trending Hashtags</h3>
                   <div className="flex flex-wrap gap-1.5">
                     {(narrative?.trending_hashtags || []).map((h) => (
-                      <span key={h.name} className="text-[10px] bg-blue-50 text-blue-600 px-2 py-1 rounded-full font-medium">{h.name} · {h.count}</span>
+                      <button
+                        key={h.name}
+                        type="button"
+                        onClick={() => goToGrievances({ search: h.name })}
+                        className="text-[10px] bg-blue-50 hover:bg-blue-100 text-blue-600 hover:text-blue-800 px-2.5 py-1 rounded-full font-medium transition-colors flex items-center gap-1 cursor-pointer border border-blue-200/60"
+                        title={`View grievances for ${h.name}`}
+                      >
+                        <span>{h.name}</span>
+                        <span className="opacity-60">· {h.count}</span>
+                      </button>
                     ))}
                     {!narrative?.trending_hashtags?.length && <span className="text-xs text-slate-400">No hashtags trending yet</span>}
                   </div>

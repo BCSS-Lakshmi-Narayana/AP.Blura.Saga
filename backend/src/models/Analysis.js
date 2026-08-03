@@ -114,6 +114,6 @@ const analysisSchema = new mongoose.Schema({
   }
 });
 
-analysisSchema.index({ content_id: 1 });
+analysisSchema.index({ content_id: 1 }, { unique: true });
 
 module.exports = mongoose.model('Analysis', analysisSchema);

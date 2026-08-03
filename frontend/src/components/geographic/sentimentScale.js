@@ -24,3 +24,37 @@ export const bucketColorForIndex = (entry) => {
 };
 
 export const DISTRICT_GEOJSON_SOURCES = ['/andhra_pradesh_districts.geojson', '/andhra_pradesh.geojson'];
+
+export const formatGeoName = (rawName) => {
+  if (!rawName) return '';
+  const s = String(rawName).trim();
+  const lower = s.toLowerCase().replace(/[\s._\-]/g, '');
+  
+  if (lower === 'ysrkadapa' || lower === 'kadapa') return 'YSR Kadapa';
+  if (lower === 'westgodavari') return 'West Godavari';
+  if (lower === 'eastgodavari') return 'East Godavari';
+  if (lower === 'drbrambedkarkonaseema' || lower === 'konaseema') return 'Dr. B.R. Ambedkar Konaseema';
+  if (lower === 'spsrnellore' || lower === 'nellore') return 'SPSR Nellore';
+  if (lower === 'srisathyasai' || lower === 'sathyasai') return 'Sri Sathya Sai';
+  if (lower === 'parvathipurammanyam' || lower === 'manyam') return 'Parvathipuram Manyam';
+  if (lower === 'allurisitharamaraju' || lower === 'asr') return 'Alluri Sitharama Raju';
+  if (lower === 'annamayya') return 'Annamayya';
+  if (lower === 'bapatla') return 'Bapatla';
+  if (lower === 'palnadu') return 'Palnadu';
+  if (lower === 'nandyal') return 'Nandyal';
+  if (lower === 'eluru') return 'Eluru';
+  if (lower === 'kakinada') return 'Kakinada';
+  if (lower === 'anakapalli') return 'Anakapalli';
+  if (lower === 'vizianagaram') return 'Vizianagaram';
+  if (lower === 'srikakulam') return 'Srikakulam';
+  if (lower === 'visakhapatnam' || lower === 'vizag') return 'Visakhapatnam';
+  if (lower === 'ntr') return 'NTR';
+  if (lower === 'guntur') return 'Guntur';
+  if (lower === 'prakasam') return 'Prakasam';
+  if (lower === 'chittoor') return 'Chittoor';
+  if (lower === 'tirupati') return 'Tirupati';
+  if (lower === 'kurnool') return 'Kurnool';
+  if (lower === 'anantapur' || lower === 'ananthapuramu') return 'Ananthapuramu';
+
+  return s.replace(/[_-]+/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+};
