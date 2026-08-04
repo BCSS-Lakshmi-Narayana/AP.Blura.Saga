@@ -681,13 +681,23 @@ const Grievances = () => {
     const [topicFilter, setTopicFilter] = useState(() => normalizeTopicFilterLabel(searchParams.get('grievance_type') || searchParams.get('topic')));
     const [analysisCategoryFilter, setAnalysisCategoryFilter] = useState(() => searchParams.get('analysis_category') || null);
     const [targetEntityFilter, setTargetEntityFilter] = useState(() => searchParams.get('target_entity') || null);
-    const GRIEVANCE_TOPICS = [
-        'Education', 'Welfare', 'Water', 'Roads', 'Health', 'Employment',
-        'Electricity', 'Agriculture', 'Drainage', 'Housing', 'Sanitation',
-        'Irrigation', 'Civic Amenities', 'Road & Infrastructure', 'Law & Order',
-        'Political Criticism', 'Hate Speech', 'Public Complaint', 'Corruption Complaint',
-        'General Complaint', 'Traffic Complaint', 'Public Nuisance', 'Normal'
-    ];
+    // Was a hardcoded list mixing real AI-classified categories (e.g. "Public
+    // Complaint", "Political Criticism") with values that never actually
+    // occur in analysis.grievance_type (a leftover, separate keyword-lexicon
+    // taxonomy used elsewhere for a live-text scan, e.g. "Welfare"/"Roads") —
+    // picking one of those always returned zero results. Fetched live from
+    // the same distinct-values endpoint IntelligenceDashboard.jsx already
+    // uses, so the dropdown only ever offers topics that exist in the data.
+    const [grievanceTopics, setGrievanceTopics] = useState([]);
+    useEffect(() => {
+        let cancelled = false;
+        api.get('/grievances/topics')
+            .then((res) => {
+                if (!cancelled) setGrievanceTopics(Array.isArray(res.data?.topics) ? res.data.topics : []);
+            })
+            .catch(() => { if (!cancelled) setGrievanceTopics([]); });
+        return () => { cancelled = true; };
+    }, []);
     const [openGReportCode, setOpenGReportCode] = useState('');
     const [openSReportCode, setOpenSReportCode] = useState('');
     const [openCReportCode, setOpenCReportCode] = useState('');
@@ -1891,7 +1901,7 @@ const Grievances = () => {
                     <div className="relative">
                         <select value={topicFilter || ''} onChange={(e) => setTopicFilter(e.target.value || null)} className="appearance-none bg-white border border-slate-200 rounded-md pl-6 pr-6 py-1 text-xs text-slate-700 hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-400 cursor-pointer">
                             <option value="">All Topics</option>
-                            {GRIEVANCE_TOPICS.map(t => <option key={t} value={t}>{t}</option>)}
+                            {grievanceTopics.map(t => <option key={t} value={t}>{t}</option>)}
                         </select>
                         <Tag className="absolute left-1.5 top-1/2 -translate-y-1/2 h-3 w-3 text-slate-400 pointer-events-none" />
                         <ChevronDown className="absolute right-1.5 top-1/2 -translate-y-1/2 h-3 w-3 text-slate-400 pointer-events-none" />
@@ -2441,7 +2451,7 @@ const Grievances = () => {
 
                     {/* Skeleton loading */}
                     {rssLoading && (
-                        <div className="space-y-3">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 w-full">
                             {[...Array(5)].map((_, i) => (
                                 <div key={i} className="bg-white rounded-xl border border-slate-200 h-[175px] flex overflow-hidden animate-pulse">
                                     <div className="w-44 shrink-0 bg-slate-100" />
@@ -2477,7 +2487,7 @@ const Grievances = () => {
 
                     {/* Article list */}
                     {!rssLoading && rssArticles.length > 0 && (
-                        <div className="space-y-4 w-full">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 w-full">
                             {rssArticles.map((article) => (
                                 <RssNewsCard
                                     key={article._id || article.source_url}
