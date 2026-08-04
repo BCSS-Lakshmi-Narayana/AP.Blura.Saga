@@ -10,9 +10,10 @@ const {
     getPoiBySourceId
 } = require('../controllers/poiController');
 const { protect } = require('../middleware/authMiddleware');
+const { loadScope } = require('../middleware/scopeMiddleware');
 const { requireAnyPageAccess } = require('../middleware/rbacMiddleware');
 
-router.use(protect, requireAnyPageAccess(['/person-of-interest']));
+router.use(protect, loadScope, requireAnyPageAccess(['/person-of-interest']));
 
 router.get('/', getAllPOIs);
 router.get('/by-source/:sourceId', getPoiBySourceId);

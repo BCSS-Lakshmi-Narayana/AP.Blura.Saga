@@ -2,6 +2,7 @@ const { v4: uuidv4 } = require('uuid');
 const EngagerAnalysis = require('../models/EngagerAnalysis');
 const Source = require('../models/Source');
 const rapidApiXService = require('./rapidApiXService');
+const { sourceScopeFilter } = require('../middleware/scopeMiddleware');
 
 const normalizeHandle = (value) => String(value || '').replace(/^@/, '').trim().toLowerCase();
 const isValidXHandle = (handle) => /^[a-z0-9_]{1,15}$/i.test(String(handle || '').trim());
@@ -11,6 +12,22 @@ const LIKELY_MACHINE_HANDLE_RE = /^[0-9a-f]{12,15}$/i;
 
 const isLikelyMachineHandle = (handle) => LIKELY_MACHINE_HANDLE_RE.test(String(handle || '').trim());
 const ANALYSIS_STATUS_ORDER = { completed: 0, processing: 1, pending: 2, failed: 3 };
+
+/**
+ * RBAC row-level scope: EngagerAnalysis.source_id is often unset (e.g.
+ * autoQueueNewHandles doesn't pass sourceId), so we can't rely on it to
+ * join back to Source. Instead resolve the caller's allowed X handles by
+ * normalizing Source.identifier for every Source they're scoped to see
+ * (party-wide OR tagged to their own seat(s), via sourceScopeFilter — same
+ * rule sourceController.getSources / contentController.applyContentScope
+ * apply), and match against EngagerAnalysis.handle_lower.
+ * Returns `null` for super-admins / unscoped legacy roles (no filtering).
+ */
+const getAllowedHandles = async (scope) => {
+    if (!scope || scope.canSeeAll) return null;
+    const allowedSources = await Source.find({ platform: 'x', ...sourceScopeFilter(scope) }).select('identifier').lean();
+    return new Set(allowedSources.map((s) => normalizeHandle(s.identifier)).filter(Boolean));
+};
 
 const cleanupEngagerAnalysisState = async () => {
   const staleBefore = new Date(Date.now() - STALE_PROCESSING_MS);
@@ -414,9 +431,12 @@ const getPendingCount = async () => {
 /**
  * Get all analysis records (one per handle) for the Frequent Engagers panel.
  * Returns only the latest record per handle via aggregation.
+ *
+ * `scope` (req.scope) clamps results to handles the caller is scoped to see.
  */
-const getAllAnalyses = async () => {
+const getAllAnalyses = async (scope) => {
   await cleanupEngagerAnalysisState();
+  const allowedHandles = await getAllowedHandles(scope);
 
   const rows = await EngagerAnalysis.aggregate([
     { $sort: { analyzed_at: -1 } },
@@ -442,6 +462,7 @@ const getAllAnalyses = async () => {
   ]);
   return rows
     .filter((row) => isValidXHandle(row.handle))
+    .filter((row) => !allowedHandles || allowedHandles.has(normalizeHandle(row.handle_lower)))
     .sort((a, b) => {
       const statusDelta = (ANALYSIS_STATUS_ORDER[a.status] ?? 99) - (ANALYSIS_STATUS_ORDER[b.status] ?? 99);
       if (statusDelta !== 0) return statusDelta;
@@ -451,9 +472,14 @@ const getAllAnalyses = async () => {
 
 /**
  * Get top engagers aggregated across ALL completed analyses, sorted by total engagement count.
+ *
+ * `scope` (req.scope) clamps the source analyses folded into the aggregation
+ * to handles the caller is scoped to see — the returned engagers (retweeters)
+ * are still whoever engaged with those in-scope handles.
  */
-const getTopEngagers = async (limit = 100) => {
+const getTopEngagers = async (limit = 100, scope) => {
   await cleanupEngagerAnalysisState();
+  const allowedHandles = await getAllowedHandles(scope);
 
   const frequencyRank = {
     'one-time': 1,
@@ -471,8 +497,11 @@ const getTopEngagers = async (limit = 100) => {
 
   const engagerMap = new Map();
 
+  const findQuery = { status: 'completed' };
+  if (allowedHandles) findQuery.handle_lower = { $in: Array.from(allowedHandles) };
+
   const cursor = EngagerAnalysis.find(
-    { status: 'completed' },
+    findQuery,
     {
       handle_lower: 1,
       analyzed_at: 1,

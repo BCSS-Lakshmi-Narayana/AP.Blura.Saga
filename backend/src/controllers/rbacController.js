@@ -2,6 +2,13 @@ const PagePermission = require('../models/PagePermission');
 const User = require('../models/User');
 const { ALL_PAGES, PAGE_FEATURES } = require('../config/rbacConfig');
 
+// Constituency-scoped officer roles (MLA / MP / Nara Lokesh). These accounts
+// are provisioned directly (see authController.provisionScopedUser) and never
+// get a PagePermission doc unless a superadmin customizes one later — so
+// their default, until customized, should mirror full officer access rather
+// than the single-page fallback used for freshly self-registered accounts.
+const SCOPED_ROLES = new Set(['mla', 'mp', 'nara_lokesh']);
+
 const PAGE_PATHS = new Set(ALL_PAGES.map((page) => page.path));
 const FEATURE_IDS_BY_PAGE = Object.fromEntries(
   Object.entries(PAGE_FEATURES).map(([path, features]) => [path, new Set(features.map((feature) => feature.id))])
@@ -29,9 +36,43 @@ const buildPermissionsFromAllowedPages = (allowedPages = []) => {
   return permissions;
 };
 
-const buildDefaultPermissions = () => ({
-  '/dashboard': { enabled: true, features: [] }
-});
+const buildFullPermissions = () => {
+  const permissions = {};
+  ALL_PAGES.forEach((page) => {
+    if (page.path === '/access-management') return;
+    permissions[page.path] = {
+      enabled: true,
+      features: PAGE_FEATURES[page.path]?.map((feature) => feature.id) || []
+    };
+  });
+  return permissions;
+};
+
+const buildDefaultPermissions = (role) => (
+  SCOPED_ROLES.has(role)
+    ? buildFullPermissions()
+    : { '/dashboard': { enabled: true, features: [] } }
+);
+
+// Pages a scoped officer (mla/mp/nara_lokesh) must always be able to reach,
+// regardless of what an existing custom PagePermission doc says. Login always
+// redirects to /andhra-pradesh-map and /mla is the officer's own profile —
+// an account provisioned (or last edited) before these pages existed would
+// otherwise never gain them, since a stored doc simply missing a key is not
+// the same as the "no doc at all" default-permissions fallback above.
+const SCOPED_BASELINE_PAGES = ['/dashboard', '/andhra-pradesh-map', '/mla', '/unrest-predictor'];
+
+const withScopedBaseline = (permissions, role) => {
+  if (!SCOPED_ROLES.has(role)) return permissions;
+  SCOPED_BASELINE_PAGES.forEach((path) => {
+    if (!PAGE_PATHS.has(path)) return;
+    permissions[path] = {
+      enabled: true,
+      features: PAGE_FEATURES[path]?.map((feature) => feature.id) || []
+    };
+  });
+  return permissions;
+};
 
 const buildSuperAdminPermissions = () => {
   const permissions = {};
@@ -158,7 +199,7 @@ const getUserPermissions = async (req, res) => {
     const permissionDoc = await PagePermission.findOne({ user_id: userId });
 
     if (!permissionDoc) {
-      const defaultPermissions = buildDefaultPermissions();
+      const defaultPermissions = buildDefaultPermissions(user.role);
       return res.json({
         user_id: userId,
         allowed_pages: enabledPagesFromPermissions(defaultPermissions),
@@ -167,9 +208,12 @@ const getUserPermissions = async (req, res) => {
       });
     }
 
-    const permissions = permissionDoc.permissions
-      ? normalizePermissionsForRead(permissionDoc.permissions, { fillMissingFeatures: true })
-      : buildPermissionsFromAllowedPages(permissionDoc.allowed_pages || []);
+    const permissions = withScopedBaseline(
+      permissionDoc.permissions
+        ? normalizePermissionsForRead(permissionDoc.permissions, { fillMissingFeatures: true })
+        : buildPermissionsFromAllowedPages(permissionDoc.allowed_pages || []),
+      user.role
+    );
 
     res.json({
       user_id: userId,
@@ -257,7 +301,7 @@ const getMyPermissions = async (req, res) => {
 
     const permissionDoc = await PagePermission.findOne({ user_id: req.user.id });
     if (!permissionDoc) {
-      const defaultPermissions = buildDefaultPermissions();
+      const defaultPermissions = buildDefaultPermissions(req.user.role);
       return res.json({
         allowed_pages: enabledPagesFromPermissions(defaultPermissions),
         permissions: defaultPermissions,
@@ -270,8 +314,9 @@ const getMyPermissions = async (req, res) => {
       : buildPermissionsFromAllowedPages(permissionDoc.allowed_pages || []);
 
     if (Object.keys(permissions).length === 0) {
-      permissions = buildDefaultPermissions();
+      permissions = buildDefaultPermissions(req.user.role);
     }
+    permissions = withScopedBaseline(permissions, req.user.role);
 
     res.json({
       allowed_pages: enabledPagesFromPermissions(permissions),

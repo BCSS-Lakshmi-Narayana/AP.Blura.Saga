@@ -418,6 +418,23 @@ router.get('/videos', async (req, res) => {
             if (end_date) matchStage.published_at.$lte = new Date(end_date);
         }
 
+        // RBAC row-level scope: Content carries no constituency field of its
+        // own (unlike Grievance's detected_location.constituency) — it
+        // inherits visibility from the Source (channel) it was synced from.
+        // Resolve the caller's allowed channel Source ids the same way
+        // GET /channels does (party-wide OR tagged to their own seat(s), via
+        // sourceScopeFilter) and clamp the video query to them, so a scoped
+        // user can't page through statewide YouTube content.
+        if (req.scope && !req.scope.canSeeAll) {
+            const allowedChannels = await Source.find({ platform: 'youtube', ...sourceScopeFilter(req.scope) }).select('id').lean();
+            const allowedChannelIds = allowedChannels.map((c) => c.id);
+            if (matchStage.source_id) {
+                if (!allowedChannelIds.includes(matchStage.source_id)) matchStage.source_id = { $in: ['__none__'] };
+            } else {
+                matchStage.source_id = { $in: allowedChannelIds.length > 0 ? allowedChannelIds : ['__none__'] };
+            }
+        }
+
         const videos = await Content.aggregate([
             { $match: matchStage },
             { $sort: { published_at: -1 } },

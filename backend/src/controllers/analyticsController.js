@@ -8,7 +8,7 @@ const SuggestionReport = require('../models/SuggestionReport');
 const CriticismReport = require('../models/CriticismReport');
 const QueryReport = require('../models/QueryReport');
 const cacheService = require('../services/cacheService');
-const { sourceScopeFilter } = require('../middleware/scopeMiddleware');
+const { sourceScopeFilter, mergeFilter } = require('../middleware/scopeMiddleware');
 
 const sendShortCacheHeaders = (res, browserSeconds = 15) => {
   res.set('Cache-Control', `private, max-age=${browserSeconds}`);
@@ -268,6 +268,9 @@ const getTrends = async (req, res) => {
     const startDate = new Date();
     startDate.setDate(startDate.getDate() - days);
 
+    // Content has no constituency-bearing field anywhere in the schema/codebase
+    // (mirrors the unscoped `Content.countDocuments({})` in getAnalyticsOverview
+    // above), so content_trend intentionally stays unscoped here.
     const contentTrend = await Content.aggregate([
       { $match: { created_at: { $gte: startDate } } },
       {
@@ -279,8 +282,30 @@ const getTrends = async (req, res) => {
       { $sort: { _id: 1 } }
     ]);
 
+    // RBAC row-level scope: same seat-name regex over title/description/
+    // matched_keywords_normalized used by getAnalyticsOverview above and by
+    // alertController.getAlerts. Zero assigned seats -> match nothing.
+    const scope = req.scope;
+    let alertMatch = { created_at: { $gte: startDate } };
+    if (scope && !scope.canSeeAll) {
+      const seats = scope.constituencies || [];
+      if (seats.length === 0) {
+        alertMatch = mergeFilter(alertMatch, { _id: { $exists: false } });
+      } else {
+        const escape = (s) => String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const seatRegex = new RegExp(seats.map(escape).join('|'), 'i');
+        alertMatch = mergeFilter(alertMatch, {
+          $or: [
+            { title: seatRegex },
+            { description: seatRegex },
+            { matched_keywords_normalized: seatRegex },
+          ],
+        });
+      }
+    }
+
     const alertTrend = await Alert.aggregate([
-      { $match: { created_at: { $gte: startDate } } },
+      { $match: alertMatch },
       {
         $group: {
           _id: {
@@ -305,6 +330,18 @@ const getTrends = async (req, res) => {
 // @desc    Unified reports analytics (weekly, monthly, overall)
 // @route   GET /api/analytics/unified-reports
 // @access  Private
+//
+// NOTE on RBAC scope: this function aggregates across Report,
+// GrievanceWorkflowReport, SuggestionReport, CriticismReport and QueryReport
+// (see domainConfigs / getAlertsStatus / getGrievanceStatus / etc. below).
+// None of those five schemas carry a constituency/detected_location field,
+// and no controller in the codebase scopes them by constituency today (the
+// established constituencyFilter pattern only applies to collections that
+// carry `detected_location.constituency`, e.g. Grievance, and the seat-name
+// regex pattern only applies to Alert's title/description). Scoping these
+// would require inventing a new join (e.g. GrievanceWorkflowReport ->
+// Grievance via grievance_id) that doesn't exist elsewhere, so this is
+// intentionally left unscoped rather than guessed. Flagged for follow-up.
 const getUnifiedReportsAnalytics = async (req, res) => {
   try {
     const fromKey = (req.query.from || '').toString();

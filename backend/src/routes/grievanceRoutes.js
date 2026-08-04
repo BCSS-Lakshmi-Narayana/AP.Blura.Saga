@@ -43,6 +43,7 @@ const {
 const { protect } = require('../middleware/authMiddleware');
 const { GRIEVANCE_FEATURE_ALIASES } = require('../config/rbacConfig');
 const { requireAnyPageAccess, requireFeatureAccess } = require('../middleware/rbacMiddleware');
+const { requireConstituencyAccess } = require('../middleware/scopeMiddleware');
 
 const normalizeGrievanceFeature = (value) => {
     if (!value || typeof value !== 'string') return null;
@@ -75,7 +76,11 @@ router.get('/categories', getDistinctCategories);
 router.get('/category-analytics', getCategoryAnalytics);
 router.get('/map', getMapGrievances);
 router.get('/location-stats', getLocationStats);
-router.get('/location-summary', getLocationSummary);
+router.get(
+    '/location-summary',
+    requireConstituencyAccess((req) => req.query.location_city || req.query.location),
+    getLocationSummary
+);
 
 // Settings routes
 router.route('/settings')

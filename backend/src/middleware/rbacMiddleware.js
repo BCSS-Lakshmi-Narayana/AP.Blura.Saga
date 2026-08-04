@@ -1,6 +1,12 @@
 const PagePermission = require('../models/PagePermission');
 const { ALL_PAGES, PAGE_FEATURES } = require('../config/rbacConfig');
 
+// Keep in sync with rbacController.js — constituency-scoped officer roles
+// (MLA / MP / Nara Lokesh) default to full page access until a superadmin
+// customizes their permissions, instead of the single-page fallback used
+// for freshly self-registered accounts.
+const SCOPED_ROLES = new Set(['mla', 'mp', 'nara_lokesh']);
+
 const PAGE_PATHS = new Set(ALL_PAGES.map((page) => page.path));
 const FEATURE_IDS_BY_PAGE = Object.fromEntries(
   Object.entries(PAGE_FEATURES).map(([pagePath, features]) => [pagePath, new Set(features.map((feature) => feature.id))])
@@ -36,9 +42,40 @@ const buildPermissionsFromAllowedPages = (allowedPages = []) => {
   return permissions;
 };
 
-const buildDefaultPermissions = () => ({
-  '/dashboard': { enabled: true, features: [] }
-});
+const buildFullPermissions = () => {
+  const permissions = {};
+  ALL_PAGES.forEach((page) => {
+    if (page.path === '/access-management') return;
+    permissions[page.path] = {
+      enabled: true,
+      features: PAGE_FEATURES[page.path]?.map((feature) => feature.id) || []
+    };
+  });
+  return permissions;
+};
+
+const buildDefaultPermissions = (role) => (
+  SCOPED_ROLES.has(role)
+    ? buildFullPermissions()
+    : { '/dashboard': { enabled: true, features: [] } }
+);
+
+// Keep in sync with rbacController.js — pages a scoped officer must always
+// be able to reach regardless of what an existing custom PagePermission doc
+// says (see rbacController.js for the full rationale).
+const SCOPED_BASELINE_PAGES = ['/dashboard', '/andhra-pradesh-map', '/mla', '/unrest-predictor'];
+
+const withScopedBaseline = (permissions, role) => {
+  if (!SCOPED_ROLES.has(role)) return permissions;
+  SCOPED_BASELINE_PAGES.forEach((path) => {
+    if (!PAGE_PATHS.has(path)) return;
+    permissions[path] = {
+      enabled: true,
+      features: PAGE_FEATURES[path]?.map((feature) => feature.id) || []
+    };
+  });
+  return permissions;
+};
 
 const buildSuperAdminPermissions = () => {
   const permissions = {};
@@ -117,16 +154,18 @@ const ensureRbacLoaded = async (req) => {
   let permissions;
 
   if (!permissionDoc) {
-    permissions = buildDefaultPermissions();
+    permissions = buildDefaultPermissions(req.user.role);
   } else {
     permissions = permissionDoc.permissions
       ? normalizePermissions(permissionDoc.permissions, { fillMissingFeatures: true })
       : buildPermissionsFromAllowedPages(permissionDoc.allowed_pages || []);
 
     if (Object.keys(permissions).length === 0) {
-      permissions = buildDefaultPermissions();
+      permissions = buildDefaultPermissions(req.user.role);
     }
   }
+
+  permissions = withScopedBaseline(permissions, req.user.role);
 
   req.rbac = {
     isSuperAdmin: false,

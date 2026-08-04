@@ -1,5 +1,6 @@
 const ALL_PAGES = [
   { path: '/dashboard', name: 'Dashboard', icon: 'LayoutDashboard' },
+  { path: '/andhra-pradesh-map', name: 'Andhra Pradesh Map', icon: 'Globe' },
   { path: '/alerts', name: 'Alerts', icon: 'AlertTriangle' },
   { path: '/monitors', name: 'Profiles Live Monitor', icon: 'Monitor' },
   { path: '/grievances', name: 'Grievances', icon: 'MessageSquare' },
@@ -14,6 +15,8 @@ const ALL_PAGES = [
   { path: '/sources', name: 'Sources', icon: 'Rss' },
   { path: '/person-of-interest', name: 'Profile', icon: 'UserSearch' },
   { path: '/geographic-intelligence', name: 'Geographic Intelligence', icon: 'Map' },
+  { path: '/mla', name: 'MLA Profile', icon: 'UserSearch' },
+  { path: '/unrest-predictor', name: 'Unrest Predictor', icon: 'AlertTriangle' },
   { path: '/access-management', name: 'Access Management', icon: 'ShieldCheck' }
 ];
 
