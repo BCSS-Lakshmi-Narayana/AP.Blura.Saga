@@ -147,10 +147,15 @@ const buildListQuery = (params = {}, options = {}) => {
         to,
         source_id,
         category,
+        topic,
         grievance_type,
         analysis_category,
         risk_level,
-        target_entity
+        target_entity,
+        location,
+        location_city,
+        location_district,
+        location_constituency
     } = params;
 
     const { includeTab = true } = options;
@@ -205,34 +210,23 @@ const buildListQuery = (params = {}, options = {}) => {
     if (platform && platform !== 'all') {
         query.platform = platform;
     }
-    if (category && category !== 'all') {
-        const categoryOr = [
-            { 'grievance_workflow.category': category },
-            { 'query_workflow.category': category },
-            { 'criticism.category': category },
-            { 'suggestion.category': category }
+    const effectiveTopic = topic || category || grievance_type || analysis_category;
+    if (effectiveTopic && effectiveTopic !== 'all') {
+        const topicRegex = new RegExp(`${escapeRegex(effectiveTopic)}`, 'i');
+        const topicOr = [
+            { 'analysis.grievance_type': topicRegex },
+            { 'analysis.category': topicRegex },
+            { 'grievance_workflow.category': topicRegex },
+            { 'query_workflow.category': topicRegex },
+            { 'criticism.category': topicRegex },
+            { 'suggestion.category': topicRegex }
         ];
         
         if (query.$or) {
-            query.$and = [...(query.$and || []), { $or: query.$or }, { $or: categoryOr }];
+            query.$and = [...(query.$and || []), { $or: query.$or }, { $or: topicOr }];
             delete query.$or;
         } else {
-            query.$or = categoryOr;
-        }
-    }
-
-    if (grievance_type && grievance_type !== 'all') {
-        query['analysis.grievance_type'] = grievance_type;
-    }
-
-    if (analysis_category && analysis_category !== 'all') {
-        const lexicon = ISSUE_LEXICON && ISSUE_LEXICON[analysis_category];
-        if (lexicon) {
-            const escapedTokens = lexicon.map(t => escapeRegex(t));
-            const regexPattern = escapedTokens.join('|');
-            query['content.text'] = { $regex: new RegExp(`(${regexPattern})`, 'i') };
-        } else {
-            query['analysis.category'] = analysis_category;
+            query.$or = topicOr;
         }
     }
 
@@ -247,12 +241,11 @@ const buildListQuery = (params = {}, options = {}) => {
     }
 
     // Location filters
-    const { location_city, location_district, location_constituency } = params;
     const addLocationOrFilter = (rawValue, fields) => {
         if (!rawValue || rawValue === 'all') return;
         const escaped = escapeRegex(rawValue);
-        const boundaryRegex = new RegExp(`(^|[^a-z0-9])${escaped}([^a-z0-9]|$)`, 'i');
-        const locationOr = fields.map((field) => ({ [field]: { $regex: boundaryRegex } }));
+        const flexRegex = new RegExp(`${escaped}`, 'i');
+        const locationOr = fields.map((field) => ({ [field]: { $regex: flexRegex } }));
 
         if (query.$or) {
             query.$and = [...(query.$and || []), { $or: query.$or }, { $or: locationOr }];
@@ -262,24 +255,14 @@ const buildListQuery = (params = {}, options = {}) => {
         query.$and = [...(query.$and || []), { $or: locationOr }];
     };
 
-    // City filter is used by map redirection; allow matches across detected location fields.
-    addLocationOrFilter(location_city, [
-        'detected_location.city',
-        'detected_location.district',
-        'detected_location.constituency'
-    ]);
-
-    addLocationOrFilter(location_district, [
-        'detected_location.district',
-        'detected_location.city',
-        'detected_location.constituency'
-    ]);
-
-    addLocationOrFilter(location_constituency, [
-        'detected_location.constituency',
-        'detected_location.city',
-        'detected_location.district'
-    ]);
+    const targetLoc = location || location_city || location_district || location_constituency;
+    if (targetLoc) {
+        addLocationOrFilter(targetLoc, [
+            'detected_location.city',
+            'detected_location.district',
+            'detected_location.constituency'
+        ]);
+    }
 
     if (includeTab) {
         const tabFilter = tabToWorkflowQuery(finalTab);
@@ -319,7 +302,17 @@ const buildListQuery = (params = {}, options = {}) => {
     // query time so anything ingested by legacy paths (keyword sweeps, manual
     // imports, WhatsApp) is filtered out unless it mentions a hard BSK
     // token. Pass `bsk_only=false` explicitly to opt out (admin / audit).
-    const bskOnly = String(params.bsk_only ?? 'true').toLowerCase() !== 'false';
+    const hasLocationOrTopic = !!(
+        params.location ||
+        params.location_city ||
+        params.location_district ||
+        params.location_constituency ||
+        params.topic ||
+        params.grievance_type ||
+        params.category ||
+        params.analysis_category
+    );
+    const bskOnly = String(params.bsk_only ?? (hasLocationOrTopic ? 'false' : 'true')).toLowerCase() !== 'false';
     if (bskOnly) {
         const { HARD_BSK_TOKENS } = require('../services/bskRelevanceFilterService');
         // Build one combined case-insensitive regex from the hard tokens.

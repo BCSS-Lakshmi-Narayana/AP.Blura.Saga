@@ -1,7 +1,6 @@
 import React from 'react';
 import { Treemap, Tooltip, ResponsiveContainer } from 'recharts';
-
-const BUCKET_COLOR = { critical: '#ef4444', high: '#f97316', medium: '#f59e0b', low: '#10b981' };
+import { RISK_COLORS } from './sentimentScale';
 
 const TreemapTooltip = ({ active, payload }) => {
   if (!active || !payload?.length) return null;
@@ -12,6 +11,9 @@ const TreemapTooltip = ({ active, payload }) => {
       <div className="text-slate-500 mt-1">Mentions Volume: <span className="text-slate-700 font-semibold">{(d.total_mentions || d.value || 0).toLocaleString()}</span></div>
       <div className="text-slate-500">Risk Index: <span className="text-slate-700 font-semibold">{d.risk_index}</span></div>
       <div className="text-slate-500">Risk Level: <span className="text-slate-700 font-semibold capitalize">{d.risk_level}</span></div>
+      <div className="text-slate-400 text-[10px] mt-1 max-w-[180px] leading-snug">
+        Block color follows Risk Level (AI risk score); Risk Index is a separate composite that also factors in volume and growth — the two can differ.
+      </div>
     </div>
   );
 };
@@ -19,13 +21,13 @@ const TreemapTooltip = ({ active, payload }) => {
 const CustomTreemapContent = (props) => {
   const { x, y, width, height, onSelect } = props;
   const payload = props.payload || props;
-  
+
   const name = payload.name;
   const total_mentions = payload.total_mentions || props.value || 0;
   const risk_level = payload.risk_level || 'low';
 
-  const fill = BUCKET_COLOR[risk_level] || BUCKET_COLOR.low;
-  
+  const fill = RISK_COLORS[risk_level] || RISK_COLORS.low;
+
   // Show labels only if the rectangle is large enough to contain text
   const showLabel = width > 50 && height > 24;
 
@@ -75,12 +77,13 @@ const CustomTreemapContent = (props) => {
 };
 
 /**
- * Risk Treemap — represents districts as nested blocks.
+ * Risk Distribution Treemap — represents districts as nested blocks.
  *   • Size of rectangle = Mention Volume (Mentions count)
  *   • Color of rectangle = Risk Level (Critical, High, Medium, Low)
- * Eliminates the scatter plot's "squashed overlaps" issue completely.
+ * (Previously named RiskMatrixScatter from an earlier scatter-plot version —
+ * renamed to match what it actually renders.)
  */
-const RiskMatrixScatter = ({ districts = [], loading, onSelect }) => {
+const RiskDistributionTreemap = ({ districts = [], loading, onSelect }) => {
   const points = districts
     .map((d) => ({
       name: d.name,
@@ -110,7 +113,7 @@ const RiskMatrixScatter = ({ districts = [], loading, onSelect }) => {
       <div className="flex items-center justify-between mb-3">
         <h3 className="text-sm font-bold text-slate-800">Risk Distribution Treemap</h3>
         <div className="flex gap-3 text-[9px] text-slate-400 select-none">
-          {Object.entries(BUCKET_COLOR).map(([k, c]) => (
+          {Object.entries(RISK_COLORS).map(([k, c]) => (
             <span key={k} className="flex items-center gap-1 capitalize">
               <span className="w-2 h-2 rounded-full" style={{ background: c }} />
               {k}
@@ -135,4 +138,4 @@ const RiskMatrixScatter = ({ districts = [], loading, onSelect }) => {
   );
 };
 
-export default RiskMatrixScatter;
+export default RiskDistributionTreemap;
