@@ -209,7 +209,7 @@ const Settings = () => {
           <TabsTrigger value="unrest" className="text-xs px-4">Unrest predictor</TabsTrigger>
           <TabsTrigger value="sources" className="text-xs px-4">Profiles</TabsTrigger>
           <TabsTrigger value="keywords" className="text-xs px-4">Keywords</TabsTrigger>
-          <TabsTrigger value="access" className="text-xs px-4">Access Management</TabsTrigger>
+          {isSuperAdmin && <TabsTrigger value="access" className="text-xs px-4">Access Management</TabsTrigger>}
           <TabsTrigger value="general" className="text-xs px-4">Risk Thresholds</TabsTrigger>
         </TabsList>
 
@@ -498,9 +498,11 @@ const Settings = () => {
           </Card>
         </TabsContent>
 
-        <TabsContent value="access" className="mt-2">
-          <AccessManagement />
-        </TabsContent>
+        {isSuperAdmin && (
+          <TabsContent value="access" className="mt-2">
+            <AccessManagement />
+          </TabsContent>
+        )}
 
         <TabsContent value="unrest" className="mt-2">
           <UnrestPredictor />

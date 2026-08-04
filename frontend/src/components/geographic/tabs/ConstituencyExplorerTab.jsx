@@ -1,6 +1,7 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, Scale, Users, FileText, TrendingUp, Newspaper, LayoutGrid } from 'lucide-react';
+import { useAuth } from '../../../contexts/AuthContext';
 import ConstituencyHeatMap from '../../ConstituencyHeatMap';
 import RiskGauge from '../RiskGauge';
 import SentimentTrendChart from '../SentimentTrendChart';
@@ -38,6 +39,15 @@ const SUB_TABS = [
  */
 const ConstituencyExplorerTab = ({ filters = {}, active = true }) => {
   const navigate = useNavigate();
+  // Scoped officers (mla/mp/nara_lokesh) only ever have one seat in scope, so
+  // head-to-head comparison against another seat isn't meaningful for them —
+  // and would otherwise be the only place in this tab that surfaces other
+  // constituencies' names/metrics to a single-seat login.
+  const { isScoped } = useAuth();
+  const visibleSubTabs = useMemo(
+    () => (isScoped ? SUB_TABS.filter(([key]) => key !== 'comparative') : SUB_TABS),
+    [isScoped]
+  );
   // `active` lets the page keep this tab mounted (preserving search/selected
   // seat/sub-tab/compare choice) while hidden, without it continuing to
   // fetch in the background.
@@ -46,6 +56,10 @@ const ConstituencyExplorerTab = ({ filters = {}, active = true }) => {
   const [selected, setSelected] = useState(null);
   const [subTab, setSubTab] = useState('overview');
   const [compareWith, setCompareWith] = useState('');
+
+  useEffect(() => {
+    if (isScoped && subTab === 'comparative') setSubTab('overview');
+  }, [isScoped, subTab]);
 
   const goToGrievances = (opts = {}) => {
     const params = new URLSearchParams();
@@ -182,7 +196,7 @@ const ConstituencyExplorerTab = ({ filters = {}, active = true }) => {
             </div>
 
             <div className="flex flex-wrap gap-1 bg-slate-100/70 p-1 rounded-xl w-fit">
-              {SUB_TABS.map(([key, label, Icon]) => (
+              {visibleSubTabs.map(([key, label, Icon]) => (
                 <button
                   key={key}
                   type="button"
@@ -309,7 +323,7 @@ const ConstituencyExplorerTab = ({ filters = {}, active = true }) => {
               </div>
             )}
 
-            {subTab === 'comparative' && (
+            {subTab === 'comparative' && !isScoped && (
               <div className={`${CARD} p-4`}>
                 <div className="flex items-center gap-2 mb-3">
                   <span className="text-xs text-slate-500">Compare with:</span>

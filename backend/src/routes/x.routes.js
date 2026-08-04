@@ -257,7 +257,7 @@ router.get('/engager-analysis-pending', async (req, res) => {
 
 router.get('/engager-analysis-all', async (req, res) => {
     try {
-        const analyses = await getAllAnalyses();
+        const analyses = await getAllAnalyses(req.scope);
         return res.json({ analyses });
     } catch (error) {
         return res.status(500).json({ error: 'Failed to fetch analyses', message: error.message });
@@ -276,14 +276,19 @@ router.post('/engager-analysis-auto-queue', async (req, res) => {
 router.get('/engager-top', async (req, res) => {
     try {
         const limit = Math.min(parseInt(req.query.limit) || 200, 500);
-        
-        const cacheKey = `x:top-engagers:${limit}`;
+
+        // RBAC: per-user cache key so scoped MLAs don't see a cached statewide
+        // payload (and vice versa) — same pattern grievanceController uses.
+        const scopeKey = req.scope?.canSeeAll
+            ? 'all'
+            : [...(req.scope?.constituencyKeys || [])].sort().join(',');
+        const cacheKey = `x:top-engagers:${limit}:scope=${scopeKey}`;
         const cached = await cacheService.get(cacheKey);
         if (cached) {
             return res.json({ engagers: cached });
         }
 
-        const engagers = await getTopEngagers(limit);
+        const engagers = await getTopEngagers(limit, req.scope);
         await cacheService.set(cacheKey, engagers, 900); // Cache for 15 mins
 
         return res.json({ engagers });
@@ -421,7 +426,8 @@ router.get('/actions/posts', async (req, res) => {
         const result = await xActionService.getFilteredPosts({
             sentiment, keyword, dateFrom, dateTo, riskLevel, handle, source,
             limit: parseInt(limit) || 50,
-            page: parseInt(page) || 1
+            page: parseInt(page) || 1,
+            scope: req.scope
         });
         return res.json(result);
     } catch (err) {

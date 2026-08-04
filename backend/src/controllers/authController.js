@@ -1,10 +1,43 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const User = require('../models/User');
+const ConstituencyMaster = require('../models/ConstituencyMaster');
 const { createAuditLog } = require('../services/auditService');
 const { buildEmailLookup, normalizeEmail, normalizeRole } = require('../utils/authIdentity');
+const AP_MLAS = require('../data/ap_mlas.json');
+const LS_TO_AC = require('../data/ls_to_ac.json');
 
 const SCOPED_ROLES = new Set(['mla', 'mp', 'nara_lokesh']);
+
+// Static fallback key sets, used only when the DB-backed ConstituencyMaster
+// collection has no match for a given seat (e.g. not yet synced in this
+// environment). ConstituencyMaster remains the primary/authoritative source.
+const AP_MLA_KEYS = new Set(AP_MLAS.map((m) => ConstituencyMaster.normKey(m.constituency)));
+const LS_SEAT_KEYS = new Set(Object.keys(LS_TO_AC).map((k) => ConstituencyMaster.normKey(k)));
+
+// Validates `assigned_constituency` against ConstituencyMaster (the
+// DB-backed, authoritative AC list used everywhere else in this codebase —
+// see scopeMiddleware.buildGeoScope), falling back to the static
+// ap_mlas.json seed list only when ConstituencyMaster has no match. This
+// guards against a typo silently leaving an MLA scoped to nothing, since
+// scopeMiddleware does exact normalized-key matching against this field.
+const isValidConstituency = async (name) => {
+  const key = ConstituencyMaster.normKey(name);
+  if (!key) return false;
+  const hit = await ConstituencyMaster.findOne({ ac_key: key }).select('_id').lean();
+  if (hit) return true;
+  return AP_MLA_KEYS.has(key);
+};
+
+// Validates `assigned_lok_sabha` against ls_to_ac.json — the same lookup
+// scopeMiddleware's childAcsForLs() uses to expand an MP's LS seat into its
+// child ACs, so a mismatch here would otherwise leave the MP scoped to
+// nothing.
+const isValidLokSabha = (name) => {
+  const key = ConstituencyMaster.normKey(name);
+  if (!key) return false;
+  return LS_SEAT_KEYS.has(key);
+};
 
 const buildUserPayload = (user) => {
   const role = normalizeRole(user.role);
@@ -164,6 +197,21 @@ const provisionScopedUser = async (req, res) => {
     if (normalizedRole === 'mp' && !assigned_lok_sabha) {
       return res.status(400).json({ message: 'assigned_lok_sabha required for mp role' });
     }
+    if (
+      (normalizedRole === 'mla' || normalizedRole === 'nara_lokesh') &&
+      !(await isValidConstituency(assigned_constituency))
+    ) {
+      return res.status(400).json({
+        message: `Unknown constituency "${assigned_constituency}". It must match an official AP assembly constituency name.`,
+        valid_constituencies: AP_MLAS.map((m) => m.constituency).sort(),
+      });
+    }
+    if (normalizedRole === 'mp' && !isValidLokSabha(assigned_lok_sabha)) {
+      return res.status(400).json({
+        message: `Unknown Lok Sabha seat "${assigned_lok_sabha}". It must match an official AP Lok Sabha constituency.`,
+        valid_lok_sabha_seats: Object.keys(LS_TO_AC).sort(),
+      });
+    }
 
     const exists = await User.findOne({ email: buildEmailLookup(email) });
     if (exists) return res.status(400).json({ message: 'User already exists' });
@@ -226,8 +274,26 @@ const updateScopedUser = async (req, res) => {
 
     if (typeof full_name === 'string' && full_name.trim()) user.full_name = full_name.trim();
     if (typeof is_active === 'boolean') user.is_active = is_active;
-    if (typeof assigned_constituency === 'string') user.assigned_constituency = assigned_constituency;
-    if (typeof assigned_lok_sabha === 'string') user.assigned_lok_sabha = assigned_lok_sabha;
+    if (typeof assigned_constituency === 'string') {
+      const trimmed = assigned_constituency.trim();
+      if (trimmed && !(await isValidConstituency(trimmed))) {
+        return res.status(400).json({
+          message: `Unknown constituency "${assigned_constituency}". It must match an official AP assembly constituency name.`,
+          valid_constituencies: AP_MLAS.map((m) => m.constituency).sort(),
+        });
+      }
+      user.assigned_constituency = assigned_constituency;
+    }
+    if (typeof assigned_lok_sabha === 'string') {
+      const trimmed = assigned_lok_sabha.trim();
+      if (trimmed && !isValidLokSabha(trimmed)) {
+        return res.status(400).json({
+          message: `Unknown Lok Sabha seat "${assigned_lok_sabha}". It must match an official AP Lok Sabha constituency.`,
+          valid_lok_sabha_seats: Object.keys(LS_TO_AC).sort(),
+        });
+      }
+      user.assigned_lok_sabha = assigned_lok_sabha;
+    }
     if (Array.isArray(extra_constituencies)) user.extra_constituencies = extra_constituencies;
     if (password) {
       const salt = await bcrypt.genSalt(10);

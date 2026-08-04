@@ -6,6 +6,8 @@ const XBulkAction = require('../models/XBulkAction');
 const Content = require('../models/Content');
 const Alert = require('../models/Alert');
 const Grievance = require('../models/Grievance');
+const Source = require('../models/Source');
+const { sourceScopeFilter, constituencyFilter, mergeFilter } = require('../middleware/scopeMiddleware');
 
 // ── Scraper session cache (reuse logged-in scrapers per account) ───────────────
 const scraperCache = new Map(); // username → Scraper instance
@@ -201,14 +203,30 @@ const getScraperForAccount = async (accountUsername) => {
 /**
  * Fetch X posts from DB with filter options.
  * Filters: sentiment, keyword, dateFrom, dateTo, riskLevel, handle
+ *
+ * RBAC row-level scope: `scope` (req.scope from scopeMiddleware) clamps
+ * results for scoped MLA/MP/NL users so bulk-select can't reach statewide
+ * content. Content/Alert carry no constituency field of their own — same
+ * as contentController.applyContentScope — so visibility is inherited from
+ * the Source (X handle) they were scraped from via source_id. Grievances
+ * carry their own detected_location.constituency, scoped the same way
+ * grievanceController does. No-op for super-admins / unscoped legacy roles.
  */
-const getFilteredPosts = async ({ sentiment, keyword, dateFrom, dateTo, riskLevel, handle, source, limit = 50, page = 1 }) => {
+const getFilteredPosts = async ({ sentiment, keyword, dateFrom, dateTo, riskLevel, handle, source, limit = 50, page = 1, scope }) => {
     const skip = (page - 1) * limit;
+
+    let allowedSourceIds = null; // null = unscoped (canSeeAll / no scope passed)
+    if (scope && !scope.canSeeAll) {
+        const allowedSources = await Source.find({ platform: 'x', ...sourceScopeFilter(scope) }).select('id').lean();
+        allowedSourceIds = allowedSources.map(s => s.id);
+        if (allowedSourceIds.length === 0) allowedSourceIds = ['__none__'];
+    }
 
     // ── ALERTS: pre-resolve sentiment from Content (same approach as alertController)
     // then query Alert collection and join Content only for display fields ──────
     if (source === 'alerts') {
         const alertMatch = { platform: 'x' };
+        if (allowedSourceIds) alertMatch.source_id = { $in: allowedSourceIds };
         if (riskLevel && riskLevel !== 'all') alertMatch.risk_level = riskLevel;
         if (handle) alertMatch.author_handle = { $regex: handle, $options: 'i' };
         if (dateFrom || dateTo) {
@@ -301,6 +319,9 @@ const getFilteredPosts = async ({ sentiment, keyword, dateFrom, dateTo, riskLeve
             if (dateFrom) gMatch.post_date.$gte = new Date(dateFrom);
             if (dateTo)   gMatch.post_date.$lte  = new Date(dateTo);
         }
+        if (scope && !scope.canSeeAll) {
+            mergeFilter(gMatch, constituencyFilter(scope, { extraFields: ['routing_targets.constituencies'] }));
+        }
 
         const [rawDocs, total] = await Promise.all([
             Grievance.find(gMatch).sort({ post_date: -1 }).skip(skip).limit(limit).lean(),
@@ -331,6 +352,7 @@ const getFilteredPosts = async ({ sentiment, keyword, dateFrom, dateTo, riskLeve
     // ── ALL POSTS: union of Content + Grievances ────────────────────────────────
     // Content and Grievances are separate collections — both must be queried.
     const contentMatch = { platform: 'x' };
+    if (allowedSourceIds) contentMatch.source_id = { $in: allowedSourceIds };
     if (sentiment && sentiment !== 'all') contentMatch.sentiment = sentiment;
     if (riskLevel && riskLevel !== 'all') contentMatch.risk_level = riskLevel;
     if (handle)  contentMatch['raw_data.handle'] = { $regex: handle,  $options: 'i' };
@@ -357,6 +379,9 @@ const getFilteredPosts = async ({ sentiment, keyword, dateFrom, dateTo, riskLeve
         grievanceMatch.post_date = {};
         if (dateFrom) grievanceMatch.post_date.$gte = new Date(dateFrom);
         if (dateTo)   grievanceMatch.post_date.$lte  = new Date(dateTo);
+    }
+    if (scope && !scope.canSeeAll) {
+        mergeFilter(grievanceMatch, constituencyFilter(scope, { extraFields: ['routing_targets.constituencies'] }));
     }
 
     const contentProjection = {

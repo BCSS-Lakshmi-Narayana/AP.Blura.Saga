@@ -1,4 +1,20 @@
 const POI = require('../models/POI');
+const { normalizeScopeKey } = require('../middleware/scopeMiddleware');
+
+// RBAC: does this POI's constituency fall inside the caller's scope?
+// Mirrors the field/matching approach used by getAllPOIs' list filter
+// (the `constituency` field). Fails closed: a POI with no constituency
+// value set is only visible to canSeeAll roles.
+const isPoiInScope = (poi, scope) => {
+    if (!scope || scope.canSeeAll) return true;
+    if (!poi || !poi.constituency) return false;
+    return (scope.constituencyKeys || new Set()).has(normalizeScopeKey(poi.constituency));
+};
+
+const denyPoiAccess = (res) => res.status(403).json({
+    code: 'CONSTITUENCY_FORBIDDEN',
+    message: 'You are not authorized to view this record',
+});
 
 // GET /api/poi — List all POIs
 const getAllPOIs = async (req, res) => {
@@ -91,6 +107,9 @@ const getPOIById = async (req, res) => {
         if (!poi) {
             return res.status(404).json({ message: 'Person of interest not found' });
         }
+        if (!isPoiInScope(poi, req.scope)) {
+            return denyPoiAccess(res);
+        }
         res.json(poi);
     } catch (error) {
         console.error('[POI] Error fetching POI:', error.message);
@@ -147,6 +166,14 @@ const createPOI = async (req, res) => {
 // PUT /api/poi/:id — Update POI
 const updatePOI = async (req, res) => {
     try {
+        const existing = await POI.findById(req.params.id).lean();
+        if (!existing) {
+            return res.status(404).json({ message: 'Person of interest not found' });
+        }
+        if (!isPoiInScope(existing, req.scope)) {
+            return denyPoiAccess(res);
+        }
+
         const poi = await POI.findByIdAndUpdate(
             req.params.id,
             { $set: req.body },
@@ -212,6 +239,14 @@ const getLatestReport = async (req, res) => {
 // DELETE /api/poi/:id — Delete POI
 const deletePOI = async (req, res) => {
     try {
+        const existing = await POI.findById(req.params.id).lean();
+        if (!existing) {
+            return res.status(404).json({ message: 'Person of interest not found' });
+        }
+        if (!isPoiInScope(existing, req.scope)) {
+            return denyPoiAccess(res);
+        }
+
         const poi = await POI.findByIdAndDelete(req.params.id);
 
         if (!poi) {

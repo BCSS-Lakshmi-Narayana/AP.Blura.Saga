@@ -12,6 +12,7 @@ const normalizeRoutePath = (value) => {
     if (path.startsWith('/reports/generate/')) return '/reports';
     if (path.startsWith('/instagram-monitor/')) return '/instagram-monitor';
     if (path.startsWith('/person-of-interest/')) return '/person-of-interest';
+    if (path.startsWith('/mla/')) return '/mla';
 
     return path;
 };

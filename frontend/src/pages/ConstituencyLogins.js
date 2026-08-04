@@ -65,6 +65,8 @@ const ProvisionModal = ({ entity, kind, existingUser, onClose, onSaved }) => {
     password: '',
     full_name: existingUser?.full_name || defaultName,
     role: existingUser?.role || (kind === 'mp' ? 'mp' : 'mla'),
+    assigned_constituency: existingUser?.assigned_constituency || (kind !== 'mp' ? entity.constituency : ''),
+    assigned_lok_sabha: existingUser?.assigned_lok_sabha || (kind === 'mp' ? entity.lsName : ''),
   });
   const [busy, setBusy] = useState(false);
 
@@ -75,6 +77,11 @@ const ProvisionModal = ({ entity, kind, existingUser, onClose, onSaved }) => {
       if (isEdit) {
         const payload = { full_name: form.full_name };
         if (form.password) payload.password = form.password;
+        if (kind === 'mp') {
+          payload.assigned_lok_sabha = form.assigned_lok_sabha;
+        } else {
+          payload.assigned_constituency = form.assigned_constituency;
+        }
         await api.patch(`/auth/scoped-user/${existingUser.id}`, payload);
         toast.success('Account updated');
       } else {
@@ -169,6 +176,50 @@ const ProvisionModal = ({ entity, kind, existingUser, onClose, onSaved }) => {
               </div>
             )}
           </div>
+          {isEdit && kind !== 'mp' && (
+            <div>
+              <label className="text-[11px] uppercase tracking-wide text-slate-500">
+                Assigned constituency
+              </label>
+              <select
+                value={form.assigned_constituency}
+                onChange={(e) => setForm({ ...form, assigned_constituency: e.target.value })}
+                className="w-full border border-slate-300 rounded-md px-2 py-1.5 text-sm"
+                required
+              >
+                <option value="" disabled>
+                  Select constituency…
+                </option>
+                {AP_MLAS.map((m) => (
+                  <option key={m.key} value={m.constituency}>
+                    {titleCase(m.constituency)}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+          {isEdit && kind === 'mp' && (
+            <div>
+              <label className="text-[11px] uppercase tracking-wide text-slate-500">
+                Assigned Lok Sabha seat
+              </label>
+              <select
+                value={form.assigned_lok_sabha}
+                onChange={(e) => setForm({ ...form, assigned_lok_sabha: e.target.value })}
+                className="w-full border border-slate-300 rounded-md px-2 py-1.5 text-sm"
+                required
+              >
+                <option value="" disabled>
+                  Select Lok Sabha seat…
+                </option>
+                {AP_MPS.map((m) => (
+                  <option key={m.lsId} value={m.lsName}>
+                    {titleCase(m.lsName)}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
           {!isEdit && kind === 'mla' && (
             <div>
               <label className="text-[11px] uppercase tracking-wide text-slate-500">Role</label>
@@ -216,8 +267,8 @@ const ConstituencyLogins = () => {
     try {
       const res = await api.get('/auth/constituency-users');
       setUsers(res.data?.users || []);
-    } catch (_e) {
-      toast.error('Failed to load logins');
+    } catch (err) {
+      toast.error(err?.response?.data?.message || 'Failed to load logins');
     } finally {
       setLoading(false);
     }
@@ -289,8 +340,8 @@ const ConstituencyLogins = () => {
       await api.patch(`/auth/scoped-user/${user.id}`, { is_active: !user.is_active });
       toast.success(user.is_active ? 'Disabled' : 'Re-enabled');
       fetchUsers();
-    } catch (_e) {
-      toast.error('Update failed');
+    } catch (err) {
+      toast.error(err?.response?.data?.message || 'Update failed');
     }
   };
 

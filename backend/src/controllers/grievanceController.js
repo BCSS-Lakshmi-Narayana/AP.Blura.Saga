@@ -1418,11 +1418,19 @@ const recordShare = async (req, res) => {
  */
 const getStats = async (req, res) => {
     try {
-        const cacheKey = `grievances:stats:v2:${JSON.stringify(req.query || {})}`;
+        // RBAC: per-user cache key so scoped MLAs don't see the cached statewide payload.
+        const scopeKey = req.scope?.canSeeAll
+            ? 'all'
+            : [...(req.scope?.constituencyKeys || [])].sort().join(',');
+        const cacheKey = `grievances:stats:v2:scope=${scopeKey}:${JSON.stringify(req.query || {})}`;
         const cached = await cacheService.get(cacheKey);
         if (cached) return res.status(200).json(cached);
 
         const baseQuery = buildListQuery(req.query, { includeTab: false });
+        if (req.scope && !req.scope.canSeeAll) {
+            const { constituencyFilter, mergeFilter } = require('../middleware/scopeMiddleware');
+            mergeFilter(baseQuery, constituencyFilter(req.scope, { extraFields: ['routing_targets.constituencies'] }));
+        }
 
         const [facetRows, activeSources] = await Promise.all([
             Grievance.aggregate([
@@ -1780,18 +1788,24 @@ const getSentimentAnalytics = async (req, res) => {
 const getSentimentLeaders = async (req, res) => {
     try {
         const limit = Math.max(1, Math.min(Number(req.query.limit) || 100, 100));
-        const cacheKey = `grievances:sentiment-leaders:v1:${limit}`;
+        const { constituencyFilter, mergeFilter } = require('../middleware/scopeMiddleware');
+        const scopeMatch = req.scope?.canSeeAll ? {} : constituencyFilter(req.scope, { extraFields: ['routing_targets.constituencies'] });
+        // RBAC: per-user cache key so scoped MLAs don't see the cached statewide payload.
+        const scopeKey = req.scope?.canSeeAll
+            ? 'all'
+            : [...(req.scope?.constituencyKeys || [])].sort().join(',');
+        const cacheKey = `grievances:sentiment-leaders:v1:${limit}:scope=${scopeKey}`;
         const cached = await cacheService.get(cacheKey);
         if (cached) return res.status(200).json(cached);
 
         const buildLeaderboard = async (sentimentValue) => {
             const rows = await Grievance.aggregate([
                 {
-                    $match: {
+                    $match: mergeFilter({
                         is_active: true,
                         'analysis.sentiment': sentimentValue,
                         'posted_by.handle': { $exists: true, $ne: null, $ne: '' }
-                    }
+                    }, scopeMatch)
                 },
                 {
                     $addFields: {
@@ -2263,14 +2277,20 @@ const { isAndhraPradeshLocation } = require('../config/andhraPradeshLocations');
  */
 const getLocationStats = async (req, res) => {
     try {
-        const cacheKey = 'grievances:location-stats:v1';
+        // RBAC: per-user cache key so scoped MLAs don't see the cached statewide payload.
+        const scopeKey = req.scope?.canSeeAll
+            ? 'all'
+            : [...(req.scope?.constituencyKeys || [])].sort().join(',');
+        const cacheKey = `grievances:location-stats:v1:scope=${scopeKey}`;
         const cached = await cacheService.get(cacheKey);
         if (cached) {
             res.set('Cache-Control', 'private, max-age=30');
             return res.status(200).json(cached);
         }
 
-        const baseMatch = { is_active: true };
+        const { constituencyFilter, mergeFilter } = require('../middleware/scopeMiddleware');
+        const scopeMatch = req.scope?.canSeeAll ? {} : constituencyFilter(req.scope, { extraFields: ['routing_targets.constituencies'] });
+        const baseMatch = mergeFilter({ is_active: true }, scopeMatch);
 
         const [cityAgg, districtAgg, constituencyAgg] = await Promise.all([
             Grievance.aggregate([

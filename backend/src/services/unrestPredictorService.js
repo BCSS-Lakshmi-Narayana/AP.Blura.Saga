@@ -179,7 +179,31 @@ async function computeAllScores(windowDays = 7) {
 
   scores.sort((a, b) => b.score - a.score);
 
-  // Build district summary
+  return {
+    window_days: windowDays,
+    computed_at: now,
+    summary: buildSummary(scores),
+    constituencies: scores,
+    districts: buildDistrictSummary(scores)
+  };
+}
+
+// Pure functions of a `constituencies` (scores) array — split out so a caller
+// (e.g. the RBAC route layer, for scoped mla/mp/nara_lokesh users) can
+// recompute these from a constituency-filtered subset instead of the full
+// statewide list, without duplicating this aggregation logic.
+function buildSummary(scores) {
+  return {
+    total_constituencies: scores.length,
+    critical: scores.filter(s => s.level === 'critical').length,
+    high_alert: scores.filter(s => s.level === 'high_alert').length,
+    elevated: scores.filter(s => s.level === 'elevated').length,
+    watch: scores.filter(s => s.level === 'watch').length,
+    calm: scores.filter(s => s.level === 'calm').length
+  };
+}
+
+function buildDistrictSummary(scores) {
   const districtMap = {};
   scores.forEach(s => {
     const d = s.district || 'Unknown';
@@ -195,23 +219,7 @@ async function computeAllScores(windowDays = 7) {
     }
     if (s.score >= 41) dm.elevated_count++;
   });
-
-  const summary = {
-    total_constituencies: scores.length,
-    critical: scores.filter(s => s.level === 'critical').length,
-    high_alert: scores.filter(s => s.level === 'high_alert').length,
-    elevated: scores.filter(s => s.level === 'elevated').length,
-    watch: scores.filter(s => s.level === 'watch').length,
-    calm: scores.filter(s => s.level === 'calm').length
-  };
-
-  return {
-    window_days: windowDays,
-    computed_at: now,
-    summary,
-    constituencies: scores,
-    districts: districtMap
-  };
+  return districtMap;
 }
 
 async function getConstituencyDetail(name, windowDays = 7) {
@@ -377,4 +385,4 @@ async function getDailyTrend(name, days = 30) {
   }));
 }
 
-module.exports = { computeAllScores, getConstituencyDetail, getDailyTrend };
+module.exports = { computeAllScores, getConstituencyDetail, getDailyTrend, buildSummary, buildDistrictSummary };
