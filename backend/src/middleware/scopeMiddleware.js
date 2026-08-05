@@ -19,7 +19,7 @@
  */
 
 const { normalizeRole } = require('../utils/authIdentity');
-const { getMlaByConstituency } = require('../services/mlaReferenceService');
+const { getMlaByConstituency, getAllMlas } = require('../services/mlaReferenceService');
 const LS_TO_AC = require('../data/ls_to_ac.json');
 const ConstituencyMaster = require('../models/ConstituencyMaster');
 
@@ -30,10 +30,19 @@ const normalizeKey = (value) =>
     .replace(/[^a-z0-9]/g, '')
     .trim();
 
+// Roles that are ALWAYS row-level scoped, by definition of the role itself.
 const SCOPED_ROLES = new Set(['mla', 'mp', 'nara_lokesh', 'constituency_manager']);
 
-// Roles that see every constituency but are NOT super admins (read-only state view).
-const STATEWIDE_READ_ROLES = new Set(['party_leadership']);
+// Any other role (level-1, level-2, analyst, viewer, dial100, …) is scoped only
+// when the super admin explicitly opted that individual user in via the
+// `is_scoped` flag at onboarding. See User.is_scoped for why this is opt-in
+// rather than role-wide: flipping every legacy account to scoped at once would
+// blank out users who have no seat assigned.
+const isScopedUser = (user, role) => {
+  if (role === 'superadmin') return false;
+  if (SCOPED_ROLES.has(role)) return true;
+  return user?.is_scoped === true;
+};
 
 // Resolve a Lok Sabha key to its child AC names. Accepts the LS slug
 // (`tirupati`) or a display name (`Tirupati (SC)`).
@@ -44,6 +53,108 @@ const childAcsForLs = (ls) => {
   const key = normalizeKey(ls);
   const hit = Object.keys(LS_TO_AC).find((k) => normalizeKey(k) === key);
   return hit ? LS_TO_AC[hit] : [];
+};
+
+// ── Seat-name validation ──────────────────────────────────────────────────
+// A misspelt constituency is worse than a rejected one: `constituencyFilter`
+// would build a regex that matches no documents, silently handing the user a
+// blank app instead of an error. So assignments are canonicalised against the
+// real seat lists at write time, and rejected outright if unrecognised.
+
+// Union of every AC name we know: the LS→AC map plus the MLA reference list
+// (the two datasets differ slightly in spelling and coverage).
+const KNOWN_AC_NAMES = (() => {
+  const byKey = new Map();
+  Object.values(LS_TO_AC).flat().forEach((ac) => {
+    const k = normalizeKey(ac);
+    if (k && !byKey.has(k)) byKey.set(k, ac);
+  });
+  (getAllMlas() || []).forEach((m) => {
+    const k = normalizeKey(m.constituency);
+    if (k && !byKey.has(k)) byKey.set(k, m.constituency);
+  });
+  return byKey;
+})();
+
+const KNOWN_LS_NAMES = (() => {
+  const byKey = new Map();
+  Object.keys(LS_TO_AC).forEach((ls) => {
+    const k = normalizeKey(ls);
+    if (k) byKey.set(k, ls);
+  });
+  return byKey;
+})();
+
+/** Canonical AC name for a user-supplied value, or null if unrecognised. */
+const resolveConstituencyName = (raw) => {
+  const key = normalizeKey(raw);
+  if (!key) return null;
+  return KNOWN_AC_NAMES.get(key) || null;
+};
+
+/** Canonical Lok Sabha seat name for a user-supplied value, or null. */
+const resolveLokSabhaName = (raw) => {
+  const key = normalizeKey(raw);
+  if (!key) return null;
+  return KNOWN_LS_NAMES.get(key) || null;
+};
+
+/**
+ * Normalise and validate the row-level scope assignment on a user create /
+ * update payload. Returns `{ error }` on bad input, else `{ value }` with the
+ * canonicalised fields ready to spread onto a User document.
+ *
+ * Accepts a `constituencies` array — one or many. The User model splits them
+ * into a primary `assigned_constituency` plus `extra_constituencies`, which is
+ * what `buildScope` already reads, so no schema change is needed to support
+ * multiple seats.
+ *
+ * Shared by POST /auth/register and PUT /rbac/users/:userId so both entry
+ * points enforce identical rules.
+ */
+const resolveScopeAssignment = (body = {}, { role } = {}) => {
+  const wantsScope = body.is_scoped === true || body.is_scoped === 'true';
+
+  // Super admins are never row-level scoped — refuse the contradictory combo
+  // outright rather than silently dropping the assignment.
+  if (normalizeRole(role) === 'superadmin' && wantsScope) {
+    return { error: 'A superadmin cannot be restricted to a constituency' };
+  }
+
+  // Accept either the array form or the legacy single-seat fields, so the
+  // existing /provision-mla flow keeps working unchanged.
+  const raw = Array.isArray(body.constituencies)
+    ? body.constituencies
+    : [body.assigned_constituency];
+
+  const seats = [];
+  for (const name of raw) {
+    if (!name) continue;
+    const canonical = resolveConstituencyName(name);
+    if (!canonical) return { error: `Unknown constituency: ${name}` };
+    if (!seats.includes(canonical)) seats.push(canonical);
+  }
+
+  const out = {
+    is_scoped: wantsScope,
+    assigned_constituency: seats[0] || null,
+    assigned_lok_sabha: null,
+    extra_constituencies: seats.slice(1),
+  };
+
+  if (body.assigned_lok_sabha) {
+    const canonical = resolveLokSabhaName(body.assigned_lok_sabha);
+    if (!canonical) return { error: `Unknown Lok Sabha seat: ${body.assigned_lok_sabha}` };
+    out.assigned_lok_sabha = canonical;
+  }
+
+  // A scoped user with no seats resolves to "match nothing" downstream, which
+  // reads as a broken account. Require at least one assignment up front.
+  if (wantsScope && !out.assigned_constituency && !out.assigned_lok_sabha) {
+    return { error: 'Select at least one constituency when restricting a user' };
+  }
+
+  return { value: out };
 };
 
 const buildScope = (user) => {
@@ -59,20 +170,11 @@ const buildScope = (user) => {
     };
   }
 
-  if (STATEWIDE_READ_ROLES.has(role)) {
-    // Party leadership: sees everything, but isn't an admin.
-    return {
-      isSuperAdmin: false,
-      canSeeAll: true,
-      role,
-      constituencies: [],
-      constituencyKeys: new Set(),
-      lokSabha: null,
-    };
-  }
-
-  if (!SCOPED_ROLES.has(role)) {
-    // Legacy/back-office roles keep full visibility for now.
+  // An explicit per-user opt-in outranks the statewide-read and legacy
+  // fall-throughs below: if an admin assigned this account a seat, honour it.
+  if (!isScopedUser(user, role)) {
+    // Party leadership sees everything but isn't an admin; legacy/back-office
+    // roles keep full visibility until someone opts them in.
     return {
       isSuperAdmin: false,
       canSeeAll: true,
@@ -89,9 +191,11 @@ const buildScope = (user) => {
     if (c) constituencies.push(c);
   });
 
-  // MP role: expand the LS seat into all of its child ACs so the MP sees
-  // grievances / alerts / sentiment across the whole parliamentary seat.
-  if (role === 'mp' && user.assigned_lok_sabha) {
+  // Expand an assigned LS seat into all of its child ACs so the holder sees
+  // grievances / alerts / sentiment across the whole parliamentary seat. Keyed
+  // off the assignment rather than the `mp` role, so an opted-in level-1 user
+  // granted a Lok Sabha seat gets the same fan-out.
+  if (user.assigned_lok_sabha) {
     const childAcs = childAcsForLs(user.assigned_lok_sabha);
     childAcs.forEach((ac) => {
       if (!constituencies.some((c) => normalizeKey(c) === normalizeKey(ac))) {
@@ -135,9 +239,9 @@ const requireConstituencyAccess = (getConstituency) => (req, res, next) => {
   const key = normalizeKey(raw);
   if (req.scope.constituencyKeys.has(key)) return next();
 
-  // If the user is an MP, accept any AC inside their LS seat. Resolving the
+  // If the caller holds an LS seat, accept any AC inside it. Resolving the
   // LS-AC mapping at runtime keeps this dependency-free.
-  if (req.scope.role === 'mp' && req.scope.lokSabha) {
+  if (req.scope.lokSabha) {
     const mla = getMlaByConstituency(raw);
     if (mla && normalizeKey(mla.lok_sabha) === normalizeKey(req.scope.lokSabha)) return next();
   }
@@ -297,6 +401,8 @@ const loadGeoScope = async (req, res, next) => {
 module.exports = {
   loadScope,
   buildScope,
+  isScopedUser,
+  resolveScopeAssignment,
   requireConstituencyAccess,
   constituencyFilter,
   mergeFilter,

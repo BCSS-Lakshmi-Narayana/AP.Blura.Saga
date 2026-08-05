@@ -10,7 +10,9 @@ const {
 } = require('../controllers/authController');
 const { protect } = require('../middleware/authMiddleware');
 
-router.post('/register', register);
+// Superadmin-only: creating accounts is an admin action, enforced in the
+// controller. Previously unauthenticated, which allowed self-provisioning.
+router.post('/register', protect, register);
 router.post('/login', login);
 router.get('/me', protect, getMe);
 router.post('/provision-mla', protect, provisionScopedUser);

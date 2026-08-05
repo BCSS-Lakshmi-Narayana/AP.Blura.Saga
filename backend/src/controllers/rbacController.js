@@ -1,6 +1,7 @@
 const PagePermission = require('../models/PagePermission');
 const User = require('../models/User');
 const { ALL_PAGES, PAGE_FEATURES } = require('../config/rbacConfig');
+const { resolveScopeAssignment } = require('../middleware/scopeMiddleware');
 
 // Constituency-scoped officer roles (MLA / MP / Nara Lokesh). These accounts
 // are provisioned directly (see authController.provisionScopedUser) and never
@@ -176,7 +177,7 @@ const getAllPages = async (req, res) => {
 const getAllUsers = async (req, res) => {
   try {
     const users = await User.find({})
-      .select('id email full_name role is_active')
+      .select('id email full_name role is_active is_scoped assigned_constituency assigned_lok_sabha extra_constituencies')
       .sort({ full_name: 1 });
     res.json(users);
   } catch (error) {
@@ -353,6 +354,16 @@ const updateUser = async (req, res) => {
     user.email = email || user.email;
     user.role = role || user.role;
 
+    // Scope assignment is only rewritten when the payload actually carries it,
+    // so callers that just rename a user don't accidentally clear their seats.
+    if ('is_scoped' in req.body || 'constituencies' in req.body) {
+      const { value: scope, error: scopeError } = resolveScopeAssignment(req.body, { role: user.role });
+      if (scopeError) {
+        return res.status(400).json({ message: scopeError });
+      }
+      Object.assign(user, scope);
+    }
+
     // Only update password if provided
     if (password && password.trim() !== '') {
       const bcrypt = require('bcryptjs');
@@ -368,7 +379,11 @@ const updateUser = async (req, res) => {
         id: user.id,
         email: user.email,
         full_name: user.full_name,
-        role: user.role
+        role: user.role,
+        is_scoped: user.is_scoped,
+        assigned_constituency: user.assigned_constituency,
+        assigned_lok_sabha: user.assigned_lok_sabha,
+        extra_constituencies: user.extra_constituencies
       }
     });
 

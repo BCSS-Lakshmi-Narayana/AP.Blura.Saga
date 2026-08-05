@@ -72,6 +72,17 @@ const userSchema = new mongoose.Schema({
     type: [String],
     default: []
   },
+  // Opt-in row-level scoping for roles that are NOT inherently scoped
+  // (level-1, level-2, analyst, viewer, …). Those roles historically saw
+  // every constituency, so we cannot narrow them wholesale without blanking
+  // out every existing account. Instead the super admin flips this on when
+  // onboarding the user with a seat assignment; anyone left at false keeps
+  // the legacy state-wide view. Inherently scoped roles (mla / mp /
+  // nara_lokesh / constituency_manager) ignore this field entirely.
+  is_scoped: {
+    type: Boolean,
+    default: false
+  },
   is_active: {
     type: Boolean,
     default: true
