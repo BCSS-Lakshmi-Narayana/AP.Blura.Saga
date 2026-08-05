@@ -6,8 +6,29 @@ const { createAuditLog } = require('../services/auditService');
 const { buildEmailLookup, normalizeEmail, normalizeRole } = require('../utils/authIdentity');
 const AP_MLAS = require('../data/ap_mlas.json');
 const LS_TO_AC = require('../data/ls_to_ac.json');
+const { isScopedUser, resolveScopeAssignment } = require('../middleware/scopeMiddleware');
+const PagePermission = require('../models/PagePermission');
+const { ALL_PAGES, PAGE_FEATURES } = require('../config/rbacConfig');
 
-const SCOPED_ROLES = new Set(['mla', 'mp', 'nara_lokesh']);
+// Roles that may be provisioned through the dedicated /provision-mla flow.
+const PROVISIONABLE_SCOPED_ROLES = new Set(['mla', 'mp', 'nara_lokesh']);
+
+// Pages a newly created user gets by default: everything except the admin
+// console itself, which stays superadmin-only. The intent of a scoped account
+// is "the whole product, but only my constituencies' data" — so the narrowing
+// is done by row-level scope, not by hiding pages.
+const DEFAULT_PAGE_PATHS = ALL_PAGES
+  .map((page) => page.path)
+  .filter((path) => path !== '/access-management');
+
+// Enable every feature of each default page; feature-level trimming is a
+// deliberate per-user decision made later in Access Management.
+const buildDefaultPagePermissions = () => Object.fromEntries(
+  DEFAULT_PAGE_PATHS.map((path) => [
+    path,
+    { enabled: true, features: (PAGE_FEATURES[path] || []).map((f) => f.id) },
+  ])
+);
 
 // Static fallback key sets, used only when the DB-backed ConstituencyMaster
 // collection has no match for a given seat (e.g. not yet synced in this
@@ -42,7 +63,9 @@ const isValidLokSabha = (name) => {
 const buildUserPayload = (user) => {
   const role = normalizeRole(user.role);
   const isSuperAdmin = role === 'superadmin';
-  const isScoped = SCOPED_ROLES.has(role);
+  // Reflects the effective scoping decision (inherent role OR the per-user
+  // opt-in flag), not just the role, so the client can render the right view.
+  const isScoped = isScopedUser(user, role);
   return {
     id: user.id,
     email: user.email,
@@ -68,9 +91,16 @@ const generateToken = (id) => {
 
 // @desc    Register new user
 // @route   POST /api/auth/register
-// @access  Public
+// @access  Private (superadmin only)
 const register = async (req, res) => {
   try {
+    // Account creation is an admin action. This endpoint used to be public,
+    // which let anyone self-provision — including at superadmin role, and
+    // including unscoped accounts that bypass constituency restrictions.
+    if (normalizeRole(req.user?.role) !== 'superadmin') {
+      return res.status(403).json({ message: 'Only a superadmin can create users' });
+    }
+
     const { password, full_name, role } = req.body;
     const email = normalizeEmail(req.body?.email);
 
@@ -85,6 +115,12 @@ const register = async (req, res) => {
       return res.status(400).json({ message: 'User already exists' });
     }
 
+    const resolvedRole = role || 'level-1';
+    const { value: scope, error: scopeError } = resolveScopeAssignment(req.body, { role: resolvedRole });
+    if (scopeError) {
+      return res.status(400).json({ message: scopeError });
+    }
+
     // Hash password
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
@@ -94,8 +130,24 @@ const register = async (req, res) => {
       email,
       password: hashedPassword,
       full_name: String(full_name).trim(),
-      role: role || 'level-1'
+      role: resolvedRole,
+      ...scope,
     });
+
+    // Grant the default page set. Without a PagePermission document the RBAC
+    // layer falls back to "/dashboard only", so a freshly created user hit
+    // Access Denied on every other page — the account looked broken even
+    // though its constituency scope was correct. Page access and row-level
+    // scope are independent: this opens the pages, while `is_scoped` narrows
+    // the data within them. Tune per user afterwards in Access Management.
+    if (normalizeRole(user.role) !== 'superadmin') {
+      await PagePermission.create({
+        user_id: user.id,
+        allowed_pages: DEFAULT_PAGE_PATHS,
+        permissions: buildDefaultPagePermissions(),
+        updated_by: req.user.id,
+      });
+    }
 
     if (user) {
       res.status(201).json({
@@ -103,6 +155,10 @@ const register = async (req, res) => {
         email: user.email,
         full_name: user.full_name,
         role: user.role,
+        is_scoped: user.is_scoped,
+        assigned_constituency: user.assigned_constituency,
+        assigned_lok_sabha: user.assigned_lok_sabha,
+        extra_constituencies: user.extra_constituencies,
         created_at: user.created_at
       });
     } else {
@@ -188,7 +244,7 @@ const provisionScopedUser = async (req, res) => {
       return res.status(400).json({ message: 'email, password, full_name required' });
     }
     const normalizedRole = normalizeRole(role);
-    if (!SCOPED_ROLES.has(normalizedRole)) {
+    if (!PROVISIONABLE_SCOPED_ROLES.has(normalizedRole)) {
       return res.status(400).json({ message: 'role must be mla, mp, or nara_lokesh' });
     }
     if ((normalizedRole === 'mla' || normalizedRole === 'nara_lokesh') && !assigned_constituency) {
@@ -268,7 +324,7 @@ const updateScopedUser = async (req, res) => {
 
     const user = await User.findOne({ id });
     if (!user) return res.status(404).json({ message: 'User not found' });
-    if (!SCOPED_ROLES.has(normalizeRole(user.role))) {
+    if (!PROVISIONABLE_SCOPED_ROLES.has(normalizeRole(user.role))) {
       return res.status(400).json({ message: 'Only scoped users can be edited here' });
     }
 

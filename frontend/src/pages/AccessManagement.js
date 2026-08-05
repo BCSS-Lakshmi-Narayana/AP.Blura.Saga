@@ -1,9 +1,56 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { Navigate } from 'react-router-dom';
-import { ShieldCheck, Check, Users, Crown, Plus, X, Save, UserPlus, ChevronDown, Edit2, Trash2 } from 'lucide-react';
+import { ShieldCheck, Check, Users, Crown, Plus, X, Save, UserPlus, ChevronDown, Edit2, Trash2, MapPin } from 'lucide-react';
 import { toast } from 'sonner';
 import api from '../lib/api';
+import ScopeAssignmentFields from '../components/access/ScopeAssignmentFields';
+import { roleLabel, ASSIGNABLE_ROLES } from '../lib/roleLabels';
+
+// Blank scope assignment, shared by the create and edit forms.
+const EMPTY_SCOPE = {
+    is_scoped: false,
+    constituencies: []
+};
+
+const normalizeRole = (role) => (role === 'super_admin' ? 'superadmin' : role);
+
+
+/** The seats a user is restricted to, flattened from the API's split fields. */
+const userConstituencies = (u) => [
+    ...(u?.assigned_constituency ? [u.assigned_constituency] : []),
+    ...(u?.extra_constituencies || [])
+];
+
+/** Short human label for a user's area restriction, or '' if unrestricted. */
+const scopeSummary = (u) => {
+    if (!u?.is_scoped) return '';
+    const seats = userConstituencies(u);
+    if (seats.length === 0) return '';
+    if (seats.length <= 2) return seats.join(', ');
+    return `${seats.slice(0, 2).join(', ')} +${seats.length - 2} more`;
+};
+
+/**
+ * Reconcile the scope fields on a form payload before it hits the API.
+ * Superadmins can never be scoped, and a restricted user must carry at least
+ * one seat — the backend rejects both, so catch them here for a clearer error.
+ * Returns `{ payload }` or `{ error }`.
+ */
+const prepareScopePayload = (form) => {
+    const payload = { ...form };
+
+    if (normalizeRole(payload.role) === 'superadmin') {
+        payload.is_scoped = false;
+        payload.constituencies = [];
+    }
+
+    if (payload.is_scoped && (payload.constituencies || []).length === 0) {
+        return { error: 'Select at least one constituency for the restricted user.' };
+    }
+
+    return { payload };
+};
 
 const AccessManagement = () => {
     const { user } = useAuth();
@@ -26,7 +73,8 @@ const AccessManagement = () => {
         full_name: '',
         email: '',
         password: '',
-        role: 'level-1'
+        role: 'level-1',
+        ...EMPTY_SCOPE
     });
     const [creatingUser, setCreatingUser] = useState(false);
 
@@ -36,7 +84,8 @@ const AccessManagement = () => {
         full_name: '',
         email: '',
         password: '',
-        role: 'level-1'
+        role: 'level-1',
+        ...EMPTY_SCOPE
     });
     const [updatingUser, setUpdatingUser] = useState(false);
     const [deletingUser, setDeletingUser] = useState(false);
@@ -187,9 +236,15 @@ const AccessManagement = () => {
 
     const handleCreateUser = async (e) => {
         e.preventDefault();
+        const { payload, error: scopeError } = prepareScopePayload(newUserForm);
+        if (scopeError) {
+            toast.error(scopeError);
+            return;
+        }
+
         try {
             setCreatingUser(true);
-            await api.post('/auth/register', newUserForm);
+            await api.post('/auth/register', payload);
 
             toast.success(`User ${newUserForm.full_name} created successfully!`);
 
@@ -201,7 +256,8 @@ const AccessManagement = () => {
                 full_name: '',
                 email: '',
                 password: '',
-                role: 'level-1'
+                role: 'level-1',
+                ...EMPTY_SCOPE
             });
         } catch (error) {
             const msg = error.response?.data?.message || 'Failed to create user. Email may already exist.';
@@ -217,7 +273,9 @@ const AccessManagement = () => {
             full_name: selectedUser.full_name,
             email: selectedUser.email,
             password: '', // Blank password means don't change it
-            role: selectedUser.role
+            role: selectedUser.role,
+            is_scoped: Boolean(selectedUser.is_scoped),
+            constituencies: userConstituencies(selectedUser)
         });
         setShowEditModal(true);
     };
@@ -226,9 +284,14 @@ const AccessManagement = () => {
         e.preventDefault();
         if (!selectedUser) return;
 
+        const { payload, error: scopeError } = prepareScopePayload(editUserForm);
+        if (scopeError) {
+            toast.error(scopeError);
+            return;
+        }
+
         try {
             setUpdatingUser(true);
-            const payload = { ...editUserForm };
             // If password is empty, remove it from the payload
             if (!payload.password) {
                 delete payload.password;
@@ -356,7 +419,8 @@ const AccessManagement = () => {
                                     <option value="">Select an officer...</option>
                                     {users.map(u => (
                                         <option key={u.id} value={u.id}>
-                                            {u.full_name} ({u.role})
+                                            {u.full_name} ({roleLabel(u.role)})
+                                            {scopeSummary(u) ? ` — ${scopeSummary(u)}` : ''}
                                         </option>
                                     ))}
                                 </select>
@@ -379,7 +443,7 @@ const AccessManagement = () => {
                                 <div className="flex items-center gap-2 mt-3">
                                     <span className={`px-2 py-1 text-xs font-medium rounded-md border ${getRoleColor(selectedUser.role)}`}>
                                         {selectedUser.role === 'superadmin' && <Crown size={12} className="inline mr-1" />}
-                                        {selectedUser.role.toUpperCase()}
+                                        {roleLabel(selectedUser.role).toUpperCase()}
                                     </span>
                                     {hasCustomPermissions && (
                                         <span className="px-2 py-1 text-xs font-medium rounded-md bg-amber-50 text-amber-700 border border-amber-200">
@@ -387,6 +451,14 @@ const AccessManagement = () => {
                                         </span>
                                     )}
                                 </div>
+                                {scopeSummary(selectedUser) && (
+                                    <p className="mt-2 text-xs text-gray-600 flex items-center gap-1.5">
+                                        <MapPin size={12} className="text-indigo-500 shrink-0" />
+                                        <span className="truncate">
+                                            Restricted to <span className="font-medium text-gray-800">{scopeSummary(selectedUser)}</span>
+                                        </span>
+                                    </p>
+                                )}
 
                                 {/* Edit/Delete Actions */}
                                 {selectedUser.role !== 'superadmin' && (
@@ -495,7 +567,7 @@ const AccessManagement = () => {
                                     <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mb-4">
                                         <Crown size={28} className="text-purple-600" />
                                     </div>
-                                    <h3 className="text-gray-700 font-medium mb-1">Super Admin Access</h3>
+                                    <h3 className="text-gray-700 font-medium mb-1">Leader Access</h3>
                                     <p className="text-sm text-gray-500 max-w-xs">Super admins have unrestricted access to all modules and features</p>
                                 </div>
                             ) : loadingPerms ? (
@@ -661,11 +733,16 @@ const AccessManagement = () => {
                                         value={newUserForm.role}
                                         onChange={(e) => setNewUserForm({ ...newUserForm, role: e.target.value })}
                                     >
-                                        <option value="level-1">Level 1</option>
-                                        <option value="level-2">Level 2</option>
-                                        <option value="superadmin">Super Admin</option>
+                                        {ASSIGNABLE_ROLES.map((r) => (
+                                            <option key={r} value={r}>{roleLabel(r)}</option>
+                                        ))}
                                     </select>
                                 </div>
+                                <ScopeAssignmentFields
+                                    role={newUserForm.role}
+                                    value={newUserForm}
+                                    onChange={(next) => setNewUserForm({ ...newUserForm, ...next })}
+                                />
                                 <div className="flex gap-3 pt-4">
                                     <button
                                         type="button"
@@ -752,11 +829,18 @@ const AccessManagement = () => {
                                             value={editUserForm.role}
                                             onChange={(e) => setEditUserForm({ ...editUserForm, role: e.target.value })}
                                         >
-                                            <option value="level-1">Level 1</option>
-                                            <option value="level-2">Level 2</option>
-                                            <option value="superadmin">Super Admin</option>
+                                            {/* Existing level-2 users keep their role; it stays
+                                                selectable only if they already have it. */}
+                                            {[...new Set([...ASSIGNABLE_ROLES, editUserForm.role])].map((r) => (
+                                                <option key={r} value={r}>{roleLabel(r)}</option>
+                                            ))}
                                         </select>
                                     </div>
+                                    <ScopeAssignmentFields
+                                        role={editUserForm.role}
+                                        value={editUserForm}
+                                        onChange={(next) => setEditUserForm({ ...editUserForm, ...next })}
+                                    />
                                     <div className="flex gap-3 pt-4">
                                         <button
                                             type="button"

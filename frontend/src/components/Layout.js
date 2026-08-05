@@ -23,6 +23,7 @@ import {
 import { Button } from './ui/button';
 import { toast } from 'sonner';
 import { TDP_HERO, LOCAL_FALLBACK } from '../config/tdpMedia';
+import { roleLabel } from '../lib/roleLabels';
 
 const Layout = () => {
   const { user, logout } = useAuth();
@@ -198,7 +199,7 @@ const Layout = () => {
                   {user?.full_name}
                 </div>
                 <div className="text-[10px] lg:text-xs text-yellow-50 font-semibold uppercase tracking-wide">
-                  {user?.role}
+                  {roleLabel(user?.role)}
                 </div>
               </div>
               <Button
