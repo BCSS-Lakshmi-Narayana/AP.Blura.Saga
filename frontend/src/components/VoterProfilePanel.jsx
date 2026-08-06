@@ -374,18 +374,22 @@ const EngagementChannel = ({ channel, constituency }) => {
 };
 
 const VoterProfilePanel = ({ profile, loading, topIssues = [], constituencyDisplayName, dense = false, sectionNumber }) => {
-  const [boothAvailable, setBoothAvailable] = useState(false);
+  // null while the probe is in flight, then true/false. The drill-down button
+  // renders for EVERY seat regardless — this only decides its wording, since
+  // a seat with no roll opens the panel on the upload flow instead of a grid.
+  const [boothAvailable, setBoothAvailable] = useState(null);
   const [boothModalOpen, setBoothModalOpen] = useState(false);
 
   useEffect(() => {
     const constName = profile?.constituency;
-    if (!constName) { setBoothAvailable(false); return; }
+    if (!constName) { setBoothAvailable(null); return undefined; }
     let cancelled = false;
+    setBoothAvailable(null);
     api.get(`/voter-profiles/${encodeURIComponent(constName)}/booths`)
       .then((res) => { if (!cancelled) setBoothAvailable(Boolean(res.data?.success)); })
       .catch(() => { if (!cancelled) setBoothAvailable(false); });
     return () => { cancelled = true; };
-  }, [profile?.constituency]);
+  }, [profile?.constituency, boothModalOpen]);
 
   if (loading) {
     return <div className="h-64 flex items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-slate-400" /></div>;
@@ -433,6 +437,7 @@ const VoterProfilePanel = ({ profile, loading, topIssues = [], constituencyDispl
         onClose={() => setBoothModalOpen(false)}
         constituency={constituency}
         constituencyDisplayName={acDisplay}
+        acNumber={profile.ac_number}
       />
 
       {/* Row 1 — top stat strip (all real) */}
@@ -454,17 +459,23 @@ const VoterProfilePanel = ({ profile, loading, topIssues = [], constituencyDispl
           <div className="flex flex-col h-full">
             <GenderDonut male={profile.electors_male} female={profile.electors_female} other={profile.electors_other} />
             {/* Booth-level drill-down sits here, directly under the seat-wide
-                split it breaks down. Only rendered where we have the data. */}
-            {boothAvailable && (
-              <button
-                type="button"
-                onClick={() => setBoothModalOpen(true)}
-                className="group mt-3 w-full inline-flex items-center justify-center gap-1.5 rounded-lg border border-violet-200 bg-gradient-to-r from-violet-50 to-indigo-50 text-violet-700 px-3 py-2.5 text-[11px] font-semibold hover:from-violet-100 hover:to-indigo-100 hover:border-violet-300 transition-all active:scale-[0.98]"
-              >
-                <LayoutGrid className="h-3.5 w-3.5" />
-                View booth-level data
-                <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
-              </button>
+                split it breaks down. Rendered for every seat: where no roll
+                has been uploaded yet, the panel opens on the upload flow. */}
+            <button
+              type="button"
+              onClick={() => setBoothModalOpen(true)}
+              className="group mt-3 w-full inline-flex items-center justify-center gap-1.5 rounded-lg border border-violet-200 bg-gradient-to-r from-violet-50 to-indigo-50 text-violet-700 px-3 py-2.5 text-[11px] font-semibold hover:from-violet-100 hover:to-indigo-100 hover:border-violet-300 transition-all active:scale-[0.98]"
+            >
+              <LayoutGrid className="h-3.5 w-3.5" />
+              View booth-level data
+              <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+            </button>
+            {boothAvailable === false && (
+              /* Neutral wording: only allowlisted accounts can actually add a
+                 roll, and the panel itself decides whether to offer that. */
+              <div className="mt-1.5 text-center text-[10px] text-slate-400">
+                No booth-level roll uploaded yet
+              </div>
             )}
           </div>
         </PanelCard>

@@ -84,7 +84,7 @@ const getVoterProfile = (req, res) => {
 /* GET /api/voter-profiles/:constituency/booths — booth (polling-station)
  * level voter demographics for one seat, where sourced. 404 if we don't
  * have booth-level data collected for this constituency yet. */
-const getBoothLevelData = (req, res) => {
+const getBoothLevelData = async (req, res) => {
   try {
     const { constituency } = req.params;
     const decoded = decodeURIComponent(constituency || '');
@@ -97,7 +97,7 @@ const getBoothLevelData = (req, res) => {
       });
     }
 
-    const result = getBoothsByConstituency(decoded);
+    const result = await getBoothsByConstituency(decoded);
     if (!result) {
       return res.status(404).json({
         success: false,
@@ -115,7 +115,7 @@ const getBoothLevelData = (req, res) => {
 /* GET /api/voter-profiles/:constituency/booths/:part/voters — the full
  * voter roll for one booth, paginated + searchable + gender-filterable.
  * Query: page, pageSize, search, gender (all|male|female|third|other). */
-const getBoothVotersHandler = (req, res) => {
+const getBoothVotersHandler = async (req, res) => {
   try {
     const { constituency, part } = req.params;
     const decoded = decodeURIComponent(constituency || '');
@@ -128,7 +128,7 @@ const getBoothVotersHandler = (req, res) => {
       });
     }
 
-    const result = getBoothVoters(decoded, part, {
+    const result = await getBoothVoters(decoded, part, {
       page: req.query.page,
       pageSize: req.query.pageSize,
       search: req.query.search,
@@ -192,7 +192,7 @@ const getBoothSentiment = async (req, res) => {
       return res.status(403).json({ success: false, code: 'CONSTITUENCY_FORBIDDEN', message: 'You are not authorized to view this constituency' });
     }
 
-    const summary = getBoothSummary(decoded, part);
+    const summary = await getBoothSummary(decoded, part);
     if (!summary) {
       return res.status(404).json({ success: false, message: `No booth ${part} on record for "${decoded}"` });
     }

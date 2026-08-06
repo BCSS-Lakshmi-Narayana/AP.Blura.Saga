@@ -93,6 +93,7 @@ app.use('/api/constituency-intel', require('./routes/constituencyIntelligenceRou
 app.use('/api/geo-intel', require('./routes/geoIntelRoutes'));
 app.use('/api/dashboard', require('./routes/apDashboardRoutes'));
 app.use('/api/voter-profiles', require('./routes/voterProfileRoutes'));
+app.use('/api/booth-imports', require('./routes/boothImportRoutes'));
 app.use('/api/web-articles', require('./routes/webArticleRoutes'));
 
 // Proxy for Location Service (to share ngrok tunnel)
