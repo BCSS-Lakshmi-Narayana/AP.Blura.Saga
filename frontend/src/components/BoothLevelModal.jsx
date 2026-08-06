@@ -9,6 +9,8 @@ import {
   MessageSquare, ExternalLink,
 } from 'lucide-react';
 import api from '../lib/api';
+import BoothDataManager from './BoothDataManager';
+import BoothRollManager from './BoothRollManager';
 
 /* Panel width per breakpoint. Below `sm` the panel goes full-width and
    overlays instead of pushing — there simply isn't room to shrink into. */
@@ -767,10 +769,24 @@ const VoterListView = ({ constituency, booth, onBack }) => {
   );
 };
 
-const BoothLevelModal = ({ open, onClose, constituency, constituencyDisplayName }) => {
+const BoothLevelModal = ({ open, onClose, constituency, constituencyDisplayName, acNumber }) => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  // A 404 is not a failure — it means this seat simply has no roll yet, which
+  // is what surfaces the upload flow. Kept separate from `error` so a real
+  // fetch failure doesn't invite the operator to re-upload.
+  const [noData, setNoData] = useState(false);
+  // Bumped after a successful import, edit or delete so the panel re-fetches
+  // and lands on whatever roll is live now.
+  const [reloadKey, setReloadKey] = useState(0);
+  // Operator chose "upload / replace" while a roll already exists — show the
+  // uploader over the grid rather than making them delete the roll first.
+  const [replaceMode, setReplaceMode] = useState(false);
+  // Whether THIS account may upload / edit / delete rolls. Asked of the
+  // server rather than derived here, so the frontend never carries its own
+  // copy of the allowlist. Everyone can still READ booth data.
+  const [canManage, setCanManage] = useState(false);
   const [query, setQuery] = useState('');
   const [sort, setSort] = useState('part');
   const [sortMenuOpen, setSortMenuOpen] = useState(false);
@@ -807,25 +823,34 @@ const BoothLevelModal = ({ open, onClose, constituency, constituencyDisplayName 
 
   // Reset the drill-down whenever the panel closes or the seat changes so it
   // always reopens on the booth grid, never a stale voter list.
-  useEffect(() => { setSelectedBooth(null); }, [open, constituency]);
+  useEffect(() => { setSelectedBooth(null); setReplaceMode(false); }, [open, constituency]);
+
+  useEffect(() => {
+    if (!open) return undefined;
+    let cancelled = false;
+    api.get('/booth-imports/access')
+      .then((res) => { if (!cancelled) setCanManage(Boolean(res.data?.can_manage)); })
+      .catch(() => { if (!cancelled) setCanManage(false); });
+    return () => { cancelled = true; };
+  }, [open]);
 
   useEffect(() => {
     if (!open || !constituency) return;
     let cancelled = false;
     setLoading(true);
     setError(null);
+    setNoData(false);
     api.get(`/voter-profiles/${encodeURIComponent(constituency)}/booths`)
       .then((res) => { if (!cancelled) setData(res.data); })
       .catch((err) => {
         if (cancelled) return;
         setData(null);
-        setError(err?.response?.status === 404
-          ? 'Booth-level data has not been collected for this constituency yet.'
-          : 'Could not load booth-level data.');
+        if (err?.response?.status === 404) setNoData(true);
+        else setError('Could not load booth-level data.');
       })
       .finally(() => { if (!cancelled) setLoading(false); });
     return () => { cancelled = true; };
-  }, [open, constituency]);
+  }, [open, constituency, reloadKey]);
 
   const booths = useMemo(() => data?.booths || [], [data]);
 
@@ -966,8 +991,38 @@ const BoothLevelModal = ({ open, onClose, constituency, constituencyDisplayName 
                 <span>{error}</span>
               </motion.div>
             </div>
+          ) : (noData && !canManage) ? (
+            /* Nothing to show and no rights to add anything — say so plainly
+               rather than dangling an upload form that would 403. */
+            <div className="flex-1 flex items-center justify-center px-6">
+              <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="flex flex-col items-center gap-2 text-sm text-slate-500 max-w-sm text-center"
+              >
+                <Info className="h-6 w-6 text-slate-300" />
+                <span>Booth-level data has not been uploaded for this constituency yet.</span>
+              </motion.div>
+            </div>
+          ) : (noData || replaceMode) ? (
+            <BoothDataManager
+              constituency={constituency}
+              acNumber={acNumber}
+              existingRollYear={replaceMode ? data?.roll_year : null}
+              onCancel={replaceMode ? () => setReplaceMode(false) : null}
+              onCommitted={() => { setReplaceMode(false); setReloadKey((k) => k + 1); }}
+            />
           ) : (
             <div className="flex-1 overflow-y-auto">
+              {canManage && (
+                <BoothRollManager
+                  constituencyKey={data?.key}
+                  activeImportId={data?.import_id}
+                  source={data?.source}
+                  onReplace={() => setReplaceMode(true)}
+                  onChanged={() => setReloadKey((k) => k + 1)}
+                />
+              )}
               {/* Overview / Analytics */}
               <div className="px-5 pt-4 pb-3">
                 <div className={`grid gap-2.5 mb-4 ${(panelWidth || 0) >= 760 ? 'grid-cols-4' : 'grid-cols-2'}`}>
